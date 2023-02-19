@@ -1,6 +1,5 @@
 
-#include "src/SimpleSocket.hpp"
-#include "src/BindingSocket.hpp"
+#include "include/webserv.hpp"
 
 int	main()
 {

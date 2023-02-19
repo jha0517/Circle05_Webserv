@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/19 13:16:44 by hyunah            #+#    #+#             */
-/*   Updated: 2023/02/19 14:39:32 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/02/19 15:06:59 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,5 @@ void	SimpleSocket::testConnection(int itemToTest) const{
 }
 
 struct sockaddr_in	SimpleSocket::getAddress(void) const {return (address);}
-int					SimpleSocket::getSock(void) const {return (sock);}
+int					SimpleSocket::getSocket(void) const {return (sock);}
 int					SimpleSocket::getConnection(void) const {return (connection);}
