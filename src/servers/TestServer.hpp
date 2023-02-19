@@ -1,28 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   BindingSocket.hpp                                  :+:      :+:    :+:   */
+/*   TestServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/19 14:08:22 by hyunah            #+#    #+#             */
-/*   Updated: 2023/02/19 15:21:33 by hyunah           ###   ########.fr       */
+/*   Created: 2023/02/19 15:27:35 by hyunah            #+#    #+#             */
+/*   Updated: 2023/02/19 17:03:28 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef BINDINGSOCKET_H
-# define BINDINGSOCKET_H
-# include "SimpleSocket.hpp"
+#ifndef TESTSERVER_H
+# define TESTSERVER_H
+# include "SimpleServer.hpp"
+# include <unistd.h>
+# include <string>
+# include <cstring>
 
-class BindingSocket : public SimpleSocket
+class TestServer : public SimpleServer
 {
 private:
-	BindingSocket(void);
+	char	buffer[30000];
+	int		new_socket;
+	void accepter(void);
+	void handler(void);
+	void responder(void);
 
 public:
-	BindingSocket(int domain, int service, int protocol, int port, u_long interface);
-	~BindingSocket(void);
-	int	connectToNetwork(int sock, struct sockaddr_in * address);
+	TestServer(void);
+	~TestServer(void);
+	void launch(void);
 };
 
 #endif

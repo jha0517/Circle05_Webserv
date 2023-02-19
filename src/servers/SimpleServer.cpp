@@ -1,28 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   BindingSocket.hpp                                  :+:      :+:    :+:   */
+/*   SimpleServer.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/19 14:08:22 by hyunah            #+#    #+#             */
-/*   Updated: 2023/02/19 15:21:33 by hyunah           ###   ########.fr       */
+/*   Created: 2023/02/19 15:27:37 by hyunah            #+#    #+#             */
+/*   Updated: 2023/02/19 16:50:34 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef BINDINGSOCKET_H
-# define BINDINGSOCKET_H
-# include "SimpleSocket.hpp"
+#include "SimpleServer.hpp"
 
-class BindingSocket : public SimpleSocket
+SimpleServer::SimpleServer(int domain, int service, int protocol, int port, u_long interface, int bklg)
 {
-private:
-	BindingSocket(void);
+	socket = new ListeningSocket(domain, service, protocol, port, interface, bklg);
 
-public:
-	BindingSocket(int domain, int service, int protocol, int port, u_long interface);
-	~BindingSocket(void);
-	int	connectToNetwork(int sock, struct sockaddr_in * address);
-};
+}
 
-#endif
+SimpleServer::~SimpleServer()
+{
+	// delete socket;
+}
+
+ListeningSocket * SimpleServer::getListeningSocket(){
+	return (socket);
+}

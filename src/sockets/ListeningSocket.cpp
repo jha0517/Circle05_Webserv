@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/19 14:59:14 by hyunah            #+#    #+#             */
-/*   Updated: 2023/02/19 15:11:02 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/02/19 15:26:14 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,14 @@
 
 ListeningSocket::ListeningSocket(int domain, int service, int protocol, int port, u_long interface, int bklg) : BindingSocket(domain, service, protocol, port, interface)
 {
-	std::cout << "ListeningSocket Contructor Called" << std::endl;
+	// std::cout << "ListeningSocket Contructor Called" << std::endl;
 	backlog = bklg;
 	listening = startListening(getSocket(), backlog);
 }
 
 ListeningSocket::~ListeningSocket(void)
 {
-	std::cout << "ListeningSocket Destructor Called" << std::endl;
+	// std::cout << "ListeningSocket Destructor Called" << std::endl;
 }
 
 int	ListeningSocket::connectToNetwork(int sock, struct sockaddr_in address){

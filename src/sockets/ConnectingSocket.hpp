@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/19 14:44:55 by hyunah            #+#    #+#             */
-/*   Updated: 2023/02/19 14:47:53 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/02/19 15:23:08 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ private:
 public:
 	~ConnectingSocket(void);
 	ConnectingSocket(int domain, int service, int protocol, int port, u_long interface);
-	int	connectToNetwork(int sock, struct sockaddr_in address);
+	int	connectToNetwork(int sock, struct sockaddr_in * address);
 
 };
 
