@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
     struct sockaddr_in address;
     int addrlen = sizeof(address);
     
-    char *hello = "Hello from server";
+    char *hello = "Hello from server\n";
     
     // Creating socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
@@ -40,8 +40,8 @@ int main(int argc, char const *argv[])
         perror("In listen");
         exit(EXIT_FAILURE);
     }
-    while(1)
-    {
+    // while(1)
+    // {
         printf("\n+++++++ Waiting for new connection ++++++++\n\n");
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
         {
@@ -52,9 +52,11 @@ int main(int argc, char const *argv[])
         char buffer[30000] = {0};
         valread = read( new_socket , buffer, 30000);
         printf("%s\n",buffer );
+		printf("pid : %ld\n", (long)getpid());
         write(new_socket , hello , strlen(hello));
         printf("------------------Hello message sent-------------------\n");
         close(new_socket);
-    }
+        close(server_fd);
+    // }
     return 0;
 }
