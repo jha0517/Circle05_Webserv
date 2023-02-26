@@ -20,8 +20,7 @@ public:
 	~ServerManager();
 	void		printLog();
 	void		setConfiguration(char *configFile, char **env);
-	void		createServer();
-	void		runServer();
+	void		runServer(char *ip);
 	Request		*getValidRequest(char *buffer);
 	Response	*createResponse(Request *request);
 };
