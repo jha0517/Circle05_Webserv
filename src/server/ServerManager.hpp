@@ -10,10 +10,10 @@ class ServerManager
 {
 private:
 	std::vector<Config> config;
-	int	serverFd;
-    struct sockaddr_in address;
-	Request *request;
-	Response *response;
+    struct sockaddr_in	address;
+	int					serverFd;
+	Request				*request;
+	Response			*response;
 
 public:
 	ServerManager();
