@@ -75,7 +75,7 @@ $(NAME):		$(OBJ)
 
 clean:
 				@printf "$(YELLOW)Deleting object files...$(DEFAULT)\n"
-				@$(RM) $(OBJ)
+				@$(RM) *.d
 				@printf "$(DELPREV)Build files deleted\n"
 
 fclean:			clean
@@ -86,6 +86,6 @@ fclean:			clean
 re:				fclean
 				@$(MAKE) -s all
 
-.PHONY:			all clean fclean re test eval
+.PHONY:			all clean fclean re
 
 -include ${DEPS}
