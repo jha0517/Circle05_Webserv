@@ -1,10 +1,8 @@
 SRCS			= main.cpp \
-				  src/sockets/SimpleSocket.cpp \
-				  src/sockets/ListeningSocket.cpp \
-				  src/sockets/ConnectingSocket.cpp \
-				  src/sockets/BindingSocket.cpp	\
-				  src/servers/SimpleServer.cpp	\
-				  src/servers/TestServer.cpp	\
+					src/server/Config.cpp \
+					src/server/ServerManager.cpp \
+					src/server/Request.cpp \
+					src/server/Response.cpp \
 
 OBJS			= $(SRCS:.cpp=.o)
 DEPS			= $(SRCS:.cpp=.d)
