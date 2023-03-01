@@ -76,12 +76,12 @@ $(NAME):		$(OBJ)
 clean:
 				@printf "$(YELLOW)Deleting object files...$(DEFAULT)\n"
 				@$(RM) *.d
-				@printf "$(DELPREV)Build files deleted\n"
+				@printf "$(DELPREV)$(GREEN)Build files deleted\n"
 
 fclean:			clean
 				@printf "$(YELLOW)Deleting build directory...$(DEFAULT)\n"
 				@$(RM) $(BUILDIR) $(NAME)
-				@printf "$(DELPREV)Build directory and binary deleted\n"
+				@printf "$(DELPREV)$(GREEN)Build directory and binary deleted\n"
 
 re:				fclean
 				@$(MAKE) -s all

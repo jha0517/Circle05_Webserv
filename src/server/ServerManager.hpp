@@ -1,6 +1,9 @@
 #ifndef SERVERMANAGER_H
 # define SERVERMANAGER_H
 # include "../../include/webserv.hpp"
+# include "../src/server/Config.hpp"
+# include "../src/server/Request.hpp"
+# include "../src/server/Response.hpp"
 
 class Config;
 class Request;
@@ -9,20 +12,28 @@ class Response;
 class ServerManager
 {
 private:
-	std::vector<Config> config;
     struct sockaddr_in	address;
 	int					serverFd;
 	Request				*request;
-	Response			*response;
+	Response			response;
 
 public:
 	ServerManager();
 	~ServerManager();
+	std::vector<Config *>	configList;
 	void		printLog();
 	void		setConfiguration(char *configFile, char **env);
-	void		runServer(char *ip);
+	void		runServer(unsigned int port);
 	Request		*getValidRequest(char *buffer);
-	Response	*createResponse(Request *request);
+
+	class errorMsg : public std::exception
+	{
+		private:
+			const char *message;
+		public:
+			explicit errorMsg(const char *message);
+			virtual const char *what() const throw();
+	};
 };
 
 #endif

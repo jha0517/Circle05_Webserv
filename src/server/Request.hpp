@@ -4,7 +4,6 @@
 class Request
 {
 private:
-
 public:
 	Request();
 	~Request();

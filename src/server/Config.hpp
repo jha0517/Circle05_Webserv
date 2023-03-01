@@ -7,18 +7,21 @@
 class Config
 {
 private:
-	std::string severName;
+	std::string serverName;
 	std::string location;
 	std::string redirection;
-	std::string ip;
 	std::string defaultErrorPage;
-	int			port;
+	unsigned int	port;
 	int			clientBodySize;
 	bool		directoryList;
 
 public:
 	Config();
 	~Config();
+	void	parsing(char *configFile, char **env);
+	void	init();
+	std::string	getServerName();
+	unsigned int	getPort();
 };
 
 #endif
