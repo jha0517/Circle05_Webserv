@@ -10,8 +10,6 @@ class Response;
 class ServerManager
 {
 private:
-    struct sockaddr_in	address;
-	int					serverFd;
 	Request				request;
 	Response			response;
 
