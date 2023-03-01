@@ -1,6 +1,5 @@
 
 #include "webserv.hpp"
-// enum Method2 { GET2, POST, DELETE};
 
 void	signalHandler(int signum)
 {
@@ -27,6 +26,7 @@ int	main(int ac, char **av, char **env)
 		std::cerr << e.what() << std::endl;
 		return (2);
 	}
+	// manager.runServer(manager.config.getPort());
 	manager.runServer(8080);
     return 0;
 }

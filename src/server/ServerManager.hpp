@@ -1,9 +1,7 @@
 #ifndef SERVERMANAGER_H
 # define SERVERMANAGER_H
 # include "../../include/webserv.hpp"
-# include "../src/server/Config.hpp"
-# include "../src/server/Request.hpp"
-# include "../src/server/Response.hpp"
+
 
 class Config;
 class Request;
