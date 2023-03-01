@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/19 15:13:17 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/01 12:06:02 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/01 17:02:43 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <stack>
 # include <list>
 # include <map>
+# include <csignal>
 
 # include "../src/server/ServerManager.hpp"
 

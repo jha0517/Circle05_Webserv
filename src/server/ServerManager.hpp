@@ -14,17 +14,15 @@ class ServerManager
 private:
     struct sockaddr_in	address;
 	int					serverFd;
-	Request				*request;
+	Request				request;
 	Response			response;
 
 public:
 	ServerManager();
 	~ServerManager();
-	std::vector<Config *>	configList;
 	void		printLog();
 	void		setConfiguration(char *configFile, char **env);
 	void		runServer(unsigned int port);
-	Request		*getValidRequest(char *buffer);
 
 	class errorMsg : public std::exception
 	{

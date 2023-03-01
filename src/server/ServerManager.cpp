@@ -32,10 +32,10 @@ bool	checkBalancedParantheses(std::string s)
 	return (par.empty() ? true : false);
 }
 
-std::string	checkFilenameGetContent(char *filename)
+std::string	checkFileAndGetContent(char *filename)
 {
 	std::string		src;
-	std::string		buffer;
+	std::string		rawRequest;
 	std::ifstream	ifs;
 	char	c;
 	
@@ -55,7 +55,7 @@ bool	formatcheck(char *configFile)
 {
 	std::string	str;
 
-	str = checkFilenameGetContent(configFile);
+	str = checkFileAndGetContent(configFile);
 	if (!checkBalancedParantheses(str))
 		throw ServerManager::errorMsg("Error : Config file Parantheses not balanced\n");
 	return (true);
@@ -71,17 +71,7 @@ unsigned int    foundServerContext(char *configFile)
 
 void	ServerManager::setConfiguration(char *configFile, char **env){
 	formatcheck(configFile);
-    Config  *c = new Config;
-
-	configList.push_back(c);
     (void) env;
-	// std::list<std::string> keyword = {"listen", "server_name", "root", "error_page", "client_body_buffer_size"};
-
-	// for (unsigned i = 0; i < foundServerContext(configFile); i++)
-	// {
-    //     configList.front()->update();
-	// }
-	// std::cout << configFile << std::endl;
 }
 
 
@@ -89,19 +79,16 @@ void	ServerManager::printLog(){
 }
 
 void	ServerManager::runServer(unsigned int port){
-    int server_fd, new_socket; long valread;
+    int server_fd, clientSocket; long valread;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
     (void) valread;
-    std::string hello = "Hello from server\n";
     
-    // Creating socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
     {
         perror("In socket");
         exit(EXIT_FAILURE);
     }
-    
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
@@ -125,28 +112,24 @@ void	ServerManager::runServer(unsigned int port){
     while(1)
     {
         printf("\n+++++++ Waiting for new connection ++++++++\n\n");
-        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
+        if ((clientSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
         {
             perror("In accept");
             exit(EXIT_FAILURE);
         }
-        char buffer[3000] = {0};
-        valread = read( new_socket , buffer, 3000);
-        // printf("%s\n",buffer );
-		// printf("pid : %ld\n", (long)getpid());
-        response.send(new_socket);
-        close(new_socket);
+        char rawRequest[3000] = {0};
+        valread = read( clientSocket , rawRequest, 3000);
+        printf("%s\n",rawRequest );
+        // request.parsing(rawRequest);
+
+        response.send(clientSocket);
+        // if (request.getMethod() == GET)
+        //     response.templateGet(clientSocket);
+        // else if (request.getMethod() == POST)
+        //     response.templatePost(clientSocket);
+        // else if (request.getMethod() == DELETE)
+        //     response.templateDelete(clientSocket);
+        close(clientSocket);
     }
     close(server_fd);
 }
-
-Request		*ServerManager::getValidRequest(char *buffer){
-	Request *ret = NULL;
-	(void) buffer;
-	return (ret);
-}
-// Response	*ServerManager::createResponse(Request *request){
-// 	Response *ret = NULL;
-// 	(void) request;
-// 	return (ret);
-// }

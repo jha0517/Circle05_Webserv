@@ -3,16 +3,17 @@
 
 Response::Response()
 {
-	start.insert(std::pair<std::string, std::string>("204", "No Content"));
-	header.insert(std::pair<std::string, std::string>("Content-Type", "text/html"));
+	// start.insert(std::pair<std::string, std::string>("204", "No Content"));
+	// header.insert(std::pair<std::string, std::string>("Content-Type", "text/html"));
 }
 
 Response::~Response()
 {
-	
+
 }
 
 void	Response::send(int fd){
+
 	std::string test = "HTTP/1.1 200 OK\r\nContent-Length: 22\r\nContent-Type: text/plain\r\n\r\nThis is Hyunah, World!";
 	write(fd, test.c_str(), test.length());
 

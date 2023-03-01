@@ -9,7 +9,7 @@
 #define PORT 8080
 int main(int argc, char const *argv[])
 {
-    int server_fd, new_socket; long valread;
+    int server_fd, clientSocket; long valread;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
     
@@ -43,19 +43,19 @@ int main(int argc, char const *argv[])
     // while(1)
     // {
         printf("\n+++++++ Waiting for new connection ++++++++\n\n");
-        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
+        if ((clientSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
         {
             perror("In accept");
             exit(EXIT_FAILURE);
         }
         
         char buffer[30000] = {0};
-        valread = read( new_socket , buffer, 30000);
+        valread = read( clientSocket , buffer, 30000);
         printf("%s\n",buffer );
 		printf("pid : %ld\n", (long)getpid());
-        write(new_socket , hello , strlen(hello));
+        write(clientSocket , hello , strlen(hello));
         printf("------------------Hello message sent-------------------\n");
-        close(new_socket);
+        close(clientSocket);
         close(server_fd);
     // }
     return 0;
