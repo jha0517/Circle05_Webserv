@@ -86,6 +86,8 @@ fclean:			clean
 re:				fclean
 				@$(MAKE) -s all
 
+test:			c++ -pthread **/*.cpp -lgtest -lgtest_main && ./a.out
+
 .PHONY:			all clean fclean re
 
 -include ${DEPS}
