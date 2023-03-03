@@ -1,5 +1,5 @@
 
-#include "../../include/webserv.hpp"
+#include "../include/ServerManager.hpp"
 
 ServerManager::errorMsg::errorMsg(const char *message) : message(message) {}
 
@@ -124,11 +124,11 @@ void	ServerManager::runServer(unsigned int port){
 
         response.send(clientSocket);
         // if (request.getMethod() == GET)
-        //     response.templateGet(clientSocket);
+        //     response.get(clientSocket);
         // else if (request.getMethod() == POST)
-        //     response.templatePost(clientSocket);
+        //     response.post(clientSocket);
         // else if (request.getMethod() == DELETE)
-        //     response.templateDelete(clientSocket);
+        //     response.delete(clientSocket);
         close(clientSocket);
     }
     close(server_fd);

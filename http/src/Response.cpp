@@ -1,5 +1,5 @@
 
-#include "../../include/webserv.hpp"
+#include "../include/Response.hpp"
 
 Response::Response()
 {
@@ -14,8 +14,24 @@ Response::~Response()
 
 void	Response::send(int fd){
 
+	//text/plain
+	// std::string test = "HTTP/1.1 200 OK\r\nContent-Length: 22\r\nContent-Type: text/plain\r\n\r\nThis is Hyunah, World!";
+	// write(fd, test.c_str(), test.length());
+
+	// text/html
 	std::string test = "HTTP/1.1 200 OK\r\nContent-Length: 22\r\nContent-Type: text/plain\r\n\r\nThis is Hyunah, World!";
 	write(fd, test.c_str(), test.length());
+
+
+
+
+
+
+
+
+
+
+
 
 	// write(fd, "HTTP/1.1 ", 9);
 	// for (std::map<std::string, std::string>::const_iterator it = start.begin(); it != start.end(); it++)

@@ -1,7 +1,6 @@
 
 #ifndef CONFIG_H
 # define CONFIG_H
-# include "../../include/webserv.hpp"
 # include <string>
 
 class Config

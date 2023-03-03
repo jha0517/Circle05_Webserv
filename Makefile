@@ -9,9 +9,9 @@ BUILDIR		=	build
 
 OBJ			=	$(SRCS:%.c=$(BUILDIR)/%.o)
 
-SRCS		=	$(addprefix src/,									\
+SRCS		=	$(addprefix ./,									\
 												main.cpp			\
-					$(addprefix server/,		Config.cpp			\
+					$(addprefix http/src/,		Config.cpp			\
 												Request.cpp			\
 												Response.cpp		\
 												ServerManager.cpp)	\

@@ -1,7 +1,16 @@
 #ifndef SERVERMANAGER_H
 # define SERVERMANAGER_H
-# include "../../include/webserv.hpp"
-
+# include "Request.hpp"
+# include "Response.hpp"
+# include <stdexcept>
+# include <stack>
+# include <iostream>
+# include <fstream>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <stdio.h>
+# include <string.h>
+# include "stdlib.h"
 
 class Config;
 class Request;

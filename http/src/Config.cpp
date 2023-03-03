@@ -1,5 +1,5 @@
 
-#include "../../include/webserv.hpp"
+#include "../include/Config.hpp"
 
 Config::Config() : serverName("127.0.0.1"), location("/"), redirection("/"), defaultErrorPage(""),  port(8080)
 {

@@ -1,5 +1,8 @@
 #ifndef REPONSE_H
 # define REPONSE_H
+# include <map>
+# include <string>
+# include <unistd.h>
 
 enum URIType { DIRECTORY, MYFILE, FILE_TO_CREATE, CGI_PROGRAM };
 enum TransferType { GENERAL, CHUNKED };
