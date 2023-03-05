@@ -6,12 +6,16 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/03 15:43:44 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/04 23:12:29 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/05 14:54:05 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <gtest/gtest.h>
 #include "../include/Uri.hpp"
+
+
+//TO DO : 
+// CHECK INVALID INPUT
 
 TEST(UriTests, ParseFromString){
 	Uri uri;
@@ -38,6 +42,26 @@ TEST(UriTests, ParseFromString){
 			}), 
 			uri.getPath()
 	);
+}
+
+TEST(UriTests, ParseFromStringNoScheme){
+	Uri uri;
+	ASSERT_TRUE(uri.ParsingFromString("foo/bar"));
+	ASSERT_EQ("", uri.getScheme());
+	ASSERT_EQ(
+		(std::vector<std::string>{
+			"foo", 
+			"bar",
+			}), 
+			uri.getPath()
+	);
+}
+
+TEST(UriTests, ParseFromStringEndsAfterAuthority){
+	Uri uri;
+	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com"));
+	ASSERT_EQ("http", uri.getScheme());
+	ASSERT_EQ("www.example.com", uri.getHost());
 }
 
 TEST(UriTests, ParseFromStringNoPath){
@@ -129,14 +153,126 @@ TEST(UriTests, ParseFromStringBadPortNumber){
 	ASSERT_TRUE(uri.ParsingFromString("http://www.lolo.com:0/foo/bar"));
 }
 
+TEST(UriTests, ParseFromStringIsRelativeReference){
+	Uri uri;
 
-// TEST(UriTests, ParseFromStringIsRelativePath){
-// 	Uri uri;
+	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/"));
+	ASSERT_EQ(uri.hasRelativeReference(), false);
 
-// 	ASSERT_TRUE(uri.ParsingFromString("htt://www.example.com/"));
-// 	ASSERT_TRUE(uri.ParsingFromString("htt://www.example.com"));
-// 	ASSERT_EQ("htt://www.example.com", false);
-// 	ASSERT_EQ("htt://www.example.com/", false);
-// 	ASSERT_EQ("/", true);
-// 	ASSERT_EQ("foo", true);
-// }
+	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com"));
+	ASSERT_EQ(uri.hasRelativeReference(), false);
+
+	ASSERT_TRUE(uri.ParsingFromString("/"));
+	ASSERT_EQ(uri.hasRelativeReference(), true);
+
+	ASSERT_TRUE(uri.ParsingFromString("foo"));
+	ASSERT_EQ(uri.hasRelativeReference(), true);
+}
+
+
+TEST(UriTests, ParseFromStringIsRelativePath){
+	Uri uri;
+
+	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/"));
+	ASSERT_EQ(uri.ContainsRelativePath(), true);
+
+	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com"));
+	ASSERT_EQ(uri.ContainsRelativePath(), false);
+
+	ASSERT_TRUE(uri.ParsingFromString("/"));
+	ASSERT_EQ(uri.ContainsRelativePath(), true);
+
+	ASSERT_TRUE(uri.ParsingFromString("foo"));
+	ASSERT_EQ(uri.ContainsRelativePath(), false);
+}
+
+TEST(UriTests, ParseFromStringFragments){
+	Uri uri;
+
+	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/"));
+	ASSERT_EQ(uri.getFragement(), "");
+	ASSERT_EQ(uri.getQuery(), "");
+	ASSERT_EQ(uri.getHost(), "www.example.com");
+
+	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com#foo"));
+	ASSERT_EQ(uri.getFragement(), "foo");
+	ASSERT_EQ(uri.getQuery(), "");
+	ASSERT_EQ(uri.getHost(), "www.example.com");
+
+	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com?foo"));
+	ASSERT_EQ(uri.getFragement(), "");
+	ASSERT_EQ(uri.getQuery(), "foo");
+	ASSERT_EQ(uri.getHost(), "www.example.com");
+
+	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com?foo#bar"));
+	ASSERT_EQ(uri.getHost(), "www.example.com");
+	ASSERT_EQ(uri.getQuery(), "foo");
+	ASSERT_EQ(uri.getFragement(), "bar");
+
+	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com?earth?day#bar"));
+	ASSERT_EQ(uri.getHost(), "www.example.com");
+	ASSERT_EQ(uri.getQuery(), "earth?day");
+	ASSERT_EQ(uri.getFragement(), "bar");
+	// TO RESEARCH : 
+	// ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/?"));
+	// ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/??foo"));
+}
+
+TEST(UriTests, GenerateString){
+	Uri	uri, uri2;
+
+	uri.setScheme("http");
+	uri.setHost("www.example.com");
+	uri.setQuery("foo");
+	ASSERT_EQ(uri.generateString(), "http://www.example.com?foo");
+
+	uri.setScheme("");
+	uri.setHost("example.com");
+	uri.setQuery("bar");
+	ASSERT_EQ(uri.generateString(), "//example.com?bar");
+
+	uri.setScheme("");
+	uri.setHost("example.com");
+	uri.setQuery("");
+	ASSERT_EQ(uri.generateString(), "//example.com");
+
+	uri.setScheme("");
+	uri.setHost("");
+	uri.setQuery("");
+	ASSERT_EQ(uri.generateString(), "");
+
+	uri.setScheme("");
+	uri.setHost("");
+	uri.setQuery("bar");
+	ASSERT_EQ(uri.generateString(), "?bar");
+
+	uri.setScheme("");
+	uri.setHost("");
+	uri.setQuery("bar");
+	ASSERT_EQ(uri.generateString(), "?bar");
+
+	uri.setScheme("http");
+	uri.setHost("");
+	uri.setQuery("bar");
+	ASSERT_EQ(uri.generateString(), "http:?bar");
+
+	uri.setScheme("http");
+	uri.setHost("");
+	uri.setQuery("");
+	ASSERT_EQ(uri.generateString(), "http:");
+
+	uri.setScheme("http");
+	uri.setHost("1.2.3.4");
+	uri.setQuery("");
+	ASSERT_EQ(uri.generateString(), "http://1.2.3.4");
+
+	uri2.ParsingFromString("http://www.example.com/");
+	ASSERT_EQ(uri2.generateString(), "http://www.example.com/");
+
+	uri2.ParsingFromString("http://www.example.com/bar");
+	ASSERT_EQ(uri2.generateString(), "http://www.example.com/bar");
+
+	uri2.ParsingFromString("http://www.example.com/bar/foo");
+	ASSERT_EQ(uri2.generateString(), "http://www.example.com/bar/foo");
+
+}
