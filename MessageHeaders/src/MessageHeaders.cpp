@@ -92,3 +92,16 @@ std::string	MessageHeaders::generateRawMsg(){
 	buffer << body;
 	return (buffer.str());
 }
+
+std::string	MessageHeaders::getHeaderValue(std::string name) const {
+	for (unsigned i=0; i != headers.size(); i++)
+	{
+		if (headers[i].name == name)
+			return (headers[i].value);
+	}
+	return ("");
+}
+
+void	MessageHeaders::setBody(const std::string newBody){
+	body = newBody;
+}

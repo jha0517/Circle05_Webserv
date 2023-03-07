@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Uri.cpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/03/06 11:25:10 by hyunah            #+#    #+#             */
+/*   Updated: 2023/03/06 11:25:14 by hyunah           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../include/Uri.hpp"
 #include <iostream>
@@ -11,7 +22,7 @@ Uri::~Uri()
 {
 }
 
-bool	Uri::ParsingFromString(const std::string & uriString){
+bool	Uri::parsingFromString(const std::string & uriString){
 	scheme = "";
 	host = "";
 	path.clear();
@@ -19,6 +30,7 @@ bool	Uri::ParsingFromString(const std::string & uriString){
 	existPort = false;
 	existPath = true;
 	long long port_tmp = 0;
+	
 	// Parsing scheme
 	std::size_t delimiter = uriString.find(':');
 	std::string	rest;
@@ -194,4 +206,37 @@ std::string	Uri::generateString(){
 		buffer << "#" << fragment;
 
 	return (buffer.str());
+}
+
+Uri & Uri::operator=(const Uri &rhs){
+	existPath = rhs.existPath;
+	existPort = rhs.existPort;
+	port = rhs.port;
+	scheme = rhs.scheme;
+	fragment = rhs.fragment;
+	query = rhs.query;
+	host = rhs.host;
+	path = rhs.path;
+	splitchar = rhs.splitchar;
+	return (*this);
+}
+
+bool	Uri::operator==(Uri const &rhs) const {
+	if (existPath != rhs.existPath)
+		return (false);
+	if (existPort != rhs.existPort)
+		return (false);
+	if (port != rhs.port)
+		return (false);
+	if (scheme != rhs.scheme)
+		return (false);
+	if (fragment != rhs.fragment)
+		return (false);
+	if (query != rhs.query)
+		return (false);
+	if (host != rhs.host)
+		return (false);
+	if (path != rhs.path)
+		return (false);
+	return (true);
 }

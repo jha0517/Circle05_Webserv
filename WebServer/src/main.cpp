@@ -5,42 +5,40 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/03 15:25:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/03 15:31:49 by hyunah           ###   ########.fr       */
+/*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
+/*   Updated: 2023/03/06 16:53:45 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-# include <csignal>
-# include <iostream>
-# include "http/include/ServerManager.hpp"
+#include "../../Http/include/Server.hpp"
+#include <csignal>
+#include <iostream>
 
 void	signalHandler(int signum)
 {
 	std::cout << "\nLeaving the server...Bye!" << std::endl;
-	exit(signum);
+	exit(EXIT_SUCCESS);
 }
 
 int	main(int ac, char **av, char **env)
 {
-    ServerManager manager;
 	signal(SIGINT, signalHandler);
 
 	(void) av;
 	(void) env;
+	Server	server;
+	bool	shutDown = false;
+
 	if (ac != 2)
 	{
 		std::cerr << "Need 1 config file OR default path." << std::endl;
-		return (1);
+		return (EXIT_FAILURE);
 	}
-	try{
-		// manager.setConfiguration(av[1], env);
+	while (!shutDown){
+				
 	}
-	catch(std::exception& e){
-		std::cerr << e.what() << std::endl;
-		return (2);
-	}
-	// manager.runServer(manager.config.getPort());
-	manager.runServer(8080);
-    return 0;
+	// manager.setConfiguration(av[1], env);
+
+	
+    return EXIT_SUCCESS;
 }

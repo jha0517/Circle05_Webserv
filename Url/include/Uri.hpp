@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/05 00:19:46 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/05 14:26:47 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/06 09:26:02 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ private:
 public:
 	Uri();
 	~Uri();
-	bool						ParsingFromString(const std::string & uriString);
+	bool						parsingFromString(const std::string & uriString);
 	std::string					generateString();
 	bool						hasPath() const;
 	bool						hasPort() const;
@@ -52,6 +52,8 @@ public:
 	void						setScheme(const std::string & newScheme);
 	void						setHost(const std::string & newHost);
 	void						setQuery(const std::string & newQuery);
+	Uri & 						operator=(const Uri &rhs);
+	bool 						operator==(Uri const &rhs) const;
 };
 
 #endif 

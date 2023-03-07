@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/03 15:43:44 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/05 14:54:05 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/06 09:26:02 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 
 TEST(UriTests, ParseFromString){
 	Uri uri;
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/foo/bar"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com/foo/bar"));
 	ASSERT_EQ("http", uri.getScheme());
 	ASSERT_EQ("www.example.com", uri.getHost());
 	ASSERT_EQ(
@@ -31,7 +31,7 @@ TEST(UriTests, ParseFromString){
 			uri.getPath()
 	);
 	uri.setSplitChar(":");
-	ASSERT_TRUE(uri.ParsingFromString("urn:book:fantasy:Hobbit"));
+	ASSERT_TRUE(uri.parsingFromString("urn:book:fantasy:Hobbit"));
 	ASSERT_EQ("urn", uri.getScheme());
 	ASSERT_EQ("", uri.getHost());
 	ASSERT_EQ(
@@ -46,7 +46,7 @@ TEST(UriTests, ParseFromString){
 
 TEST(UriTests, ParseFromStringNoScheme){
 	Uri uri;
-	ASSERT_TRUE(uri.ParsingFromString("foo/bar"));
+	ASSERT_TRUE(uri.parsingFromString("foo/bar"));
 	ASSERT_EQ("", uri.getScheme());
 	ASSERT_EQ(
 		(std::vector<std::string>{
@@ -59,14 +59,14 @@ TEST(UriTests, ParseFromStringNoScheme){
 
 TEST(UriTests, ParseFromStringEndsAfterAuthority){
 	Uri uri;
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com"));
 	ASSERT_EQ("http", uri.getScheme());
 	ASSERT_EQ("www.example.com", uri.getHost());
 }
 
 TEST(UriTests, ParseFromStringNoPath){
 	Uri uri;
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com"));
 	ASSERT_EQ("http", uri.getScheme());
 	ASSERT_EQ("www.example.com", uri.getHost());
 	ASSERT_EQ(
@@ -78,7 +78,7 @@ TEST(UriTests, ParseFromStringMultiCharacter){
 	Uri uri;
 
 	uri.setSplitChar("/-");
-	ASSERT_TRUE(uri.ParsingFromString("urn:book/-fant/asy/-Hobb-it"));
+	ASSERT_TRUE(uri.parsingFromString("urn:book/-fant/asy/-Hobb-it"));
 	ASSERT_EQ("urn", uri.getScheme());
 	ASSERT_EQ("", uri.getHost());
 	ASSERT_EQ(
@@ -99,23 +99,23 @@ TEST(UriTests, ParseFromStringPathCornerCases){
 	Uri uri;
 
 	uri.setSplitChar("/");
-	ASSERT_TRUE(uri.ParsingFromString("/"));
+	ASSERT_TRUE(uri.parsingFromString("/"));
 	ASSERT_EQ((std::vector<std::string> {""}), uri.getPath());
 
-	ASSERT_TRUE(uri.ParsingFromString(""));
+	ASSERT_TRUE(uri.parsingFromString(""));
 	ASSERT_EQ((std::vector<std::string> {}), uri.getPath());
 
-	ASSERT_TRUE(uri.ParsingFromString("foo/"));
+	ASSERT_TRUE(uri.parsingFromString("foo/"));
 	ASSERT_EQ((std::vector<std::string> {"foo", ""}), uri.getPath());
 
-	ASSERT_TRUE(uri.ParsingFromString("/foo"));
+	ASSERT_TRUE(uri.parsingFromString("/foo"));
 	ASSERT_EQ((std::vector<std::string> {"", "foo"}), uri.getPath());
 }
 
 TEST(UriTests, ParseFromStringHasPortNumber){
 	Uri uri;
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.lolo.com:8080/foo/bar"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.lolo.com:8080/foo/bar"));
 	ASSERT_EQ("www.lolo.com", uri.getHost());
 	ASSERT_TRUE(uri.hasPort());
 	ASSERT_EQ(8080, uri.getPort());
@@ -124,7 +124,7 @@ TEST(UriTests, ParseFromStringHasPortNumber){
 TEST(UriTests, ParseFromStringDoesNotPortNumber){
 	Uri uri;
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.lolo.com/foo/bar"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.lolo.com/foo/bar"));
 	ASSERT_EQ("www.lolo.com", uri.getHost());
 	ASSERT_FALSE(uri.hasPort());
 }
@@ -132,11 +132,11 @@ TEST(UriTests, ParseFromStringDoesNotPortNumber){
 TEST(UriTests, ParseFromStringFirstPortThenNoPort){
 	Uri uri;
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.lolo.com:8080/foo/bar"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.lolo.com:8080/foo/bar"));
 	ASSERT_EQ("www.lolo.com", uri.getHost());
 	ASSERT_TRUE(uri.hasPort());
 	ASSERT_EQ(8080, uri.getPort());
-	ASSERT_TRUE(uri.ParsingFromString("http://www.lolo.com/foo/bar"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.lolo.com/foo/bar"));
 	ASSERT_EQ("www.lolo.com", uri.getHost());
 	ASSERT_FALSE(uri.hasPort());
 }
@@ -144,28 +144,28 @@ TEST(UriTests, ParseFromStringFirstPortThenNoPort){
 TEST(UriTests, ParseFromStringBadPortNumber){
 	Uri uri;
 
-	ASSERT_FALSE(uri.ParsingFromString("http://www.lolo.com:spam/foo/bar"));
-	ASSERT_FALSE(uri.ParsingFromString("http://www.lolo.com:spam8080/foo/bar"));
-	ASSERT_FALSE(uri.ParsingFromString("http://www.lolo.com:8080spam/foo/bar"));
-	ASSERT_FALSE(uri.ParsingFromString("http://www.lolo.com:99999999999999/foo/bar"));
-	ASSERT_FALSE(uri.ParsingFromString("http://www.lolo.com:-1/foo/bar"));
-	ASSERT_TRUE(uri.ParsingFromString("http://www.lolo.com:65535/foo/bar"));
-	ASSERT_TRUE(uri.ParsingFromString("http://www.lolo.com:0/foo/bar"));
+	ASSERT_FALSE(uri.parsingFromString("http://www.lolo.com:spam/foo/bar"));
+	ASSERT_FALSE(uri.parsingFromString("http://www.lolo.com:spam8080/foo/bar"));
+	ASSERT_FALSE(uri.parsingFromString("http://www.lolo.com:8080spam/foo/bar"));
+	ASSERT_FALSE(uri.parsingFromString("http://www.lolo.com:99999999999999/foo/bar"));
+	ASSERT_FALSE(uri.parsingFromString("http://www.lolo.com:-1/foo/bar"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.lolo.com:65535/foo/bar"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.lolo.com:0/foo/bar"));
 }
 
 TEST(UriTests, ParseFromStringIsRelativeReference){
 	Uri uri;
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com/"));
 	ASSERT_EQ(uri.hasRelativeReference(), false);
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com"));
 	ASSERT_EQ(uri.hasRelativeReference(), false);
 
-	ASSERT_TRUE(uri.ParsingFromString("/"));
+	ASSERT_TRUE(uri.parsingFromString("/"));
 	ASSERT_EQ(uri.hasRelativeReference(), true);
 
-	ASSERT_TRUE(uri.ParsingFromString("foo"));
+	ASSERT_TRUE(uri.parsingFromString("foo"));
 	ASSERT_EQ(uri.hasRelativeReference(), true);
 }
 
@@ -173,49 +173,49 @@ TEST(UriTests, ParseFromStringIsRelativeReference){
 TEST(UriTests, ParseFromStringIsRelativePath){
 	Uri uri;
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com/"));
 	ASSERT_EQ(uri.ContainsRelativePath(), true);
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com"));
 	ASSERT_EQ(uri.ContainsRelativePath(), false);
 
-	ASSERT_TRUE(uri.ParsingFromString("/"));
+	ASSERT_TRUE(uri.parsingFromString("/"));
 	ASSERT_EQ(uri.ContainsRelativePath(), true);
 
-	ASSERT_TRUE(uri.ParsingFromString("foo"));
+	ASSERT_TRUE(uri.parsingFromString("foo"));
 	ASSERT_EQ(uri.ContainsRelativePath(), false);
 }
 
 TEST(UriTests, ParseFromStringFragments){
 	Uri uri;
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com/"));
 	ASSERT_EQ(uri.getFragement(), "");
 	ASSERT_EQ(uri.getQuery(), "");
 	ASSERT_EQ(uri.getHost(), "www.example.com");
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com#foo"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com#foo"));
 	ASSERT_EQ(uri.getFragement(), "foo");
 	ASSERT_EQ(uri.getQuery(), "");
 	ASSERT_EQ(uri.getHost(), "www.example.com");
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com?foo"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com?foo"));
 	ASSERT_EQ(uri.getFragement(), "");
 	ASSERT_EQ(uri.getQuery(), "foo");
 	ASSERT_EQ(uri.getHost(), "www.example.com");
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com?foo#bar"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com?foo#bar"));
 	ASSERT_EQ(uri.getHost(), "www.example.com");
 	ASSERT_EQ(uri.getQuery(), "foo");
 	ASSERT_EQ(uri.getFragement(), "bar");
 
-	ASSERT_TRUE(uri.ParsingFromString("http://www.example.com?earth?day#bar"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com?earth?day#bar"));
 	ASSERT_EQ(uri.getHost(), "www.example.com");
 	ASSERT_EQ(uri.getQuery(), "earth?day");
 	ASSERT_EQ(uri.getFragement(), "bar");
 	// TO RESEARCH : 
-	// ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/?"));
-	// ASSERT_TRUE(uri.ParsingFromString("http://www.example.com/??foo"));
+	// ASSERT_TRUE(uri.parsingFromString("http://www.example.com/?"));
+	// ASSERT_TRUE(uri.parsingFromString("http://www.example.com/??foo"));
 }
 
 TEST(UriTests, GenerateString){
@@ -266,13 +266,13 @@ TEST(UriTests, GenerateString){
 	uri.setQuery("");
 	ASSERT_EQ(uri.generateString(), "http://1.2.3.4");
 
-	uri2.ParsingFromString("http://www.example.com/");
+	uri2.parsingFromString("http://www.example.com/");
 	ASSERT_EQ(uri2.generateString(), "http://www.example.com/");
 
-	uri2.ParsingFromString("http://www.example.com/bar");
+	uri2.parsingFromString("http://www.example.com/bar");
 	ASSERT_EQ(uri2.generateString(), "http://www.example.com/bar");
 
-	uri2.ParsingFromString("http://www.example.com/bar/foo");
+	uri2.parsingFromString("http://www.example.com/bar/foo");
 	ASSERT_EQ(uri2.generateString(), "http://www.example.com/bar/foo");
 
 }
