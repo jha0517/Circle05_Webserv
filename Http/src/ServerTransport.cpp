@@ -12,19 +12,32 @@
 
 #include "../include/ServerTransport.hpp"
 #include <iostream>
-ServerTransport::ServerTransport()
+
+void	testFunction(Connection *connection)
 {
+}
+
+ServerTransport::ServerTransport() :bound(false), port(0), connectionDelegate(nullptr)
+{
+	this->setNewConnectionDelegate(&testFunction);
 }
 
 ServerTransport::~ServerTransport()
 {
 }
 
-bool	ServerTransport::bindNetwork(uint16_t port, Connection *newConnectionDelegate){
+bool	ServerTransport::bindNetwork(uint16_t newPort, NewConnectionDelegate newConnectionDelegate){
+	port = newPort;
 	bound = true;
+	connectionDelegate = newConnectionDelegate;
 	return (true);
 }
 
 void	ServerTransport::releaseNetwork(){
 	bound = false;
+}
+
+bool	ServerTransport::setNewConnectionDelegate(NewConnectionDelegate newConnectionDelegate){
+	connectionDelegate = newConnectionDelegate;
+	return (true);
 }

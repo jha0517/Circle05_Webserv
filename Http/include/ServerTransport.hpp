@@ -15,15 +15,29 @@
 # include <string>
 # include "Connection.hpp"
 
+
+typedef void(*NewConnectionDelegate)(Connection *);
+
 class ServerTransport
 {
 public:
+
+
 	ServerTransport();
 	~ServerTransport();
-	virtual	bool	bindNetwork(uint16_t port, Connection *newConnectionDelegate);	
-	virtual	void	releaseNetwork() = 0;
-	bool			bound;
-	uint16_t		port;
+
+	// virtual bool	setNewConnectionDelegate(NewConnectionDelegate newConnectionDelegate) = 0;
+	// virtual	bool	bindNetwork(uint16_t port, NewConnectionDelegate newConnectionDelegate) = 0;	
+	// virtual	void	releaseNetwork() = 0;
+	virtual bool	setNewConnectionDelegate(NewConnectionDelegate newConnectionDelegate);
+	virtual	bool	bindNetwork(uint16_t port, NewConnectionDelegate newConnectionDelegate);
+	virtual	void	releaseNetwork();
+
+	bool					bound;
+	uint16_t				port;
+	BrokenDelegate			brokenDelegate;
+	DataReceivedDelegate	dataReceivedDelegate;
+	NewConnectionDelegate	connectionDelegate;
 
 private:
 };

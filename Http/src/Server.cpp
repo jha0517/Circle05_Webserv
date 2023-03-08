@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/07 10:34:33 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/08 14:26:48 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,25 +62,64 @@ Request*	Server::parseResquest(const std::string &rawRequest ){
 	return (&request);
 }
 
+Server	*serv;
+
+void	test(Connection *connection)
+{
+	// std::cout << "test called serv instance address " << serv << std::endl;
+	serv->newConnection(connection);
+}
+
 bool	Server::mobilize(ServerTransport *newTransport, uint16_t newPort){
 
-	Connection newConnection;
 	transport = newTransport;
-	if (!transport->bindNetwork(newPort, &newConnection))
-		return (false);
-	return (true);
+	serv = this;
+	if(!transport->bindNetwork(newPort, test))
+	{
+		this->transport = nullptr;
+		return false;		
+	}
+	return true;
 }
 
 void	Server::demobilize(){
 	
-	std::cout << "server demobilizing..." << std::endl;
 	if (transport != nullptr)
-	{
-		std::cout << "RELEASING TRANSPORT" << std::endl;
 		transport->releaseNetwork();
-		// transport->bound = false;
-	}
-	std::cout << "NO TRANSPORT" << std::endl;
+	transport = nullptr;
+}
 
-	// transport = nullptr;
+void	Server::dataReceived(Connection *connection, std::vector<uint8_t> data){
+	Request *request;
+	request = this->parseResquest(std::string(data.begin(), data.end()));
+	if (request == nullptr)
+		return ;
+	std::string	cannedResponse = (
+     "HTTP/1.1 404 Not Found\r\n"
+     "Content-Length: 35\r\n"
+     "Content-Type: text/plain\r\n"
+	 "\r\n"
+     "Hello This is Ratatouille server!\r\n"
+	);
+	connection->sendData(std::vector<uint8_t>(cannedResponse.begin(), cannedResponse.end()));
+}
+
+Connection *tmpConnection;
+void	testConnect(std::vector<uint8_t> data)
+{
+	if(tmpConnection == nullptr)
+		return ;
+	serv->dataReceived(tmpConnection, data);
+}
+
+void	Server::newConnection(Connection *newConnection){
+	if (newConnection == nullptr)
+		return ;
+	// std::vector<uint8_t> data;
+	activeConnections.insert(newConnection);
+
+	tmpConnection = newConnection;
+	serv = this;
+	newConnection->setDataReceivedDelegate(testConnect);
+	// newConnection->setDataReceivedDelegate(&test);
 }
