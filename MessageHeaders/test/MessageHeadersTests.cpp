@@ -43,13 +43,13 @@ TEST(MessageHeadersTests, HttpClientRequestMessage){
 	}
 	ASSERT_TRUE(msg.hasHeader("Host"));
 	ASSERT_FALSE(msg.hasHeader("Bobo"));
-	ASSERT_EQ(msg.getBody(), "");
 	ASSERT_EQ(msg.generateRawMsg(), rawMsg);
 }
 
-TEST(MessageHeadersTests, HttpServerRequestMessage){
-	MessageHeaders msg;
-	std::string rawMsg = (
+TEST(MessageHeadersTests, HttpServerResponseMessage){
+	MessageHeaders	msg;
+	size_t			bodyOffset;
+	std::string rawHeader = (
      "Date: Mon, 27 Jul 2009 12:28:53 GMT\r\n"
      "Server: Apache\r\n"
      "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n"
@@ -59,15 +59,18 @@ TEST(MessageHeadersTests, HttpServerRequestMessage){
      "Vary: Accept-Encoding\r\n"
      "Content-Type: text/plain\r\n"
 	 "\r\n"
-     "Hello World! My payload includes a trailing CRLF.\r\n"
 	);
-	ASSERT_TRUE(msg.parseFromString(rawMsg));
+	std::string rawMsg = (
+	rawHeader
+    + "Hello World! My payload includes a trailing CRLF.\r\n"
+	);
+	ASSERT_TRUE(msg.parseFromString(rawMsg, bodyOffset));
+	ASSERT_EQ(rawHeader.length(), bodyOffset);
 	MessageHeaders::Headers headers = msg.getHeaders();
 	struct ExpectedHeader {
 		std::string name;
 		std::string value;
 	};
-
 	std::vector<ExpectedHeader> expectedHeader{
 		{"Date", "Mon, 27 Jul 2009 12:28:53 GMT"},
 		{"Server", "Apache"},

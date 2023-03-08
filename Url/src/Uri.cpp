@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:10 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/06 11:25:14 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/08 14:53:12 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,15 +32,15 @@ bool	Uri::parsingFromString(const std::string & uriString){
 	long long port_tmp = 0;
 	
 	// Parsing scheme
-	std::size_t delimiter = uriString.find(':');
+	std::size_t schemeDelimiter = uriString.find(':');
 	std::string	rest;
-	if (delimiter == std::string::npos)
+	if (schemeDelimiter == std::string::npos)
 	{
 		rest = uriString;
 	}
 	else{
-		rest = uriString.substr(delimiter + 1);
-		scheme = uriString.substr(0, delimiter);
+		rest = uriString.substr(schemeDelimiter + 1);
+		scheme = uriString.substr(0, schemeDelimiter);
 	}
 	// Parsing host
 	std::size_t	pathEnd = rest.find_first_of("?#");
@@ -87,34 +87,34 @@ bool	Uri::parsingFromString(const std::string & uriString){
 	// Parsing Path
 	while (!pathString.empty() && existPath)
 	{
-		std::size_t	pathDelimiter = pathString.find(splitchar);
-		if (pathDelimiter == 0 && pathString.length()== 1)
+		std::size_t	pathschemeDelimiter = pathString.find(splitchar);
+		if (pathschemeDelimiter == 0 && pathString.length()== 1)
 		{
 			path.push_back(""); break ;
 		}			
-		else if (pathDelimiter == std::string::npos)
+		else if (pathschemeDelimiter == std::string::npos)
 		{
 			path.push_back(pathString); break ;
 		}
 		else
-			path.emplace_back(pathString.begin(), pathString.begin() + pathDelimiter);
+			path.emplace_back(pathString.begin(), pathString.begin() + pathschemeDelimiter);
 		existPath = true;
-		if (pathDelimiter + 1 == pathString.length())
+		if (pathschemeDelimiter + 1 == pathString.length())
 			path.push_back("");
-		pathString = pathString.substr(pathDelimiter + splitchar.length());
+		pathString = pathString.substr(pathschemeDelimiter + splitchar.length());
 	}
 
-	std::size_t	fragDelimiter = queryAndOrFrag.find('#');
+	std::size_t	fragschemeDelimiter = queryAndOrFrag.find('#');
 	std::string	leftover;
-	if (fragDelimiter == std::string::npos)
+	if (fragschemeDelimiter == std::string::npos)
 	{
 		fragment = "";
 		leftover = queryAndOrFrag;
 	}
 	else
 	{
-		leftover = queryAndOrFrag.substr(0, fragDelimiter);
-		fragment = queryAndOrFrag.substr(fragDelimiter + 1);
+		leftover = queryAndOrFrag.substr(0, fragschemeDelimiter);
+		fragment = queryAndOrFrag.substr(fragschemeDelimiter + 1);
 	}
 	if (!leftover.empty())
 		query = leftover.substr(1);

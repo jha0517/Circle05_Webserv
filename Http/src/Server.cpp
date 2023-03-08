@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/08 14:26:48 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/08 18:08:29 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,32 +37,75 @@ bool	parseRequestLine(Request *request, const std::string requestLine)
 	return (protocol == "HTTP/1.1");
 }
 
-Request*	Server::parseResquest(const std::string &rawRequest ){
+bool	parseSize(const	std::string & numberString, size_t	& number)
+{
+	const	char *str = numberString.c_str();
+	number = 0;
+	for (int i= 0; i < numberString.length(); i++)
+	{
+		if (str[i] < '0' || str[i] > '9')
+			return (false);
+		// detect overflow
+		size_t previousNumber = number;
+		number *= 10;
+		number += (uint16_t)(str[i] - '0');
+		if (number / 10 != previousNumber)
+			return false;
+	}
+	return true;
+}
+
+Request*	Server::parseResquest(const std::string &rawRequest, size_t & messageEnd){
 	std::string	CRLF = "\r\n";
-	std::size_t	requestLineEnd	= rawRequest.find(CRLF);
-	
+
+	// parse the request line.
+	std::size_t	requestLineEnd	= rawRequest.find(CRLF);	
 	if (requestLineEnd == std::string::npos)
 		return (nullptr);
 	std::string	requestLine = rawRequest.substr(0, requestLineEnd);
 	if (!parseRequestLine(&request, requestLine))
 		return (nullptr);
-	if (!request.headers.parseFromString(rawRequest.substr(requestLineEnd + CRLF.length())))
+
+	// parse the headers line.
+	size_t	bodyOffset;
+	size_t	headerOffset = requestLineEnd + CRLF.length();
+	if (!request.headers.parseFromString(rawRequest.substr(headerOffset), bodyOffset))
 		return (nullptr);
+
+	// check for content-length header. if present, use this to determine how many character should be in the body.
+	bodyOffset += headerOffset;
+	size_t	maxContentLength = rawRequest.length() - bodyOffset;
+	size_t	contentLength;
+	// extract body.
 	if (request.headers.hasHeader("Content-Length"))
 	{
-		std::size_t	contentLength = atoi(request.headers.getHeaderValue("Content-Length").c_str());
-		if (contentLength > request.headers.getBody().length())
-			return (nullptr);
+		if (!parseSize(request.headers.getHeaderValue("Content-Length"), contentLength))
+			return nullptr;
+		if (contentLength > maxContentLength)
+			return nullptr;
 		else
 		{
-			std::string newBody = request.headers.getBody().substr(0, contentLength);
-			request.headers.setBody(newBody);
+			request.body = rawRequest.substr(bodyOffset, contentLength);
+			messageEnd = bodyOffset + contentLength + CRLF.length();
 		}
+	}
+	else
+	{
+		request.body = rawRequest.substr(bodyOffset);
+		messageEnd = rawRequest.length();
 	}
 	return (&request);
 }
 
-Server	*serv;
+	
+Request*	Server::parseResquest(const std::string &rawRequest){
+	std::size_t	messageEnd;
+
+	return (this->parseResquest(rawRequest, messageEnd));
+}
+
+Server		*serv;
+ConnectionState	*tmpConnection;
 
 void	test(Connection *connection)
 {
@@ -89,11 +132,15 @@ void	Server::demobilize(){
 	transport = nullptr;
 }
 
-void	Server::dataReceived(Connection *connection, std::vector<uint8_t> data){
-	Request *request;
-	request = this->parseResquest(std::string(data.begin(), data.end()));
+void	Server::dataReceived(ConnectionState *connectionState, std::vector<uint8_t> data){
+	Request		*request;
+	std::size_t	messageEnd;
+
+	connectionState->reassembleBuffer += std::string(data.begin(), data.end());
+	request = this->parseResquest(connectionState->reassembleBuffer, messageEnd);
 	if (request == nullptr)
 		return ;
+	connectionState->reassembleBuffer.erase(connectionState->reassembleBuffer.begin(), connectionState->reassembleBuffer.begin() + messageEnd);
 	std::string	cannedResponse = (
      "HTTP/1.1 404 Not Found\r\n"
      "Content-Length: 35\r\n"
@@ -101,10 +148,9 @@ void	Server::dataReceived(Connection *connection, std::vector<uint8_t> data){
 	 "\r\n"
      "Hello This is Ratatouille server!\r\n"
 	);
-	connection->sendData(std::vector<uint8_t>(cannedResponse.begin(), cannedResponse.end()));
+	connectionState->connection->sendData(std::vector<uint8_t>(cannedResponse.begin(), cannedResponse.end()));
 }
 
-Connection *tmpConnection;
 void	testConnect(std::vector<uint8_t> data)
 {
 	if(tmpConnection == nullptr)
@@ -115,11 +161,12 @@ void	testConnect(std::vector<uint8_t> data)
 void	Server::newConnection(Connection *newConnection){
 	if (newConnection == nullptr)
 		return ;
-	// std::vector<uint8_t> data;
-	activeConnections.insert(newConnection);
+	ConnectionState *connectionState;
 
-	tmpConnection = newConnection;
+	connectionState->connection = newConnection;
+	activeConnections.insert(connectionState);
+
+	tmpConnection = connectionState;
 	serv = this;
 	newConnection->setDataReceivedDelegate(testConnect);
-	// newConnection->setDataReceivedDelegate(&test);
 }

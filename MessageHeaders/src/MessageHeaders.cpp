@@ -34,7 +34,7 @@ std::string	stripMarginWhitespace(const std::string &s)
 		return s.substr(marginLeft, marginRight - marginLeft + 1);
 }
 
-bool	MessageHeaders::parseFromString(const std::string &rawMsg){
+bool	MessageHeaders::parseFromString(const std::string &rawMsg, size_t & bodyOffset){
 	std::size_t	offset = 0;
 	std::size_t lineTerminator;
 	std::size_t nameTerminator;
@@ -42,14 +42,18 @@ bool	MessageHeaders::parseFromString(const std::string &rawMsg){
 	std::string	header;
 	std::string	endl = "\r\n";
 
-	lineTerminator = rawMsg.find(endl, offset);
+	lineTerminator = rawMsg.find(endl);
 	if (lineTerminator != std::string::npos)
 		rest = rawMsg;
 	while (lineTerminator != std::string::npos)
 	{
 		if (lineTerminator == 0)
+		{
+			offset+= endl.length();
 			break;
+		}
 		header = rest.substr(0, lineTerminator);
+		offset+= lineTerminator + endl.length();
 		nameTerminator = header.find(":");
 		if (nameTerminator == std::string::npos)
 			return false;
@@ -58,10 +62,17 @@ bool	MessageHeaders::parseFromString(const std::string &rawMsg){
 		tmp.value = stripMarginWhitespace(header.substr(nameTerminator + 1));
 		headers.emplace_back(tmp);
 		rest = rest.substr(lineTerminator + endl.length());
-		lineTerminator = rest.find(endl, offset);
+		lineTerminator = rest.find(endl);
 	}
+	bodyOffset = offset;
 	body = rest.substr(endl.length());
 	return (true);
+}
+
+bool	MessageHeaders::parseFromString(const std::string &rawMsg){
+	size_t	bodyOffset;
+
+	return (this->parseFromString(rawMsg, bodyOffset));
 }
 
 MessageHeaders::Headers	MessageHeaders::getHeaders() const{

@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/08 10:52:50 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/08 17:13:10 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,15 @@
 
 struct	Request{
 	std::string		method;
+	std::string		body;
 	Uri				target;
 	MessageHeaders	headers;
+};
+
+struct ConnectionState
+{
+	Connection *connection;
+	std::string	reassembleBuffer;
 };
 
 class Server
@@ -30,15 +37,16 @@ public:
 	Server();
 	~Server();
 	Request	*parseResquest(const std::string &rawRequest);
+	Request	*parseResquest(const std::string &rawRequest, size_t & messageEnd);
 	bool	mobilize(ServerTransport *transport, uint16_t port);
 	void	demobilize();
 	void	newConnection(Connection * newConnection);
-	void	dataReceived(Connection *connection, std::vector<uint8_t> data);
+	void	dataReceived(ConnectionState *connection, std::vector<uint8_t> data);
 
 private:
 	Request					request;
 	ServerTransport			*transport;
-	std::set<Connection *>	activeConnections;
+	std::set<ConnectionState *>	activeConnections;
 };
 
 #endif

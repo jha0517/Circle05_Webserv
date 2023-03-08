@@ -13,13 +13,8 @@
 #include "../include/ServerTransport.hpp"
 #include <iostream>
 
-void	testFunction(Connection *connection)
-{
-}
-
 ServerTransport::ServerTransport() :bound(false), port(0), connectionDelegate(nullptr)
 {
-	this->setNewConnectionDelegate(&testFunction);
 }
 
 ServerTransport::~ServerTransport()

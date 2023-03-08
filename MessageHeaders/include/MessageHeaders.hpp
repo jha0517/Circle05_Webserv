@@ -17,6 +17,7 @@ public:
 	typedef		std::vector<Header> Headers;
 
 	bool		parseFromString(const std::string &rawMsg);
+	bool		parseFromString(const std::string &rawMsg, size_t & bodyOffset);
 	Headers 	getHeaders() const;
 	std::string	getHeaderValue(std::string name) const;
 	bool		hasHeader(const std::string &name) const;
