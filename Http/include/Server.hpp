@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/08 17:13:10 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/08 22:24:29 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ struct	Request{
 
 struct ConnectionState
 {
-	Connection *connection;
+	Connection *connection = nullptr;
 	std::string	reassembleBuffer;
 };
 

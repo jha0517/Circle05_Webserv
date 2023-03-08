@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/08 18:08:29 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/08 22:48:58 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,8 +104,9 @@ Request*	Server::parseResquest(const std::string &rawRequest){
 	return (this->parseResquest(rawRequest, messageEnd));
 }
 
-Server		*serv;
-ConnectionState	*tmpConnection;
+Server		*serv = nullptr;
+ConnectionState	*tmpConnection = nullptr;
+ConnectionState connectionState;
 
 void	test(Connection *connection)
 {
@@ -120,7 +121,7 @@ bool	Server::mobilize(ServerTransport *newTransport, uint16_t newPort){
 	if(!transport->bindNetwork(newPort, test))
 	{
 		this->transport = nullptr;
-		return false;		
+		return false;
 	}
 	return true;
 }
@@ -137,6 +138,7 @@ void	Server::dataReceived(ConnectionState *connectionState, std::vector<uint8_t>
 	std::size_t	messageEnd;
 
 	connectionState->reassembleBuffer += std::string(data.begin(), data.end());
+	std::cout << connectionState->reassembleBuffer << std::endl;
 	request = this->parseResquest(connectionState->reassembleBuffer, messageEnd);
 	if (request == nullptr)
 		return ;
@@ -161,12 +163,11 @@ void	testConnect(std::vector<uint8_t> data)
 void	Server::newConnection(Connection *newConnection){
 	if (newConnection == nullptr)
 		return ;
-	ConnectionState *connectionState;
 
-	connectionState->connection = newConnection;
-	activeConnections.insert(connectionState);
+	connectionState.connection = newConnection;
+	activeConnections.insert(&connectionState);
 
-	tmpConnection = connectionState;
+	tmpConnection = &connectionState;
 	serv = this;
 	newConnection->setDataReceivedDelegate(testConnect);
 }
