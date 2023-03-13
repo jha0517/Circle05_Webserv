@@ -9,13 +9,12 @@ BUILDIR		=	build
 
 OBJ			=	$(SRCS:%.c=$(BUILDIR)/%.o)
 
-SRCS		=	$(addprefix src/,									\
+SRCS		=	$(addprefix ./,									\
 												main.cpp			\
-												Client.cpp			\
-												Connection.cpp		\
-												MessageHeaders.cpp	\
-												Server.cpp			\
-												Uri.cpp				\
+					$(addprefix ../src			Config.cpp			\
+												Request.cpp			\
+												Response.cpp		\
+												ServerManager.cpp)	\
 				)
 
 DEPS			= $(SRCS:.cpp=.d)
@@ -86,11 +85,6 @@ fclean:			clean
 
 re:				fclean
 				@$(MAKE) -s all
-
-eval:			$(NAME)
-				make clean
-				reset
-				valgrind --track-fds=yes ./$(NAME) myConf.conf
 
 test:			c++ -pthread **/*.cpp -lgtest -lgtest_main && ./a.out
 
