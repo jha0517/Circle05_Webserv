@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 14:51:19 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 18:31:19 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #define PORT1 8000
 #define PORT2 8001
 
+
 void	signalHandler(int signum)
 {
 	(void) signum;
@@ -33,6 +34,10 @@ void	signalHandler(int signum)
 	exit(EXIT_SUCCESS);
 }
 
+// void	manuelSetup(std::vector<Server *> servers)
+// {
+// 	servers.
+// }
 int	main(int ac, char **av, char **env)
 {
 	signal(SIGINT, signalHandler);
@@ -45,6 +50,10 @@ int	main(int ac, char **av, char **env)
 	int				serverSocket2;
 	sockaddr_in		clientAddr;
 	fd_set			currentSockets, readySockets;
+	std::vector<Server *> server;
+
+	// manuelSetup(server);
+
 	if (ac != 2)
 	{
 		std::cerr << "Need 1 config file OR default path." << std::endl;
@@ -94,3 +103,32 @@ int	main(int ac, char **av, char **env)
 	}
    return (EXIT_SUCCESS);
 }
+
+// std::string	checkFileAndGetContent(char *filename)
+// {
+// 	std::string		src;
+// 	std::string		rawRequest;
+// 	std::ifstream	ifs;
+// 	char	c;
+	
+// 	ifs.open(filename);
+// 	if (ifs.fail())
+// 	{
+// 		std::cerr << "Error : File opening failed." << std::endl;
+// 		return (NULL);
+// 	}
+// 	while (ifs.get(c))
+// 		src+= c;
+// 	ifs.close();
+// 	return (src);
+// }
+
+// bool	formatcheck(char *configFile)
+// {
+// 	std::string	str;
+
+// 	str = checkFileAndGetContent(configFile);
+// 	if (!checkBalancedParantheses(str))
+// 		throw ServerManager::errorMsg("Error : Config file Parantheses not balanced\n");
+// 	return (true);
+// }

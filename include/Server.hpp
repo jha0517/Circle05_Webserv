@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 14:16:12 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 18:15:22 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ public:
 
 private:
 	Request					request;
+
 	// int						sockfd;
 	// int						clientfd;
 	// std::set<Connection *>	activeConnections;

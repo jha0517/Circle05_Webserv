@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 08:03:47 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/09 08:04:49 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 16:37:39 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ public:
 		std::string	name;
 		std::string	value;
 	};
+
 	typedef		std::vector<Header> Headers;
 
 	bool		parseFromString(const std::string &rawMsg);
