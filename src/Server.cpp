@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/13 23:27:44 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 10:26:07 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,34 +208,22 @@ void	Server::demobilize(){
 // 	newConnection->setDataReceivedDelegate(testConnect);
 // }
 
-void	Server::newConnection(int newSocket, sockaddr_in newAddr, char *buffer){
-	Connection connect;
+void	Server::newConnection(int newSocket){
+	Connection connect(newSocket);
+	char		buffer[BUFFSIZE];
 	
-	if (this->activeConnections.find(&connect) == this->activeConnections.end())
-	{
-		printf("Connection accepted from %s: %d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
-		std::cout << "Couldn't find" << std::endl;
-		this->activeConnections.insert(&connect);
-		recv(newSocket, buffer, 1024, 0);
-		printf("%s\n", buffer);
-	}
+	printf("Connection accepted from %s: %d\n", inet_ntoa(this->clientAddr.sin_addr), ntohs(this->clientAddr.sin_port));
+	recv(newSocket, buffer, 3000, 0);
+	printf("%s\n", buffer);
 }
 
 int	Server::acceptConnection(){
-	int					childpid;
-	struct sockaddr_in	newAddr;
+    int					addrlen = sizeof(clientAddr);
 	int					newSocket;
-    int					addrlen = sizeof(newAddr);
-	char				buffer[BUFFSIZE];
 	
-	newSocket = accept(this->sockfd, (struct sockaddr*)&newAddr, (socklen_t *)&addrlen);
+	newSocket = accept(this->sockfd, (struct sockaddr*)&clientAddr, (socklen_t *)&addrlen);
 	if (newSocket < 0)
 		return (-1);
-	if ((childpid = fork()) == 0) // child process
-	{
-		close(this->sockfd);
-		while (1)
-			this->newConnection(newSocket, newAddr, buffer);
-	}
-	return (newSocket);
+	clientfd = newSocket;
+	return (clientfd);
 }

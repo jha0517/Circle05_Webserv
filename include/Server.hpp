@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/13 22:35:07 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 08:48:01 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,19 +49,18 @@ public:
 	~Server();
 	Request	*parseResquest(const std::string &rawRequest);
 	Request	*parseResquest(const std::string &rawRequest, size_t & messageEnd);
-	// bool	mobilize(ServerTransport *transport, unsigned short port);
 	int		startListen(std::string ipAddress, unsigned short port);
 	int		acceptConnection();
 	void	demobilize();
-	// void	newConnection(Connection * newConnection);
-	void	newConnection(int newSocket, sockaddr_in newAddr, char *buffer);
-	// void	dataReceived(ConnectionState *connection, std::vector<unsigned char> data);
+	void	newConnection(int newSocket);
 
 private:
 	Request					request;
-	// ServerTransport			*transport;
 	int						sockfd;
+	int						clientfd;
 	std::set<Connection *>	activeConnections;
+	struct sockaddr_in		clientAddr;
+
 };
 
 #endif

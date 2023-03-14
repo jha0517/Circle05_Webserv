@@ -22,8 +22,7 @@ class Connection
 {
 public:
 
-	Connection();
-	Connection(char *ipAddress, int port);
+	Connection(int socketfd);
 	~Connection();
 
 	// //local site want to receive some thing, it will use setDataReceivedDelegate,and use presumably dataReceivedDelegate given by connection.?.
@@ -45,6 +44,8 @@ public:
 	DataReceivedDelegate	dataReceivedDelegate;
 
 private:
+	Connection();
+	int	socketfd;
 };
 
 #endif

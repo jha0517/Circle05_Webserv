@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/13 21:13:50 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 10:26:24 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,24 +36,50 @@ int	main(int ac, char **av, char **env)
 {
 	signal(SIGINT, signalHandler);
 
-	(void)				av;
-	(void)				env;
-	Server				server;
-
+	(void)			av;
+	(void)			env;
+	Server			server;
+	int				clientSocket;
+	int				serverSocket;
+	fd_set			currentSockets, readySockets;
 	if (ac != 2)
 	{
 		std::cerr << "Need 1 config file OR default path." << std::endl;
 		return (EXIT_FAILURE);
 	}
-	if (server.startListen("127.0.0.1", PORT) < 0)
+	serverSocket = server.startListen("127.0.0.1", PORT);
+	if (serverSocket < 0)
 		return (EXIT_FAILURE);
-	while (1)
+
+	FD_ZERO(&currentSockets);
+	FD_SET(serverSocket, &currentSockets);
+	while (true)
 	{
-		if (server.acceptConnection() < 0)
+		readySockets = currentSockets;
+		if (select(FD_SETSIZE, &readySockets, NULL, NULL, NULL) <= 0)
 		{
-			std::cout << "Error in Accept\n" << std::endl;
+			std::cerr << "Select Error" << std::endl;
 			return (EXIT_FAILURE);
 		}
+		for (int i = 0; i < FD_SETSIZE; i++)
+		{
+			if (FD_ISSET(i, &readySockets)){
+				if (i == serverSocket)
+				{
+					clientSocket = server.acceptConnection();
+					if (clientSocket < 0)
+						return (EXIT_FAILURE);
+					FD_SET(clientSocket, &currentSockets);
+					printf("clientSocket: %d\n", clientSocket);
+				}
+				else
+				{
+					printf("New Connection!\n");
+					server.newConnection(i);
+					FD_CLR(i, &currentSockets);
+				}
+			}
+		}
 	}
-   return EXIT_SUCCESS;
+   return (EXIT_SUCCESS);
 }
