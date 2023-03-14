@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 13:36:58 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 14:51:19 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define PORT 8000
+#define PORT1 8000
+#define PORT2 8001
 
 void	signalHandler(int signum)
 {
@@ -40,7 +41,9 @@ int	main(int ac, char **av, char **env)
 	(void)			env;
 	Server			server;
 	int				clientSocket;
-	int				serverSocket;
+	int				serverSocket1;
+	int				serverSocket2;
+	sockaddr_in		clientAddr;
 	fd_set			currentSockets, readySockets;
 	if (ac != 2)
 	{
@@ -48,11 +51,19 @@ int	main(int ac, char **av, char **env)
 		return (EXIT_FAILURE);
 	}
 
-	serverSocket = server.startListen("127.0.0.1", PORT);
-	if (serverSocket < 0)
+	serverSocket1 = server.startListen("127.0.0.1", PORT1);
+	if (serverSocket1 < 0)
 		return (EXIT_FAILURE);
+
+	serverSocket2 = server.startListen("127.0.0.1", PORT2);
+	if (serverSocket1 < 0)
+		return (EXIT_FAILURE);
+
+
 	FD_ZERO(&currentSockets);
-	FD_SET(serverSocket, &currentSockets);
+	FD_SET(serverSocket1, &currentSockets);
+	FD_SET(serverSocket2, &currentSockets);
+
 	while (true)
 	{
 		readySockets = currentSockets;
@@ -64,9 +75,9 @@ int	main(int ac, char **av, char **env)
 		for (int i = 0; i < FD_SETSIZE; i++)
 		{
 			if (FD_ISSET(i, &readySockets)){
-				if (i == serverSocket)
+				if (i == serverSocket1 || i == serverSocket2)
 				{
-					clientSocket = server.acceptConnection();
+					clientSocket = server.acceptConnection(i, clientAddr);
 					if (clientSocket < 0)
 						return (EXIT_FAILURE);
 					FD_SET(clientSocket, &currentSockets);
@@ -75,7 +86,7 @@ int	main(int ac, char **av, char **env)
 				else
 				{
 					printf("New Connection!\n");
-					server.newConnection(i);
+					server.newConnection(i, clientAddr);
 					FD_CLR(i, &currentSockets);
 				}
 			}

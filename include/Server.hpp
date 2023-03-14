@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 11:24:55 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 14:16:12 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,16 +34,16 @@ public:
 	Request	*parseResquest(const std::string &rawRequest);
 	Request	*parseResquest(const std::string &rawRequest, size_t & messageEnd);
 	int		startListen(std::string ipAddress, unsigned short port);
-	int		acceptConnection();
+	int		acceptConnection(int sockfd, sockaddr_in & clientAddr);
 	void	demobilize();
-	void	newConnection(int newSocket);
+	void	newConnection(int newSocket, sockaddr_in & clientAddr);
 
 private:
 	Request					request;
-	int						sockfd;
-	int						clientfd;
-	std::set<Connection *>	activeConnections;
-	struct sockaddr_in		clientAddr;
+	// int						sockfd;
+	// int						clientfd;
+	// std::set<Connection *>	activeConnections;
+	// struct sockaddr_in		clientAddr;
 
 };
 

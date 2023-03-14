@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/03 15:43:44 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/13 17:26:52 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 13:58:32 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,118 +91,7 @@ TEST(ServerTests, ParseIncompleteBodyRequest){
 	ASSERT_TRUE(request == NULL);
 }
 
-// TO DO:
-// TEST(ServerTests, ParseIncompleteHeadersBetweenLinesRequest){
-// 	Server	server;
-// 	std::string	rawRequest = (
-// 		"POST /test HTTP/1.1\r\n"
-// 		"Host: foo.example\r\n"
-// 		"Content-Type: application"
-// 	);
-// 	Request *request =  server.parseResquest(rawRequest);
-// 	ASSERT_TRUE(request == NULL);
-// }
+TEST(ServerTests, MultipleServer){
 
-
-// TEST(ServerTests, ParseIncompleteRequestLine){
-// 	Server	server;
-// 	std::string	rawRequest = (
-// 		"POST /test HTTP/1.1\r"
-// 	);
-// 	Request *request =  server.parseResquest(rawRequest);
-// 	ASSERT_TRUE(request == NULL);
-// }
-
-TEST(ServerTests, Mobilize)
-{
-	// ServerTransport	transport;
-	// Server			server;
-	
-	// ASSERT_TRUE(server.mobilize(&transport, 1234));
-	// ASSERT_TRUE(transport.bound);
-	// ASSERT_EQ(1234, transport.port);
-	// ASSERT_FALSE(transport.connectionDelegate == NULL);
 }
 
-TEST(ServerTests, Demobilize)
-{
-	// ServerTransport	transport;
-	// Server			server;
-
-	// server.mobilize(&transport, 1234);
-	// server.demobilize();
-	// ASSERT_FALSE(transport.bound);
-}
-
-TEST(ServerTests, ReleaseNetWorkUponDestruction)
-{
-	// ServerTransport	transport;
-	// // MockTransport	transport;
-	// {
-	// 	Server			server;
-	// 	server.mobilize(&transport, 1234);
-	// }
-	// ASSERT_FALSE(transport.bound);
-}
-
-TEST(ServerTests, Expect404FromClientRequestInOnePiece)
-{
-	// ServerTransport	transport;
-	// Connection		connection;
-	// Server			server;
-	
-	// server.mobilize(&transport, 1234);
-	// transport.connectionDelegate(&connection);
-	// ASSERT_FALSE(connection.dataReceivedDelegate == NULL);
-	// std::string	rawRequest = (
-	// 	"POST /test HTTP/1.1\r\n"
-	// 	"Host: foo.example\r\n"
-	// 	"Content-Type: application/x-www-form-urlencoded\r\n"
-	// 	"Content-Length: 27\r\n"
-	// 	"\r\n"
-	// 	"field1=value1&field2=value2\r\n"
-	// );
-	// ASSERT_TRUE(connection.dataReceived.empty());
-	// connection.dataReceivedDelegate(std::vector<unsigned char>(rawRequest.begin(), rawRequest.end()));
-	// std::string	expectedResponse = (
-    //  "HTTP/1.1 404 Not Found\r\n"
-    //  "Content-Length: 35\r\n"
-    //  "Content-Type: text/plain\r\n"
-	//  "\r\n"
-    //  "Hello This is Ratatouille server!\r\n"
-	// );
-	// ASSERT_FALSE(connection.dataReceived.empty());
-	// ASSERT_EQ(expectedResponse, std::string(connection.dataReceived.begin(), connection.dataReceived.end()));
-}
-
-// TEST(ServerTests, Expect404FromClientRequestInTwoPieces)
-// {
-// 	ServerTransport	transport;
-// 	Connection		connection;
-// 	Server			server;
-	
-// 	server.mobilize(&transport, 1234);
-// 	transport.connectionDelegate(&connection);
-// 	ASSERT_FALSE(connection.dataReceivedDelegate == NULL);
-// 	std::string	rawRequest = (
-// 		"POST /test HTTP/1.1\r\n"
-// 		"Host: foo.example\r\n"
-// 		"Content-Type: application/x-www-form-urlencoded\r\n"
-// 		"Content-Length: 27\r\n"
-// 		"\r\n"
-// 		"field1=value1&field2=value2\r\n"
-// 	);
-// 	ASSERT_TRUE(connection.dataReceived.empty());
-// 	connection.dataReceivedDelegate(std::vector<unsigned char>(rawRequest.begin(), rawRequest.begin() + rawRequest.length() / 2));
-// 	ASSERT_TRUE(connection.dataReceived.empty());
-// 	connection.dataReceivedDelegate(std::vector<unsigned char>(rawRequest.begin() + rawRequest.length() / 2, rawRequest.end()));
-// 	std::string	expectedResponse = (
-//      "HTTP/1.1 404 Not Found\r\n"
-//      "Content-Length: 35\r\n"
-//      "Content-Type: text/plain\r\n"
-// 	 "\r\n"
-//      "Hello This is Ratatouille server!\r\n"
-// 	);
-// 	ASSERT_FALSE(connection.dataReceived.empty());
-// 	ASSERT_EQ(expectedResponse, std::string(connection.dataReceived.begin(), connection.dataReceived.end()));
-// }
