@@ -16,6 +16,7 @@ SRCS		=	$(addprefix src/,									\
 												MessageHeaders.cpp	\
 												Server.cpp			\
 												Uri.cpp				\
+												Response.cpp				\
 				)
 
 DEPS			= $(SRCS:.cpp=.d)

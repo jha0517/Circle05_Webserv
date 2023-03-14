@@ -6,21 +6,18 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 08:48:01 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 11:24:55 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_H
 # define SERVER_H
 # include <string>
-# include <string.h>
 # include <set>
-# include "Uri.hpp"
-# include "MessageHeaders.hpp"
 # include "Connection.hpp"
 # include <csignal>
 # include <iostream>
-
+# include "Webserv.hpp"
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -28,19 +25,6 @@
 # include <sys/types.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
-
-struct	Request{
-	std::string		method;
-	std::string		body;
-	Uri				target;
-	MessageHeaders	headers;
-};
-
-// struct ConnectionState
-// {
-// 	Connection *connection = NULL;
-// 	std::string	reassembleBuffer;
-// };
 
 class Server
 {

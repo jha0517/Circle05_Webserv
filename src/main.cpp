@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 10:26:24 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 13:36:58 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,10 @@ int	main(int ac, char **av, char **env)
 		std::cerr << "Need 1 config file OR default path." << std::endl;
 		return (EXIT_FAILURE);
 	}
+
 	serverSocket = server.startListen("127.0.0.1", PORT);
 	if (serverSocket < 0)
 		return (EXIT_FAILURE);
-
 	FD_ZERO(&currentSockets);
 	FD_SET(serverSocket, &currentSockets);
 	while (true)

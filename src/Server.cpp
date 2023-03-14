@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 10:26:07 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/14 12:35:16 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,13 +208,22 @@ void	Server::demobilize(){
 // 	newConnection->setDataReceivedDelegate(testConnect);
 // }
 
-void	Server::newConnection(int newSocket){
-	Connection connect(newSocket);
+void	Server::newConnection(int clientSocket){
+	Request		*request;
+	std::string	response;
 	char		buffer[BUFFSIZE];
-	
+	Connection	connect(clientSocket);
+	std::size_t	messageEnd;
+
 	printf("Connection accepted from %s: %d\n", inet_ntoa(this->clientAddr.sin_addr), ntohs(this->clientAddr.sin_port));
-	recv(newSocket, buffer, 3000, 0);
+	recv(clientSocket, buffer, 3000, 0);
 	printf("%s\n", buffer);
+	request = this->parseResquest(buffer, messageEnd);
+	if (request == NULL)
+		return ;
+	response = connect.constructResponse(request, messageEnd);
+	send(clientSocket, response.c_str(), strlen(response.c_str()), 0);
+	bzero(buffer, sizeof(buffer));	
 }
 
 int	Server::acceptConnection(){
