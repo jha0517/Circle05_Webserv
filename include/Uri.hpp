@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/05 00:19:46 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/13 17:30:35 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 11:43:09 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,9 @@ public:
 	std::string					getFragement() const;
 	std::string					getQuery() const;
 	std::string					getHost() const;
+	std::string					constructPath();
 	std::vector<std::string>	getPath();
-	unsigned short					getPort() const;
+	unsigned short				getPort() const;
 
 	void						setSplitChar(const std::string & newchar);
 	void						setScheme(const std::string & newScheme);

@@ -15,6 +15,7 @@
 # include <string>
 # include <vector>
 # include "Client.hpp"
+# include "Server.hpp"
 # include <set>
 # include <csignal>
 # include "Webserv.hpp"
@@ -37,13 +38,7 @@ public:
 	Connection(int socketfd);
 	~Connection();
 
-	//local site want to receive some thing, it will use setDataReceivedDelegate,and use presumably dataReceivedDelegate given by connection.?.
-	// void		setDataReceivedDelegate(DataReceivedDelegate dataReceivedDelegate);
-	//local site want to send data, it will use sendData.
-	// void		sendData(std::vector<unsigned char> data); // unsigned char 0-255, == uchar
-	// void		setBrokenDelegate(BrokenDelegate brokenDelegate);
-	// void		breakConnection(bool clean);
-	std::string	constructResponse(Request * request, std::size_t messageEnd);
+	std::string	constructResponse(Server & server);
 
 	std::vector<unsigned char>	dataReceived;
 	BrokenDelegate				brokenDelegate;

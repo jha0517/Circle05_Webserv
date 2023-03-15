@@ -6,18 +6,17 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 08:14:33 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 14:49:38 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_H
 # define SERVER_H
+# include "Webserv.hpp"
 # include <string>
 # include <set>
-# include "Connection.hpp"
 # include <csignal>
 # include <iostream>
-# include "Webserv.hpp"
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -33,16 +32,14 @@ public:
 	~Server();
 	Request	*parseResquest(const std::string &rawRequest);
 	Request	*parseResquest(const std::string &rawRequest, size_t & messageEnd);
-	int		startListen(std::string ipAddress, unsigned short port);
 	int		startListen();
-	int		acceptConnection(int sockfd, sockaddr_in & clientAddr);
 	int		acceptConnection();
-	void	demobilize();
-	void	newConnection(int newSocket, sockaddr_in & clientAddr);
 	void	newConnection();
+	void	demobilize();
 	int						port;
 	int						sockfd;
 	int						clientfd;
+	std::string				error_page;
 	std::string				host;
 	std::string				root;
 	std::string				serverName;

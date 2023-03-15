@@ -6,12 +6,12 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 08:42:25 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 11:48:18 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
-#define BUFFSIZE 3000
+#include "../include/Connection.hpp"
 
 Server::Server() : sockfd(-1)
 {
@@ -127,42 +127,6 @@ Request*	Server::parseResquest(const std::string &rawRequest){
 // 	return true;
 // }
 
-int	Server::startListen(std::string ipAddress, unsigned short port){
-	struct sockaddr_in	serverAddr;
-	int					sockfd;
-
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)
-	{
-		printf("Error in Connection\n");
-		return (-1);
-	}
-	printf("Server Socket is created\n");
-	printf("sockfd : %i\n", sockfd);
-	memset(&serverAddr, '\0', sizeof(serverAddr));
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(port);
-	serverAddr.sin_addr.s_addr = inet_addr(ipAddress.c_str());
-
-	if (bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
-	{
-		printf("Error in binding\n");
-		return (-1);
-	}
-	printf("Bind to port %d\n", port);
-
-	if ((listen(sockfd, 10)) == 0)
-	{
-		printf("Listening....\n");
-	}
-	else
-	{
-		printf("Error in Listening\n");
-		return (-1);
-	}
-	return (sockfd);
-}
-
 int	Server::startListen(){
 	// int					sockfd;
 
@@ -172,25 +136,16 @@ int	Server::startListen(){
 		printf("Error in Connection\n");
 		return (-1);
 	}
-	printf("Server Socket is created\n");
-	printf("sockfd : %i\n", this->sockfd);
 	memset(&serverAddr, '\0', sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(this->port);
 	serverAddr.sin_addr.s_addr = inet_addr(this->host.c_str());
-	printf("finished serv address config\n");
 	if (bind(this->sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
 	{
 		printf("Error in binding\n");
 		return (-1);
 	}
-	printf("Bind to port %d\n", port);
-
-	if ((listen(this->sockfd, 10)) == 0)
-	{
-		printf("Listening....\n");
-	}
-	else
+	if ((listen(this->sockfd, 10)) != 0)
 	{
 		printf("Error in Listening\n");
 		return (-1);
@@ -199,101 +154,23 @@ int	Server::startListen(){
 }
 
 void	Server::demobilize(){
-	
-	// if (transport != NULL)
-	// 	transport->releaseNetwork();
-	// transport = NULL;
-}
-
-// void	Server::dataReceived(ConnectionState *connectionState, std::vector<unsigned char> data){
-// 	Request		*request;
-// 	std::size_t	messageEnd;
-
-// 	connectionState->reassembleBuffer += std::string(data.begin(), data.end());
-// 	// std::cout << connectionState->reassembleBuffer << std::endl;
-// 	request = this->parseResquest(connectionState->reassembleBuffer, messageEnd);
-// 	if (request == NULL)
-// 		return ;
-// 	connectionState->reassembleBuffer.erase(connectionState->reassembleBuffer.begin(), connectionState->reassembleBuffer.begin() + messageEnd);
-// 	std::string	cannedResponse = (
-//      "HTTP/1.1 404 Not Found\r\n"
-//      "Content-Length: 35\r\n"
-//      "Content-Type: text/plain\r\n"
-// 	 "\r\n"
-//      "Hello This is Ratatouille server!\r\n"
-// 	);
-// 	connectionState->connection->sendData(std::vector<unsigned char>(cannedResponse.begin(), cannedResponse.end()));
-// }
-
-// void	testConnect(std::vector<unsigned char> data)
-// {
-// 	if(tmpConnection == NULL)
-// 		return ;
-// 	serv->dataReceived(tmpConnection, data);
-// }
-
-// void	Server::newConnection(Connection *newConnection){
-// 	if (newConnection == NULL)
-// 		return ;
-
-// 	connectionState.connection = newConnection;
-// 	activeConnections.insert(&connectionState);
-
-// 	tmpConnection = &connectionState;
-// 	serv = this;
-// 	newConnection->setDataReceivedDelegate(testConnect);
-// }
-
-void	Server::newConnection(int clientSocket, sockaddr_in & clientAddr){
-	Request		*request;
-	std::string	response;
-	char		buffer[BUFFSIZE];
-	Connection	connect(clientSocket);
-	std::size_t	messageEnd;
-
-	printf("Connection accepted from %s: %d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-	recv(clientSocket, buffer, 3000, 0);
-	printf("%s\n", buffer);
-	request = this->parseResquest(buffer, messageEnd);
-	if (request == NULL)
-		return ;
-	response = connect.constructResponse(request, messageEnd);
-	send(clientSocket, response.c_str(), strlen(response.c_str()), 0);
-	bzero(buffer, sizeof(buffer));	
 }
 
 void	Server::newConnection(){
-	Request		*request;
 	std::string	response;
-	char		buffer[BUFFSIZE];
 	Connection	connect(clientfd);
-	std::size_t	messageEnd;
 
-	printf("Connection accepted from %s: %d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-	recv(clientfd, buffer, 3000, 0);
-	printf("%s\n", buffer);
-	request = this->parseResquest(buffer, messageEnd);
-	if (request == NULL)
-		return ;
-	response = connect.constructResponse(request, messageEnd);
+	std::cout << "New Connection : Host[" << inet_ntoa(clientAddr.sin_addr) <<"] PORT["<< ntohs(clientAddr.sin_port) << "] AssignedFd[" << clientfd << "]" << std::endl;
+	response = connect.constructResponse(*this);
+	printf("%s\n", response.c_str());
 	send(clientfd, response.c_str(), strlen(response.c_str()), 0);
-	bzero(buffer, sizeof(buffer));	
-}
-
-int	Server::acceptConnection(int sockfd, sockaddr_in & clientAddr){
-    int					addrlen = sizeof(clientAddr);
-	int					newSocket;
-	
-	newSocket = accept(sockfd, (struct sockaddr*)&clientAddr, (socklen_t *)&addrlen);
-	if (newSocket < 0)
-		return (-1);
-	return (newSocket);
 }
 
 int	Server::acceptConnection(){
     int					addrlen = sizeof(clientAddr);
 	
 	clientfd = accept(sockfd, (struct sockaddr*)&clientAddr, (socklen_t *)&addrlen);
+	// std::cout << "Server Accepting : Host[" << inet_ntoa(clientAddr.sin_addr) <<"] PORT["<< ntohs(clientAddr.sin_port) << "] AssignedFd[" << clientfd << "]" << std::endl;
 	if (clientfd < 0)
 		return (-1);
 	return (clientfd);

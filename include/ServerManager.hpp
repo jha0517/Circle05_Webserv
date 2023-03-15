@@ -1,30 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
+/*   ServerManager.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/06 11:25:44 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 11:42:39 by hyunah           ###   ########.fr       */
+/*   Created: 2023/03/15 08:52:05 by hyunah            #+#    #+#             */
+/*   Updated: 2023/03/15 11:43:04 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_H
-# define CLIENT_H
-# include <string>
-# include <stdlib.h>
-# include "Response.hpp"
+#ifndef SERVERMANAGER_H
+# define SERVERMANAGER_H
+# include <vector>
+# include <sys/select.h>
+# include "Config.hpp"
+# include "Server.hpp"
 
-class Client
+class ServerManager
 {
 private:
-	Response	response;
+	fd_set					currentSockets;
+	fd_set					readySockets;
+	std::vector<Server *>	servers;
+	std::vector<int>		serverFds;
+	bool					error;
 
 public:
-	Client();
-	~Client();
-	Response	*parseResponse(const std::string &rawReponse);
+	ServerManager();
+	~ServerManager();
+	bool initiate(Config & config);
+	bool run();
 };
 
 #endif

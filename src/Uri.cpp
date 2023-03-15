@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:10 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/13 17:42:09 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 11:52:29 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -244,4 +244,17 @@ bool	Uri::operator==(Uri const &rhs) const {
 	if (path != rhs.path)
 		return (false);
 	return (true);
+}
+
+std::string	Uri::constructPath(){
+	std::string result;
+
+	result = "";
+	if (existPath){
+		for (std::vector<std::string>::iterator it = path.begin(); it != path.end(); ++it)
+		{
+			result += "/" + *it;
+		}
+	}
+	return (result);
 }

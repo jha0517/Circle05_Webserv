@@ -116,3 +116,10 @@ std::string	MessageHeaders::getHeaderValue(std::string name) const {
 void	MessageHeaders::setBody(const std::string newBody){
 	body = newBody;
 }
+
+void	MessageHeaders::addHeader(std::string name, std::string value){
+	Header tmp;
+	tmp.name = stripMarginWhitespace(name);
+	tmp.value = stripMarginWhitespace(value);
+	headers.push_back(tmp);
+}

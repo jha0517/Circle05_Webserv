@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 13:33:44 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 15:30:04 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,15 @@
 # define RESPONSE_H
 # include "Uri.hpp"
 # include "MessageHeaders.hpp"
+# include "Server.hpp"
 # include "Webserv.hpp"
+# include <map>
+
 
 class Response
 {
 private:
+	std::map<int, std::string> statusCodeDic;
 public:
 	Response();
 	~Response();
@@ -26,9 +30,11 @@ public:
 	std::string		reasonPhrase;
 	Uri				target;
 	MessageHeaders	headers;
-	std::string		getMethod(Request *request, std::size_t messageEnd);
-	std::string		postMethod(Request *request, std::size_t messageEnd);
-	std::string		deleteMethod(Request *request, std::size_t messageEnd);
+	std::string		getMethod(Server &server, Request *request, std::size_t messageEnd);
+	std::string		postMethod(Server &server, Request *request, std::size_t messageEnd);
+	std::string		deleteMethod(Server &server, Request *request, std::size_t messageEnd);
+	std::string		buildResponse(std::string dir, int errorCode);
+	std::string		buildErrorResponse(std::string dir, int errorCode);
 };
 
 #endif

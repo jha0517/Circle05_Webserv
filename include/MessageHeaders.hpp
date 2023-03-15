@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 08:03:47 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 16:37:39 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 14:32:43 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ public:
 	std::string	getBody() const;
 	void		setBody(const std::string newBody);
 	std::string	generateRawMsg();
+	void		addHeader(std::string name, std::string value);
 
 	MessageHeaders();
 	~MessageHeaders();
