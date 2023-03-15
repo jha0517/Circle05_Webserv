@@ -13,10 +13,12 @@ SRCS		=	$(addprefix src/,									\
 												main.cpp			\
 												Client.cpp			\
 												Connection.cpp		\
+												Config.cpp			\
 												MessageHeaders.cpp	\
 												Server.cpp			\
+												ServerManager.cpp	\
 												Uri.cpp				\
-												Response.cpp				\
+												Response.cpp		\
 				)
 
 DEPS			= $(SRCS:.cpp=.d)

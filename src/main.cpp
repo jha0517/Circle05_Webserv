@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 15:15:41 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 19:15:26 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,21 +36,21 @@ int	main(int ac, char **av, char **env)
 
 	(void)			av;
 	(void)			env;
-	Server			*server;
-	Server			server1;
-	Server			server2;
-	fd_set			currentSockets, readySockets;
 	std::vector<int> serverFds;
 	ServerManager	serverManager;
 	Config			config;
+	
 //config Start
 	std::vector<Server *> servers;
+	Server			server1;
+	Server			server2;
 	server1.port = 8000;
 	server1.host = "127.0.0.1";
 	server1.root = "/home/hyunah/Documents/webserv/data";
 	server1.serverName = "RatatouilleServer1";
 	server1.locationRoot = "/fruits";
 	server1.error_page = "/home/hyunah/Documents/webserv/data/error_pages";
+	server1.maxClientBodySize = 400;
 
 	servers.push_back(&server1);
 
@@ -60,6 +60,7 @@ int	main(int ac, char **av, char **env)
 	server2.serverName = "RatatouilleServer2";
 	server2.error_page = "/home/hyunah/Documents/webserv/data/error_pages";
 	server2.locationRoot = "/fruits";
+	server2.maxClientBodySize = 400;
 
 	servers.push_back(&server2);
 //config End

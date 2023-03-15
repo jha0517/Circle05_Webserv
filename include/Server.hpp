@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 14:49:38 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 19:06:57 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ public:
 	int						port;
 	int						sockfd;
 	int						clientfd;
+	int						maxClientBodySize;
 	std::string				error_page;
 	std::string				host;
 	std::string				root;

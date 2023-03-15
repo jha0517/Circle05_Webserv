@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 15:34:49 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 19:16:24 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,8 @@ std::string	Response::getMethod(Server &server, Request *request, std::size_t me
 std::string	Response::postMethod(Server &server, Request *request, std::size_t messageEnd){
 	(void) request;
 	(void) messageEnd;
+	(void) request;
+	(void) server;
 	std::cout << "In PostMethod\n";
 	std::string	expectedResponse = (
      "HTTP/1.1 404 Not Found\r\n"
@@ -146,6 +148,8 @@ std::string	Response::postMethod(Server &server, Request *request, std::size_t m
 std::string	Response::deleteMethod(Server &server, Request *request, std::size_t messageEnd){
 	(void) request;
 	(void) messageEnd;
+	(void) request;
+	(void) server;
 	std::cout << "In DeleteMethod\n";
 	std::string	expectedResponse = (
      "HTTP/1.1 404 Not Found\r\n"

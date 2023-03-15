@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 15:30:29 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 09:09:00 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 19:15:04 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,11 @@
 class Config
 {
 private:
-	std::vector<std::string> serversConfig;
+	// std::vector<std::string> serversConfig;
 public:
 	Config();
 	~Config();
-	bool	parseFromString(const std::string &rawMsg);
-	int		getServerCount();
+	// bool	parseFromString(const std::string &rawMsg);
+	// int		getServerCount();
 	std::vector<Server *> servers;
 };
