@@ -6,14 +6,14 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 14:26:15 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 08:42:25 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 #define BUFFSIZE 3000
 
-Server::Server()
+Server::Server() : sockfd(-1)
 {
 }
 
@@ -163,6 +163,41 @@ int	Server::startListen(std::string ipAddress, unsigned short port){
 	return (sockfd);
 }
 
+int	Server::startListen(){
+	// int					sockfd;
+
+	this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->sockfd < 0)
+	{
+		printf("Error in Connection\n");
+		return (-1);
+	}
+	printf("Server Socket is created\n");
+	printf("sockfd : %i\n", this->sockfd);
+	memset(&serverAddr, '\0', sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(this->port);
+	serverAddr.sin_addr.s_addr = inet_addr(this->host.c_str());
+	printf("finished serv address config\n");
+	if (bind(this->sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
+	{
+		printf("Error in binding\n");
+		return (-1);
+	}
+	printf("Bind to port %d\n", port);
+
+	if ((listen(this->sockfd, 10)) == 0)
+	{
+		printf("Listening....\n");
+	}
+	else
+	{
+		printf("Error in Listening\n");
+		return (-1);
+	}
+	return (this->sockfd);
+}
+
 void	Server::demobilize(){
 	
 	// if (transport != NULL)
@@ -227,6 +262,24 @@ void	Server::newConnection(int clientSocket, sockaddr_in & clientAddr){
 	bzero(buffer, sizeof(buffer));	
 }
 
+void	Server::newConnection(){
+	Request		*request;
+	std::string	response;
+	char		buffer[BUFFSIZE];
+	Connection	connect(clientfd);
+	std::size_t	messageEnd;
+
+	printf("Connection accepted from %s: %d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+	recv(clientfd, buffer, 3000, 0);
+	printf("%s\n", buffer);
+	request = this->parseResquest(buffer, messageEnd);
+	if (request == NULL)
+		return ;
+	response = connect.constructResponse(request, messageEnd);
+	send(clientfd, response.c_str(), strlen(response.c_str()), 0);
+	bzero(buffer, sizeof(buffer));	
+}
+
 int	Server::acceptConnection(int sockfd, sockaddr_in & clientAddr){
     int					addrlen = sizeof(clientAddr);
 	int					newSocket;
@@ -235,4 +288,13 @@ int	Server::acceptConnection(int sockfd, sockaddr_in & clientAddr){
 	if (newSocket < 0)
 		return (-1);
 	return (newSocket);
+}
+
+int	Server::acceptConnection(){
+    int					addrlen = sizeof(clientAddr);
+	
+	clientfd = accept(sockfd, (struct sockaddr*)&clientAddr, (socklen_t *)&addrlen);
+	if (clientfd < 0)
+		return (-1);
+	return (clientfd);
 }

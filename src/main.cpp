@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 18:31:19 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/15 08:47:26 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "main.h"
 
 #define PORT1 8000
 #define PORT2 8001
@@ -34,25 +35,94 @@ void	signalHandler(int signum)
 	exit(EXIT_SUCCESS);
 }
 
-// void	manuelSetup(std::vector<Server *> servers)
-// {
-// 	servers.
-// }
+std::vector<Server *> & manuelSetup(std::vector<Server *> & servers)
+{
+	Server server1;
+	
+	server1.port = 8000;
+	server1.host = "127.0.0.1";
+	server1.root = "/home/hyunah/Desktop/mysite";
+	server1.serverName = "RatatouilleServer1";
+	server1.locationRoot = "/fruits";
+
+	servers.push_back(&server1);
+
+	Server server2;
+	
+	server2.port = 33;
+	server2.host = "127.0.0.1";
+	server2.root = "/home/hyunah/Desktop/mysite";
+	server2.serverName = "RatatouilleServer2";
+	server2.locationRoot = "/fruits";
+
+	servers.push_back(&server2);
+	return (servers);
+}
+
+Server	*findServer(int i, std::vector<Server *> servers, int & isForServer)
+{
+	// for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it)
+	// {
+	// 	if (it->sockfd == i)
+	// 		return (it);
+	// }
+	// return (NULL);
+	std::vector<Server *>::iterator itS = servers.begin();
+	std::vector<Server *>::iterator itE = servers.end();
+	while (itS != itE)
+	{
+		if ((*itS)->sockfd == i)
+		{
+			isForServer = 1;
+			return (*itS);
+		}
+		itS++;
+	}
+	itS = servers.begin();
+	while (itS != itE)
+	{
+		if ((*itS)->clientfd == i)
+		{
+			isForServer = 0;
+			return (*itS);
+		}
+		itS++;
+	}
+	return (NULL);
+}
 int	main(int ac, char **av, char **env)
 {
 	signal(SIGINT, signalHandler);
 
 	(void)			av;
 	(void)			env;
-	Server			server;
+	Server			*server;
+	Server			server1;
+	Server			server2;
 	int				clientSocket;
-	int				serverSocket1;
-	int				serverSocket2;
+	int				isForServer;
 	sockaddr_in		clientAddr;
 	fd_set			currentSockets, readySockets;
-	std::vector<Server *> server;
+	std::vector<int> serverFds;
 
-	// manuelSetup(server);
+//config Start
+	std::vector<Server *> servers;
+	server1.port = 8000;
+	server1.host = "127.0.0.1";
+	server1.root = "/home/hyunah/Desktop/mysite";
+	server1.serverName = "RatatouilleServer1";
+	server1.locationRoot = "/fruits";
+
+	servers.push_back(&server1);
+
+	server2.port = 8001;
+	server2.host = "127.0.0.1";
+	server2.root = "/home/hyunah/Desktop/mysite";
+	server2.serverName = "RatatouilleServer2";
+	server2.locationRoot = "/fruits";
+
+	servers.push_back(&server2);
+//config End
 
 	if (ac != 2)
 	{
@@ -60,19 +130,14 @@ int	main(int ac, char **av, char **env)
 		return (EXIT_FAILURE);
 	}
 
-	serverSocket1 = server.startListen("127.0.0.1", PORT1);
-	if (serverSocket1 < 0)
-		return (EXIT_FAILURE);
-
-	serverSocket2 = server.startListen("127.0.0.1", PORT2);
-	if (serverSocket1 < 0)
-		return (EXIT_FAILURE);
-
-
 	FD_ZERO(&currentSockets);
-	FD_SET(serverSocket1, &currentSockets);
-	FD_SET(serverSocket2, &currentSockets);
-
+	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
+	{
+		if ((*it)->startListen() < 0)
+			return (printf("startListening Function Failed\n"), EXIT_FAILURE);
+		FD_SET((*it)->sockfd, &currentSockets);
+	}
+	printf("Loop end\n");
 	while (true)
 	{
 		readySockets = currentSockets;
@@ -84,18 +149,20 @@ int	main(int ac, char **av, char **env)
 		for (int i = 0; i < FD_SETSIZE; i++)
 		{
 			if (FD_ISSET(i, &readySockets)){
-				if (i == serverSocket1 || i == serverSocket2)
+				server = findServer(i, servers, isForServer);
+				std::cout << "IsForServer : "<< isForServer << std::endl;
+				if (server && isForServer)
 				{
-					clientSocket = server.acceptConnection(i, clientAddr);
-					if (clientSocket < 0)
+					server->clientfd = server->acceptConnection();
+					if (server->clientfd < 0)
 						return (EXIT_FAILURE);
-					FD_SET(clientSocket, &currentSockets);
-					printf("clientSocket: %d\n", clientSocket);
+					FD_SET(server->clientfd, &currentSockets);
+					printf("clientSocket: %d\n", server->clientfd);
 				}
-				else
+				else if (server && (isForServer == 0))
 				{
 					printf("New Connection!\n");
-					server.newConnection(i, clientAddr);
+					server->newConnection();
 					FD_CLR(i, &currentSockets);
 				}
 			}
