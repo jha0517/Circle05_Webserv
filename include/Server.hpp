@@ -6,13 +6,13 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 06:40:54 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 16:56:21 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_H
 # define SERVER_H
-# include "Webserv.hpp"
+# include "Request.hpp"
 # include <string>
 # include <set>
 # include <csignal>
@@ -30,8 +30,8 @@ class Server
 public:
 	Server();
 	~Server();
-	Request					*parseResquest(const std::string &rawRequest);
-	Request					*parseResquest(const std::string &rawRequest, size_t & messageEnd);
+	// Request					*parseResquest(const std::string &rawRequest);
+	// Request					*parseResquest(const std::string &rawRequest, size_t & messageEnd);
 	int						startListen();
 	int						acceptConnection();
 	void					newConnection();
