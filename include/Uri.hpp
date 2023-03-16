@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/05 00:19:46 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 11:43:09 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 14:07:29 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,20 @@
 class Uri
 {
 private:
-	bool		existPath;
-	bool		existPort;
-	unsigned short	port;
-	std::string	scheme;
-	std::string	host;
-	std::string	splitchar;
-	std::string	fragment;
-	std::string	query;
+	bool			existPath;
+	bool			existPort;
+	unsigned short	port; // uint16.
+	std::string		parseScheme(std::string uriString);
+	void			parsePath(std::string & pathString);
+	std::string		findQueryFragment(std::string & rest, std::string & queryAndOrFrag);
+	void			parseQueryFragment(std::string & queryAndOrFrag);
+	bool			parseValidPort(std::string &pathString, int portDelimeter, int authorityEnd);
+	void			parseFragment(std::string & queryAndOrFrag);
+	std::string		scheme;
+	std::string		host;
+	std::string		splitchar;
+	std::string		fragment;
+	std::string		query;
 	std::vector<std::string> path;
 
 public:
@@ -57,5 +63,8 @@ public:
 	Uri & 						operator=(const Uri &rhs);
 	bool 						operator==(Uri const &rhs) const;
 };
+
+
+std::ostream & operator<<(std::ostream & o, Uri & rhs);
 
 #endif 

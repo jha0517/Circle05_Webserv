@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/03 15:43:44 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/14 18:32:03 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 14:05:46 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,14 @@ TEST(UriTests, ParseFromStringDoesNotPortNumber){
 	ASSERT_FALSE(uri.hasPort());
 }
 
+TEST(UriTests, ParseFromStringTwiceFirstWithPortNumberThenWithout){
+	Uri uri;
+
+	ASSERT_TRUE(uri.parsingFromString("http://www.lolo.com:8000/foo/bar"));
+	ASSERT_TRUE(uri.parsingFromString("http://www.lolo.com/foo/bar"));
+	ASSERT_FALSE(uri.hasPort());
+}
+
 TEST(UriTests, ParseFromStringFirstPortThenNoPort){
 	Uri uri;
 
@@ -155,7 +163,7 @@ TEST(UriTests, ParseFromStringBadPortNumber){
 
 TEST(UriTests, ParseFromStringIsRelativeReference){
 	Uri uri;
-
+	//No scheme
 	ASSERT_TRUE(uri.parsingFromString("http://www.example.com/"));
 	ASSERT_EQ(uri.hasRelativeReference(), false);
 
@@ -167,26 +175,29 @@ TEST(UriTests, ParseFromStringIsRelativeReference){
 
 	ASSERT_TRUE(uri.parsingFromString("foo"));
 	ASSERT_EQ(uri.hasRelativeReference(), true);
-}
 
+	ASSERT_TRUE(uri.parsingFromString(""));
+	ASSERT_EQ(uri.hasRelativeReference(), true);
+
+}
 
 TEST(UriTests, ParseFromStringIsRelativePath){
 	Uri uri;
 
 	ASSERT_TRUE(uri.parsingFromString("http://www.example.com/"));
-	ASSERT_EQ(uri.ContainsRelativePath(), true);
+	ASSERT_EQ(uri.ContainsRelativePath(), false);
 
 	ASSERT_TRUE(uri.parsingFromString("http://www.example.com"));
-	ASSERT_EQ(uri.ContainsRelativePath(), false);
-
-	ASSERT_TRUE(uri.parsingFromString("/"));
 	ASSERT_EQ(uri.ContainsRelativePath(), true);
 
-	ASSERT_TRUE(uri.parsingFromString("foo"));
+	ASSERT_TRUE(uri.parsingFromString("/"));
 	ASSERT_EQ(uri.ContainsRelativePath(), false);
+
+	ASSERT_TRUE(uri.parsingFromString("foo"));
+	ASSERT_EQ(uri.ContainsRelativePath(), true);
 }
 
-TEST(UriTests, ParseFromStringFragments){
+TEST(UriTests, ParseFromStringFragmentsQuerys){
 	Uri uri;
 
 	ASSERT_TRUE(uri.parsingFromString("http://www.example.com/"));
@@ -213,6 +224,12 @@ TEST(UriTests, ParseFromStringFragments){
 	ASSERT_EQ(uri.getHost(), "www.example.com");
 	ASSERT_EQ(uri.getQuery(), "earth?day");
 	ASSERT_EQ(uri.getFragement(), "bar");
+
+	ASSERT_TRUE(uri.parsingFromString("http://www.example.com/spam?foo#bar"));
+	ASSERT_EQ(uri.getHost(), "www.example.com");
+	ASSERT_EQ(uri.getQuery(), "foo");
+	ASSERT_EQ(uri.getFragement(), "bar");
+
 	// TO RESEARCH : 
 	// ASSERT_TRUE(uri.parsingFromString("http://www.example.com/?"));
 	// ASSERT_TRUE(uri.parsingFromString("http://www.example.com/??foo"));

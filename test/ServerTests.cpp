@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerTests.cpp                                    :+:      :+:    :+:   */
+/*   ServerTests.cppt                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:49:58 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 08:50:00 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 09:05:18 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 TEST(ServerTests, ParseGetRequest){
 	Server	server;
 	Request *request =  server.parseResquest(
-     "GET /hello.txt HTTP/1.1\r\n"
+     "GET /hwello.txt HTTP/1.1\r\n"
      "User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3\r\n"
      "Host: www.example.com\r\n"
      "Accept-Language: en, mi\r\n"

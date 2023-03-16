@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 06:35:12 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 09:02:20 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ Request*	Server::parseResquest(const std::string &rawRequest, size_t & messageEn
 	}
 	return (&request);
 }
-
 	
 Request*	Server::parseResquest(const std::string &rawRequest){
 	std::size_t	messageEnd;
@@ -105,35 +104,12 @@ Request*	Server::parseResquest(const std::string &rawRequest){
 	return (this->parseResquest(rawRequest, messageEnd));
 }
 
-// Server		*serv = NULL;
-// ConnectionState	*tmpConnection = NULL;
-// ConnectionState connectionState;
-
-// void	test(Connection *connection)
-// {
-// 	// std::cout << "test called serv instance address " << serv << std::endl;
-// 	serv->newConnection(connection);
-// }
-
-// bool	Server::mobilize(ServerTransport *newTransport, unsigned short newPort){
-
-// 	transport = newTransport;
-// 	serv = this;
-// 	if(!transport->bindNetwork(newPort, test))
-// 	{
-// 		this->transport = NULL;
-// 		return false;
-// 	}
-// 	return true;
-// }
-
 int	Server::startListen(){
-	// int					sockfd;
 
 	this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->sockfd < 0)
 	{
-		printf("Error in Connection\n");
+		std::cout <<"Error in Connection\n" << std::endl;
 		return (-1);
 	}
 	memset(&serverAddr, '\0', sizeof(serverAddr));
@@ -142,12 +118,12 @@ int	Server::startListen(){
 	serverAddr.sin_addr.s_addr = inet_addr(this->host.c_str());
 	if (bind(this->sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
 	{
-		printf("Error in binding\n");
+		std::cerr <<"Error in binding\n" << std::endl;
 		return (-1);
 	}
 	if ((listen(this->sockfd, 10)) != 0)
 	{
-		printf("Error in Listening\n");
+		std::cerr <<"Error in Listening\n" << std::endl;
 		return (-1);
 	}
 	return (this->sockfd);
@@ -160,18 +136,20 @@ void	Server::newConnection(){
 	std::string	response;
 	Connection	connect(clientfd);
 
-	std::cout << "New Connection : Host[" << inet_ntoa(clientAddr.sin_addr) <<"] PORT["<< ntohs(clientAddr.sin_port) << "] AssignedFd[" << clientfd << "]" << std::endl;
+	std::cout << "New Connection : \
+	Host[" << inet_ntoa(clientAddr.sin_addr) <<"] \
+	PORT[" << ntohs(clientAddr.sin_port) << "] \
+	AssignedFd[" << clientfd << "]" << std::endl;
 	response = connect.constructResponse(*this);
 	printf("%s\n", response.c_str());
 	if (send(clientfd, response.c_str(), strlen(response.c_str()), 0) < 0)
-		std::cout << "Sending message Failed" << std::endl;
+		std::cerr << "Sending message Failed" << std::endl;
 }
 
 int	Server::acceptConnection(){
     int					addrlen = sizeof(clientAddr);
 	
 	clientfd = accept(sockfd, (struct sockaddr*)&clientAddr, (socklen_t *)&addrlen);
-	// std::cout << "Server Accepting : Host[" << inet_ntoa(clientAddr.sin_addr) <<"] PORT["<< ntohs(clientAddr.sin_port) << "] AssignedFd[" << clientfd << "]" << std::endl;
 	if (clientfd < 0)
 		return (-1);
 	return (clientfd);

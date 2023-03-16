@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:10 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 11:52:29 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 14:08:30 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,70 +21,24 @@ Uri::Uri() : existPath(false), existPort(true), port(0), scheme (""), host(""), 
 Uri::~Uri()
 {
 }
-
-bool	Uri::parsingFromString(const std::string & uriString){
-	scheme = "";
-	host = "";
-	path.clear();
-	port = 0;
-	existPort = false;
-	existPath = true;
-	long long port_tmp = 0;
-	
-	// Parsing scheme
+std::string		Uri::parseScheme(std::string uriString)
+{
 	std::size_t schemeDelimiter = uriString.find(':');
 	std::string	rest;
 	if (schemeDelimiter == std::string::npos)
 	{
 		rest = uriString;
 	}
-	else{
+	else
+	{
 		rest = uriString.substr(schemeDelimiter + 1);
 		scheme = uriString.substr(0, schemeDelimiter);
 	}
-	// Parsing host
-	std::size_t	pathEnd = rest.find_first_of("?#");
-	std::string	pathString;
-	std::string	queryAndOrFrag;
-	if (pathEnd == std::string::npos)
-		pathString = rest;
-	else
-	{
-		pathString = rest.substr(0, pathEnd);
-		queryAndOrFrag = rest.substr(pathString.length());
-	}
-	if ( pathString.substr(0, 2) == "//")
-	{
-		std::size_t	authorityEnd = pathString.find(splitchar, 2);
-		if (authorityEnd == std::string::npos)
-		{
-			existPath = false;
-			authorityEnd = pathString.length();
-		}
-		std::size_t	portDelimeter = pathString.find(":", 2);
-		if (portDelimeter == std::string::npos)
-		{
-			if (existPath)
-				host = pathString.substr(2, authorityEnd - 2);
-			else
-				host = pathString.substr(2);
-		}
-		else
-		{
-			host = pathString.substr(2, portDelimeter - 2);
-			if (pathString.substr(portDelimeter + 1, authorityEnd - portDelimeter - 1).find_first_not_of("0123456789") != std::string::npos)
-				return (false);
-			port_tmp = (long long)atoi(pathString.substr(portDelimeter + 1, authorityEnd - portDelimeter - 1).c_str());
-			if (port_tmp == 0 && pathString.substr(portDelimeter + 1, 1) != "0")
-				return (false);
-			if (port_tmp < 0 || port_tmp > 65535)
-				return (false);
-			port = (unsigned short)port_tmp;
-			existPort = true;
-		}
-		pathString = pathString.substr(authorityEnd);
-	}
-	// Parsing Path
+	return (rest);
+}
+
+void	Uri::parsePath(std::string & pathString)
+{
 	while (!pathString.empty() && existPath)
 	{
 		std::size_t	pathschemeDelimiter = pathString.find(splitchar);
@@ -108,7 +62,10 @@ bool	Uri::parsingFromString(const std::string & uriString){
 			path.push_back("");
 		pathString = pathString.substr(pathschemeDelimiter + splitchar.length());
 	}
+}
 
+void	Uri::parseFragment(std::string & queryAndOrFrag)
+{
 	std::size_t	fragschemeDelimiter = queryAndOrFrag.find('#');
 	std::string	leftover;
 	if (fragschemeDelimiter == std::string::npos)
@@ -123,6 +80,78 @@ bool	Uri::parsingFromString(const std::string & uriString){
 	}
 	if (!leftover.empty())
 		query = leftover.substr(1);
+	
+}
+bool	Uri::parseValidPort(std::string &pathString, int portDelimeter, int authorityEnd)
+{
+	long long port_tmp = 0;
+
+	if (pathString.substr(portDelimeter + 1, authorityEnd - portDelimeter - 1).find_first_not_of("0123456789") != std::string::npos)
+		return (false);
+	port_tmp = (long long)atoi(pathString.substr(portDelimeter + 1, authorityEnd - portDelimeter - 1).c_str());
+	if (port_tmp == 0 && pathString.substr(portDelimeter + 1, 1) != "0")
+		return (false);
+	if (port_tmp < 0 || port_tmp > 65535)
+		return (false);
+	port = (unsigned short)port_tmp;
+	existPort = true;
+	return (true);
+}
+
+std::string	Uri::findQueryFragment(std::string & rest,std::string & queryAndOrFrag){
+	std::string	pathString;
+	std::size_t	pathEnd = rest.find_first_of("?#");
+	
+	if (pathEnd == std::string::npos)
+		pathString = rest;
+	else
+	{
+		pathString = rest.substr(0, pathEnd);
+		queryAndOrFrag = rest.substr(pathString.length());
+	}
+	return (pathString);
+}
+
+bool	Uri::parsingFromString(const std::string & uriString){
+	scheme = "";
+	host = "";
+	query = "";
+	fragment = "";
+	path.clear();
+	port = 0;
+	existPort = false;
+	existPath = true;
+	std::string	rest;
+	std::string	queryAndOrFrag;
+
+	rest = parseScheme(uriString);
+	rest = findQueryFragment(rest, queryAndOrFrag);
+	if (rest.substr(0, 2) == "//")
+	{
+		std::size_t	authorityEnd = rest.find(splitchar, 2);
+		if (authorityEnd == std::string::npos)
+		{
+			existPath = false;
+			authorityEnd = rest.length();
+		}
+		std::size_t	portDelimeter = rest.find(":", 2);
+		if (portDelimeter == std::string::npos)
+		{
+			if (existPath)
+				host = rest.substr(2, authorityEnd - 2);
+			else
+				host = rest.substr(2);
+		}
+		else
+		{
+			host = rest.substr(2, portDelimeter - 2);
+			if (!parseValidPort(rest, portDelimeter, authorityEnd))
+				return (false);
+		}
+		rest = rest.substr(authorityEnd);
+	}
+	parsePath(rest);
+	parseFragment(queryAndOrFrag);
 	return (true);
 }
 
@@ -169,9 +198,9 @@ bool	Uri::hasRelativeReference() const{
 
 bool	Uri::ContainsRelativePath() const{
 	if (path.empty())
-		return false;
+		return true;
 	else
-		return (path[0].empty());
+		return (!path[0].empty());
 }
 
 void Uri::setScheme(const std::string & newScheme){
@@ -257,4 +286,12 @@ std::string	Uri::constructPath(){
 		}
 	}
 	return (result);
+}
+
+
+
+std::ostream & operator<<(std::ostream & o, Uri & rhs){
+	(void) rhs;
+	(void) o;
+    return (o);
 }
