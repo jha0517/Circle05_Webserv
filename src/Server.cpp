@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 11:48:18 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 06:35:12 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,8 @@ void	Server::newConnection(){
 	std::cout << "New Connection : Host[" << inet_ntoa(clientAddr.sin_addr) <<"] PORT["<< ntohs(clientAddr.sin_port) << "] AssignedFd[" << clientfd << "]" << std::endl;
 	response = connect.constructResponse(*this);
 	printf("%s\n", response.c_str());
-	send(clientfd, response.c_str(), strlen(response.c_str()), 0);
+	if (send(clientfd, response.c_str(), strlen(response.c_str()), 0) < 0)
+		std::cout << "Sending message Failed" << std::endl;
 }
 
 int	Server::acceptConnection(){

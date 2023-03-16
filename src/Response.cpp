@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 19:16:24 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 06:37:41 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,18 +57,20 @@ std::string intToString(int a)
 std::string	Response::buildResponse(std::string dir, int code)
 {
 	MessageHeaders	msg;
-	std::string		ret = "HTTP/1.1 ";
+	std::string		ret;
 	std::string		body;
 	std::string		filePath;
 
-	ret += intToString(code) + " " + statusCodeDic[code] + "\r\n";
-
 	filePath = dir;
+	// if (dir[dir.length() -1] == '/')
+	// filePath += "index.html";
+	// else
 	filePath += "/index.html";
 	std::cout << "FilePathName : " << filePath << std::endl;
 	body = check_filename_get_str(filePath.c_str());
 	if (body.empty())
-		return (ret);
+		return ("");
+	ret += "HTTP/1.1 " + intToString(code) + " " + statusCodeDic[code] + "\r\n";
 	msg.addHeader("Content-Type", "text/html");
 	msg.addHeader("Content-Length", intToString(body.length()));
 	ret += msg.generateRawMsg();
@@ -76,22 +78,21 @@ std::string	Response::buildResponse(std::string dir, int code)
 	return (ret);
 }
 
-
 std::string	Response::buildErrorResponse(std::string dir, int code)
 {
 	MessageHeaders	msg;
-	std::string		ret = "HTTP/1.1 ";
+	std::string		ret;
 	std::string		body;
 	std::string		filePath;
 
-	ret += intToString(code) + " " + statusCodeDic[code] + "\r\n";
 
 	filePath = dir;
 	filePath += intToString(code) + ".html";
-	// std::cout << "FilePathName : " << filePath << std::endl;
+	std::cout << "FilePathName : " << filePath << std::endl;
 	body = check_filename_get_str(filePath.c_str());
 	if (body.empty())
-		return (ret);
+		return ("");
+	ret += "HTTP/1.1 " + intToString(code) + " " + statusCodeDic[code] + "\r\n";
 	msg.addHeader("Content-Type", "text/html");
 	msg.addHeader("Content-Length", intToString(body.length()));
 	ret += msg.generateRawMsg();
@@ -104,11 +105,16 @@ std::string	Response::getMethod(Server &server, Request *request, std::size_t me
 	std::string	ret;
 	if (request->target.hasPath())
 	{
-		if (request->target.generateString() == "/" || request->target.generateString() == "/index.html")
+		if (request->target.generateString() == "/" 
+		|| request->target.generateString() == "/index.html")
 		{
 			ret = buildResponse(server.root, 200);
+			if (ret.empty())
+				return (buildErrorResponse(server.error_page, 400));
 			return ret;
 		}
+		else
+			std::cout << server.root + request->target.generateString() << std::endl;
 		// findfile(request->target.generateString);
 	}
 	else
@@ -119,13 +125,13 @@ std::string	Response::getMethod(Server &server, Request *request, std::size_t me
 		// else
 			// return index.html
 	}
-	// ret = (
-    //  "HTTP/1.1 404 Not Found\r\n"
-    //  "Content-Length: 35\r\n"
-    //  "Content-Type: text/plain\r\n"
-	//  "\r\n"
-    //  "Hello This is Ratatouille server!\r\n"
-	// );
+	ret = (
+     "HTTP/1.1 404 Not Found\r\n"
+     "Content-Length: 14\r\n"
+     "Content-Type: text/plain\r\n"
+	 "\r\n"
+     "404 Not found!\r\n"
+	);
 	return (ret);
 }
 

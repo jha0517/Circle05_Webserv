@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 19:15:26 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 06:22:30 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fstream>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -30,11 +31,26 @@ void	signalHandler(int signum)
 	exit(EXIT_SUCCESS);
 }
 
+std::string	checkFileAndGetContent(char *filename)
+{
+	std::string		src;
+	std::string		rawRequest;
+	std::ifstream	ifs;
+	char	c;
+	
+	ifs.open(filename);
+	if (ifs.fail())
+		return ("");
+	while (ifs.get(c))
+		src+= c;
+	ifs.close();
+	return (src);
+}
+
 int	main(int ac, char **av, char **env)
 {
 	signal(SIGINT, signalHandler);
 
-	(void)			av;
 	(void)			env;
 	std::vector<int> serverFds;
 	ServerManager	serverManager;
@@ -63,38 +79,32 @@ int	main(int ac, char **av, char **env)
 	server2.maxClientBodySize = 400;
 
 	servers.push_back(&server2);
+	config.servers = servers;
 //config End
 
-	config.servers = servers;
-	if (ac != 2)
+	if (ac > 2)
 	{
-		std::cerr << "Need 1 config file OR default path." << std::endl;
+		std::cerr << "Too many Arguments" << std::endl;
 		return (EXIT_FAILURE);
 	}
-
+	if (ac == 2)
+	{
+		if (checkFileAndGetContent(av[1]).empty())
+		{
+			std::cerr << "Config file opening failed." << std::endl;
+			return (EXIT_FAILURE);
+		}
+		if (!config.parseFromString(checkFileAndGetContent(av[1])))
+		{
+			std::cerr << "Config file parsing failed." << std::endl;
+			return (EXIT_FAILURE);
+		}
+	}
 	serverManager.initiate(config);
 	serverManager.run();
-   return (EXIT_SUCCESS);
+	return (EXIT_SUCCESS);
 }
 
-// std::string	checkFileAndGetContent(char *filename)
-// {
-// 	std::string		src;
-// 	std::string		rawRequest;
-// 	std::ifstream	ifs;
-// 	char	c;
-	
-// 	ifs.open(filename);
-// 	if (ifs.fail())
-// 	{
-// 		std::cerr << "Error : File opening failed." << std::endl;
-// 		return (NULL);
-// 	}
-// 	while (ifs.get(c))
-// 		src+= c;
-// 	ifs.close();
-// 	return (src);
-// }
 
 // bool	formatcheck(char *configFile)
 // {
