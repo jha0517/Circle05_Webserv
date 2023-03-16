@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 17:08:10 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 22:07:39 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ Connection::Connection() : dataReceivedDelegate(NULL)
 
 Connection::Connection(int new_socketfd) : socketfd(new_socketfd)
 {
-
 }
 
 Connection::~Connection()

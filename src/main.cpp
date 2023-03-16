@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 17:08:52 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 22:24:30 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	main(int ac, char **av, char **env)
 	std::vector<Server *> servers;
 	Server			server1;
 	Server			server2;
-	server1.port = 8000;
+	server1.port = 8002;
 	server1.host = "127.0.0.1";
 	server1.root = "/home/hyunah/Documents/webserv/data";
 	server1.serverName = "RatatouilleServer1";
@@ -70,7 +70,7 @@ int	main(int ac, char **av, char **env)
 
 	servers.push_back(&server1);
 
-	server2.port = 8001;
+	server2.port = 8003;
 	server2.host = "127.0.0.1";
 	server2.root = "/home/hyunah/Documents/webserv/data";
 	server2.serverName = "RatatouilleServer2";
@@ -113,4 +113,30 @@ int	main(int ac, char **av, char **env)
 // 	if (!checkBalancedParantheses(str))
 // 		throw ServerManager::errorMsg("Error : Config file Parantheses not balanced\n");
 // 	return (true);
+// }
+
+// int	main()
+// {
+// 	Uri uri;
+
+// 	uri.parsingFromString("/home/hyunah/Documents/webserv/data");
+// 	std::vector<std::string> paths;
+// 	paths = uri.getPath();
+// 	for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
+// 	{
+// 		std::cout << *it << std::endl;
+// 	}
+	
+// 	std::cout << uri.generateString() << std::endl;
+
+// 	Uri uri2;
+
+// 	uri2.parsingFromString("/home/hyunah/Documents/webserv/data/");
+// 	paths = uri2.getPath();
+// 	for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
+// 	{
+// 		std::cout << *it << std::endl;
+// 	}
+	
+// 	std::cout << uri2.generateString();
 // }

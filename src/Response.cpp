@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 08:36:41 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 22:25:36 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ std::string	check_filename_get_str(const char *filename)
 	if (!ifs)
 	{
 		std::cout << "File non-existance or Right Denied!" << std::endl;
-		return ("");
+		return ("404");
 	}
 	while (ifs.get(c))
 		src+= c;
@@ -74,18 +74,12 @@ std::string	Response::buildResponse(std::string dir, int code)
 {
 	MessageHeaders	msg;
 	std::string		ret;
-	std::string		filePath;
 
-	filePath = dir;
-	// if (dir[dir.length() -1] == '/')
-	// filePath += "index.html";
-	// else
-	filePath += "/index.html";
-	std::cout << "FilePathName : " << filePath << std::endl;
-	body = check_filename_get_str(filePath.c_str());
+	body = check_filename_get_str(dir.c_str());
 	if (body.empty())
 		return ("");
 	msg.addHeader("Content-Type", "text/html");
+	msg.addHeader("Content-Length", intToString(body.length()));
 	return (generateRawResponse(code, msg, body));
 }
 
@@ -96,8 +90,7 @@ std::string	Response::buildErrorResponse(std::string dir, int code)
 	std::string		body;
 	std::string		filePath;
 
-	filePath = dir;
-	filePath += intToString(code) + ".html";
+	filePath = dir + "/"+ intToString(code) + ".html";
 	std::cout << "FilePathName : " << filePath << std::endl;
 	body = check_filename_get_str(filePath.c_str());
 	if (body.empty())
@@ -113,36 +106,35 @@ std::string	Response::buildErrorResponse(std::string dir, int code)
 std::string	Response::getMethod(Server &server, Request *request, std::size_t messageEnd){
 	(void) messageEnd;
 	std::string	ret;
-	if (request->target.hasPath())
+	std::string	filename = "index.html";
+	std::string	filepath;
+
+	// check if the request is valide
+	if (!request->body.empty())
+		return (buildErrorResponse(server.error_page, 400));
+	// case : nopath.
+	if (request->target.generateString() == "/")
 	{
-		if (request->target.generateString() == "/" 
-		|| request->target.generateString() == "/index.html")
-		{
-			ret = buildResponse(server.root, 200);
-			if (ret.empty())
-				return (buildErrorResponse(server.error_page, 400));
-			return ret;
-		}
-		else
-			std::cout << server.root + request->target.generateString() << std::endl;
-		// findfile(request->target.generateString);
+		filepath = server.root + "" + "/" + filename;
+		std::cout << "FilePathName : " << filepath << std::endl;
+		if (check_filename_get_str(filepath.c_str()) == "404")
+			return (buildErrorResponse(server.error_page, 404));
+		ret = buildResponse(filepath, 200);
+		if (ret.empty())
+			return (buildErrorResponse(server.error_page, 400));
+		
 	}
-	else
+	else // withpath
 	{
-		// if (server.root.empty())
-		ret = buildErrorResponse(server.error_page, 500);
-		return (ret);
-		// else
-			// return index.html
+		//location block for loop. and return if there is a match.
+		filepath = server.root + server.locationRoot + "/" + filename;
+		std::cout << "FilePathName : " << filepath << std::endl;
+		if (check_filename_get_str(filepath.c_str()) == "404")
+			return (buildErrorResponse(server.error_page, 404));
+		ret = buildResponse(filepath, 200);
+		if (ret.empty())
+			return (buildErrorResponse(server.error_page, 400));
 	}
-	//gotta check if the length is ok.
-	ret = (
-     "HTTP/1.1 404 Not Found\r\n"
-     "Content-Length: 14\r\n"
-     "Content-Type: text/plain\r\n"
-	 "\r\n"
-     "404 Not found!\r\n"
-	);
 	return (ret);
 }
 

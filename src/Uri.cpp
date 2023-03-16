@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:10 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 14:08:30 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 18:28:48 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,9 @@ void	Uri::parsePath(std::string & pathString)
 			std::string tmp = pathString.substr(0, pathschemeDelimiter);
 			path.push_back(tmp);
 		}
+		// if (pathschemeDelimiter + 1 == pathString.length())
+		// 	path.push_back("");
 		existPath = true;
-		if (pathschemeDelimiter + 1 == pathString.length())
-			path.push_back("");
 		pathString = pathString.substr(pathschemeDelimiter + splitchar.length());
 	}
 }

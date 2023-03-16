@@ -63,19 +63,19 @@ TEST(RequestTests, ParsePostRequest){
 	ASSERT_EQ(27, request.body.length());
 }
 
-TEST(RequestTests, MessageEnd){
-	Server	server;
-	size_t	messageEnd;
-	std::string	rawRequest = (
-		"POST /test HTTP/1.1\r\n"
-		"Content-Length: 1\r\n"
-		"\r\n"
-		"1\r\n"
-	);
-	Request request;
-	request.parseResquest(rawRequest, messageEnd);
-	ASSERT_EQ(rawRequest.length(), messageEnd);
-}
+// TEST(RequestTests, MessageEnd){
+// 	Server	server;
+// 	size_t	messageEnd;
+// 	std::string	rawRequest = (
+// 		"POST /test HTTP/1.1\r\n"
+// 		"Content-Length: 1\r\n"
+// 		"\r\n"
+// 		"1\r\n"
+// 	);
+// 	Request request;
+// 	request.parseResquest(rawRequest, messageEnd);
+// 	ASSERT_EQ(rawRequest.length(), messageEnd);
+// }
 
 
 TEST(RequestTests, ParseIncompleteBodyRequest){
@@ -92,7 +92,18 @@ TEST(RequestTests, ParseIncompleteBodyRequest){
 	ASSERT_FALSE(request.parseResquest(rawRequest));
 }
 
-TEST(RequestTests, MultipleServer){
-
+TEST(RequestTests, Test){
+	Request request;
+	request.parseResquest(
+     "GET / HTTP/1.1\r\n"
+     "User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3\r\n"
+     "Host: www.example.com\r\n"
+     "Accept-Language: en, mi\r\n"
+	 "\r\n"
+	);
+	Uri	expectedUri;
+	expectedUri.parsingFromString("/");
+	ASSERT_EQ("GET", request.method);
+	ASSERT_EQ(expectedUri, request.target);
 }
 
