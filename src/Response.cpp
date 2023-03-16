@@ -6,13 +6,13 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 06:37:41 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 08:36:41 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Response.hpp"
-#include <fstream>
-Response::Response(/* args */)
+
+Response::Response()
 {
 	statusCodeDic.insert(std::pair<int, std::string>(200, "OK"));
 	statusCodeDic.insert(std::pair<int, std::string>(404, "Not Found"));
@@ -54,11 +54,26 @@ std::string intToString(int a)
     return ss.str();
 }
 
+std::string	Response::generateRawResponse(int code, MessageHeaders msg, std::string body){
+	if (statusCodeDic[code].empty())
+		std::cout << "There is no status available in Dictionnary for code " << intToString(code) << std::endl;
+	std::string ret = ("HTTP/1.1 " + intToString(code) + " " + statusCodeDic[code] + "\r\n");
+	if (!msg.hasHeader("Content-Length"))
+		msg.addHeader("Content-Length", intToString(body.length()));
+	else
+	{
+		if (msg.getHeaderValue("Content-Length") != intToString(body.length()))
+			msg.setHeaderValue("Content-Length", intToString(body.length()));
+	}
+	ret += msg.generateRawMsg();
+	ret += body;
+	return (ret);
+}
+
 std::string	Response::buildResponse(std::string dir, int code)
 {
 	MessageHeaders	msg;
 	std::string		ret;
-	std::string		body;
 	std::string		filePath;
 
 	filePath = dir;
@@ -70,12 +85,8 @@ std::string	Response::buildResponse(std::string dir, int code)
 	body = check_filename_get_str(filePath.c_str());
 	if (body.empty())
 		return ("");
-	ret += "HTTP/1.1 " + intToString(code) + " " + statusCodeDic[code] + "\r\n";
 	msg.addHeader("Content-Type", "text/html");
-	msg.addHeader("Content-Length", intToString(body.length()));
-	ret += msg.generateRawMsg();
-	ret += body;
-	return (ret);
+	return (generateRawResponse(code, msg, body));
 }
 
 std::string	Response::buildErrorResponse(std::string dir, int code)
@@ -84,7 +95,6 @@ std::string	Response::buildErrorResponse(std::string dir, int code)
 	std::string		ret;
 	std::string		body;
 	std::string		filePath;
-
 
 	filePath = dir;
 	filePath += intToString(code) + ".html";
@@ -125,6 +135,7 @@ std::string	Response::getMethod(Server &server, Request *request, std::size_t me
 		// else
 			// return index.html
 	}
+	//gotta check if the length is ok.
 	ret = (
      "HTTP/1.1 404 Not Found\r\n"
      "Content-Length: 14\r\n"

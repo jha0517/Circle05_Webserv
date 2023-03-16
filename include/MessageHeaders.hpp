@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 08:03:47 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/15 14:32:43 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/16 08:34:20 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ public:
 	bool		parseFromString(const std::string &rawMsg, size_t & bodyOffset);
 	Headers 	getHeaders() const;
 	std::string	getHeaderValue(std::string name) const;
+	void		setHeaderValue(std::string name, std::string value);
 	bool		hasHeader(const std::string &name) const;
 	std::string	getBody() const;
 	void		setBody(const std::string newBody);

@@ -123,3 +123,16 @@ void	MessageHeaders::addHeader(std::string name, std::string value){
 	tmp.value = stripMarginWhitespace(value);
 	headers.push_back(tmp);
 }
+
+void	MessageHeaders::setHeaderValue(std::string name, std::string value)
+{
+	for (unsigned i=0; i != headers.size(); i++)
+	{
+		if (headers[i].name == name)
+		{
+			headers[i].value = value;
+			return ;
+		}
+	}
+	return ;
+}
