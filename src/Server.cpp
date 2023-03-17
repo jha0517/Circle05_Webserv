@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 20:57:06 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 22:57:12 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,27 +16,6 @@
 
 Server::Server() : sockfd(-1)
 {
-    this->mimeMap.insert(std::make_pair("aac", "audio/aac"));
-    this->mimeMap.insert(std::make_pair("abw", "application/x-abiword"));
-    this->mimeMap.insert(std::make_pair("arc", "application/x-freearc"));
-    this->mimeMap.insert(std::make_pair("avi", "video/x-msvideo"));
-    this->mimeMap.insert(std::make_pair("bin", "application/octet-stream"));
-    this->mimeMap.insert(std::make_pair("bmp", "image/bmp"));
-    this->mimeMap.insert(std::make_pair("bz2", "application/x-bzip2"));
-    this->mimeMap.insert(std::make_pair("csh", "application/x-csh"));
-    this->mimeMap.insert(std::make_pair("css", "text/css"));
-    this->mimeMap.insert(std::make_pair("csv", "text/csv"));
-    this->mimeMap.insert(std::make_pair("doc", "application/msword"));
-    this->mimeMap.insert(std::make_pair("gif", "image/gif"));
-    this->mimeMap.insert(std::make_pair("htm", "text/html"));
-    this->mimeMap.insert(std::make_pair("html", "text/html"));
-    this->mimeMap.insert(std::make_pair("jpeg", "image/jpeg"));
-    this->mimeMap.insert(std::make_pair("jpg", "image/jpeg"));
-    this->mimeMap.insert(std::make_pair("mpeg", "video/mpeg"));
-    this->mimeMap.insert(std::make_pair("png", "image/png"));
-    this->mimeMap.insert(std::make_pair("php", "application/x-httpd-php"));
-    this->mimeMap.insert(std::make_pair("pdf", "application/pdf"));
-    this->mimeMap.insert(std::make_pair("txt", "text/plain"));
 }
 
 Server::~Server()

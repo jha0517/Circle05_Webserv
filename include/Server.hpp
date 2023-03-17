@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 20:57:04 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 22:57:40 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ private:
 	// std::set<Connection *>	activeConnections;
 	struct sockaddr_in		serverAddr;
 	struct sockaddr_in		clientAddr;
-	std::map<std::string, std::string> mimeMap;
 
 };
 

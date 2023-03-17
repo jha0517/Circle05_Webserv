@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 20:46:12 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 23:04:09 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,33 @@
 Response::Response()
 {
 	statusCodeDic.insert(std::pair<int, std::string>(200, "OK"));
-	statusCodeDic.insert(std::pair<int, std::string>(404, "Not Found"));
 	statusCodeDic.insert(std::pair<int, std::string>(400, "Bad Request"));
+	statusCodeDic.insert(std::pair<int, std::string>(403, "Forbidden"));
+	statusCodeDic.insert(std::pair<int, std::string>(404, "Not Found"));
+	statusCodeDic.insert(std::pair<int, std::string>(405, "Method Not Allowed"));
+	statusCodeDic.insert(std::pair<int, std::string>(500, "Internal Server Error"));
+	statusCodeDic.insert(std::pair<int, std::string>(505, "HTTP Version Not Supported"));
+    this->mimeMap.insert(std::make_pair("aac", "audio/aac"));
+    this->mimeMap.insert(std::make_pair("abw", "application/x-abiword"));
+    this->mimeMap.insert(std::make_pair("arc", "application/x-freearc"));
+    this->mimeMap.insert(std::make_pair("avi", "video/x-msvideo"));
+    this->mimeMap.insert(std::make_pair("bin", "application/octet-stream"));
+    this->mimeMap.insert(std::make_pair("bmp", "image/bmp"));
+    this->mimeMap.insert(std::make_pair("bz2", "application/x-bzip2"));
+    this->mimeMap.insert(std::make_pair("csh", "application/x-csh"));
+    this->mimeMap.insert(std::make_pair("css", "text/css"));
+    this->mimeMap.insert(std::make_pair("csv", "text/csv"));
+    this->mimeMap.insert(std::make_pair("doc", "application/msword"));
+    this->mimeMap.insert(std::make_pair("gif", "image/gif"));
+    this->mimeMap.insert(std::make_pair("htm", "text/html"));
+    this->mimeMap.insert(std::make_pair("html", "text/html"));
+    this->mimeMap.insert(std::make_pair("jpeg", "image/jpeg"));
+    this->mimeMap.insert(std::make_pair("jpg", "image/jpeg"));
+    this->mimeMap.insert(std::make_pair("mpeg", "video/mpeg"));
+    this->mimeMap.insert(std::make_pair("png", "image/png"));
+    this->mimeMap.insert(std::make_pair("php", "application/x-httpd-php"));
+    this->mimeMap.insert(std::make_pair("pdf", "application/pdf"));
+    this->mimeMap.insert(std::make_pair("txt", "text/plain"));
 }
 
 Response::~Response()
@@ -72,14 +97,20 @@ std::string	Response::generateRawResponse(int code, MessageHeaders msg, std::str
 	return (ret);
 }
 
-std::string	getMimeType(std::string filepath)
+std::string	Response::getMimeType(std::string filepath)
 {
 	std::size_t	formatDelimitor;
 	std::string	format;
 	formatDelimitor = filepath.find_last_of(".");
-	format = filepath.substr(formatDelimitor);
+	format = filepath.substr(formatDelimitor + 1);
 	std::cout << "format is : " << format << std::endl;
-	return ("");
+
+	for(std::map<std::string, std::string>::iterator it = mimeMap.begin(); it != mimeMap.end(); ++it)
+	{
+		if (it->first == format)
+			return (it->second);
+	}
+	return ("text/plain");
 }
 std::string	Response::buildResponse(std::string dir, int code)
 {
@@ -89,8 +120,7 @@ std::string	Response::buildResponse(std::string dir, int code)
 	body = check_filename_get_str(dir.c_str());
 	if (body.empty())
 		return ("");
-	getMimeType(dir);
-	msg.addHeader("Content-Type", "text/html");
+	msg.addHeader("Content-Type", getMimeType(dir));
 	msg.addHeader("Content-Length", intToString(body.length()));
 	return (generateRawResponse(code, msg, body));
 }
