@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 09:51:54 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 20:46:12 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,15 @@ std::string	Response::generateRawResponse(int code, MessageHeaders msg, std::str
 	return (ret);
 }
 
+std::string	getMimeType(std::string filepath)
+{
+	std::size_t	formatDelimitor;
+	std::string	format;
+	formatDelimitor = filepath.find_last_of(".");
+	format = filepath.substr(formatDelimitor);
+	std::cout << "format is : " << format << std::endl;
+	return ("");
+}
 std::string	Response::buildResponse(std::string dir, int code)
 {
 	MessageHeaders	msg;
@@ -80,6 +89,7 @@ std::string	Response::buildResponse(std::string dir, int code)
 	body = check_filename_get_str(dir.c_str());
 	if (body.empty())
 		return ("");
+	getMimeType(dir);
 	msg.addHeader("Content-Type", "text/html");
 	msg.addHeader("Content-Length", intToString(body.length()));
 	return (generateRawResponse(code, msg, body));
@@ -105,45 +115,31 @@ std::string	Response::buildErrorResponse(std::string dir, int code)
 	return (ret);
 }
 
-std::string	Response::getMethod(Server &server, Request *request, std::size_t messageEnd){
+std::string	Response::getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
 	(void) messageEnd;
 	std::string	ret;
-	std::string	filename = "index.html";
-	std::string	filepath;
 
-	// check if the request is valide
+	// GET must have empty body, if not, Bad Request.
 	if (!request->body.empty())
+	{
+		statusCode = 400;
 		return (buildErrorResponse(server.error_page, 400));
-	// case : nopath.
-	if (request->target.generateString() == "/")
-	{
-		filepath = server.root + "" + "/" + filename;
-		std::cout << "FilePathName : " << filepath << std::endl;
-		if (check_filename_get_str(filepath.c_str()) == "404")
-			return (buildErrorResponse(server.error_page, 404));
-		ret = buildResponse(filepath, 200);
-		if (ret.empty())
-			return (buildErrorResponse(server.error_page, 400));
-		
 	}
-	else // withpath
+	ret = buildResponse(server.findMatchingUri(request->target.generateString()), 200);
+	statusCode = 200;
+	if (ret.empty())
 	{
-		//location block for loop. and return if there is a match.
-		filepath = server.root + server.locationRoot + "/" + filename;
-		std::cout << "FilePathName : " << filepath << std::endl;
-		if (check_filename_get_str(filepath.c_str()) == "404")
-			return (buildErrorResponse(server.error_page, 404));
-		ret = buildResponse(filepath, 200);
-		if (ret.empty())
-			return (buildErrorResponse(server.error_page, 400));
+		statusCode = 400;
+		return (buildErrorResponse(server.error_page, 400));	
 	}
 	return (ret);
 }
 
-std::string	Response::postMethod(Server &server, Request *request, std::size_t messageEnd){
+std::string	Response::postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
 	(void) request;
 	(void) messageEnd;
 	(void) request;
+	(void) statusCode;
 	(void) server;
 	std::cout << "In PostMethod\n";
 	std::string	expectedResponse = (
@@ -156,10 +152,11 @@ std::string	Response::postMethod(Server &server, Request *request, std::size_t m
 	return (expectedResponse);
 }
 
-std::string	Response::deleteMethod(Server &server, Request *request, std::size_t messageEnd){
+std::string	Response::deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
 	(void) request;
 	(void) messageEnd;
 	(void) request;
+	(void) statusCode;
 	(void) server;
 	std::cout << "In DeleteMethod\n";
 	std::string	expectedResponse = (

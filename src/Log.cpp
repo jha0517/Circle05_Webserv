@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 10:11:52 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 11:24:19 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 14:41:41 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,27 @@ void	Log::printServerCreation(bool success, Server *serv)
 
 }
 
+std::string intToString2(int a)
+{
+	std::stringstream	ss;
+
+    ss << a;
+    return ss.str();
+}
+
 void	Log::printConnection(std::string clientHost, unsigned int clientFd)
 {
-	printTime(GREEN);
+	printTime(PURPLE);
 	std::cout << "New Connection : Host[" << clientHost <<"] AssignedFd[" << clientFd << "]" << RESET << std::endl;
 }
 
 void	Log::printRequest(unsigned int clientFd, std::string method, std::string uri)
 {
-	printTime(GREEN);
+	printTime(BOLD_GREEN);
 	std::cout << "Request Received : Socket[" << clientFd << "] Methode=<" << method << "> URI=<" << uri << ">" << RESET << std::endl;	
+}
+
+void	Log::printResponse(unsigned int clientFd, int statusCode){
+	printTime(BOLD_CYAN);
+	std::cout << "Response sent to : Socket[" << clientFd << "] Status=<" << intToString2(statusCode) << ">" << RESET << std::endl;	
 }

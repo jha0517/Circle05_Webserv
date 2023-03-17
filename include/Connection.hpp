@@ -38,7 +38,7 @@ public:
 	Connection(int socketfd);
 	~Connection();
 
-	std::string	constructResponse(Server & server);
+	std::string	constructResponse(Server & server, int & statusCode);
 
 	std::vector<unsigned char>	dataReceived;
 	BrokenDelegate				brokenDelegate;

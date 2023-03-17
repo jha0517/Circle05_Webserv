@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 10:54:57 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 20:32:45 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,21 +64,35 @@ int	main(int ac, char **av, char **env)
 	server1.host = "127.0.0.1";
 	server1.root = "./data";
 	server1.serverName = "RatatouilleServer1";
-	server1.locationRoot = "/fruits"; //ok
+	// server1.locationRoot = "/fruits"; //relative path ok
 	server1.error_page = "/home/hyunah/Documents/webserv/data/error_pages";
 	server1.maxClientBodySize = 400;
 	server1.manager = &serverManager;
+	server1.index = "index_1.html";
+	server1.allowedMethod.insert("GET");
+	server1.allowedMethod.insert("POST");
+	Server::LocationBlock locbloc1;
+	// Server::LocationBlock locbloc2;
+	locbloc1.hasReturn = false;
+	locbloc1.isCgi_bin = false;
+	locbloc1.info.insert(std::pair<std::string, std::string>("dir", "/fruits"));
+	locbloc1.info.insert(std::pair<std::string, std::string>("index", "yummyfruits.html"));
+	server1.locationBloc.insert(&locbloc1);
 	servers.push_back(&server1);
+	//=================================================
 
 	server2.port = 8003;
 	server2.host = "127.0.0.1";
-	server2.root = "data"; //ok
-	// server2.root = "/home/hyunah/Documents/webserv/data";
+	server2.root = "data"; //path relative ok
+	// server2.root = "/home/hyunah/Documents/webserv/data"; path absolute //ok
 	server2.serverName = "RatatouilleServer2";
 	server2.error_page = "/home/hyunah/Documents/webserv/data/error_pages";
-	server2.locationRoot = "/fruits";
+	// server2.locationRoot = "/fruits";
 	server2.maxClientBodySize = 400;
 	server2.manager = &serverManager;
+	server2.allowedMethod.insert("GET");
+	server2.allowedMethod.insert("POST");
+	server2.allowedMethod.insert("DELETE");
 
 	servers.push_back(&server2);
 	config.servers = servers;
@@ -102,7 +116,6 @@ int	main(int ac, char **av, char **env)
 			return (EXIT_FAILURE);
 		}
 	}
-	
 	serverManager.initiate(config);
 	serverManager.run();
 	return (EXIT_SUCCESS);
@@ -116,30 +129,4 @@ int	main(int ac, char **av, char **env)
 // 	if (!checkBalancedParantheses(str))
 // 		throw ServerManager::errorMsg("Error : Config file Parantheses not balanced\n");
 // 	return (true);
-// }
-
-// int	main()
-// {
-// 	Uri uri;
-
-// 	uri.parsingFromString("/home/hyunah/Documents/webserv/data");
-// 	std::vector<std::string> paths;
-// 	paths = uri.getPath();
-// 	for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
-// 	{
-// 		std::cout << *it << std::endl;
-// 	}
-	
-// 	std::cout << uri.generateString() << std::endl;
-
-// 	Uri uri2;
-
-// 	uri2.parsingFromString("/home/hyunah/Documents/webserv/data/");
-// 	paths = uri2.getPath();
-// 	for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
-// 	{
-// 		std::cout << *it << std::endl;
-// 	}
-	
-// 	std::cout << uri2.generateString();
 // }

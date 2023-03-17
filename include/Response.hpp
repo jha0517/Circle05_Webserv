@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 21:56:23 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 14:31:33 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,9 @@ public:
 	std::string		status;
 	std::string		body;
 	std::string		generateRawResponse(int code, MessageHeaders msg, std::string body);
-	std::string		getMethod(Server &server, Request *request, std::size_t messageEnd);
-	std::string		postMethod(Server &server, Request *request, std::size_t messageEnd);
-	std::string		deleteMethod(Server &server, Request *request, std::size_t messageEnd);
+	std::string		getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
+	std::string		postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
+	std::string		deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
 	std::string		buildResponse(std::string dir, int errorCode);
 	std::string		buildErrorResponse(std::string dir, int errorCode);
 };
