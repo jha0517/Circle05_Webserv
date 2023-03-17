@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 20:37:23 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 23:16:32 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,8 @@ std::string	Connection::constructResponse(Server & server, int & statusCode){
 	
 	manag = (ServerManager	*)server.manager;
 
+	// recv enought to know the content-length and for the body-> store in the vector<char>
+	
 	if (recv(server.clientfd, buffer, BUFFSIZE, 0) < 0)
 	{
 		std::cout << "request receiving Failed.\n";

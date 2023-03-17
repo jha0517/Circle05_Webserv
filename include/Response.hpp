@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 22:57:50 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 23:40:07 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "Server.hpp"
 # include "Request.hpp"
 # include <map>
+# include <ctime>
 # include <fstream>
 
 
@@ -35,6 +36,7 @@ public:
 	std::string		status;
 	std::string		body;
 	std::string		getMimeType(std::string filepath);
+	std::string		generateDateHeader();
 	std::string		generateRawResponse(int code, MessageHeaders msg, std::string body);
 	std::string		getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
 	std::string		postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);

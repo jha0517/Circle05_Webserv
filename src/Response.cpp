@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 23:04:09 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 23:44:53 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,7 @@ std::string	Response::getMimeType(std::string filepath)
 	}
 	return ("text/plain");
 }
+
 std::string	Response::buildResponse(std::string dir, int code)
 {
 	MessageHeaders	msg;
@@ -120,9 +121,29 @@ std::string	Response::buildResponse(std::string dir, int code)
 	body = check_filename_get_str(dir.c_str());
 	if (body.empty())
 		return ("");
+	msg.addHeader("Date", generateDateHeader());
 	msg.addHeader("Content-Type", getMimeType(dir));
 	msg.addHeader("Content-Length", intToString(body.length()));
 	return (generateRawResponse(code, msg, body));
+}
+
+std::string	Response::generateDateHeader()
+{
+	std::string weekdays[7] = {"Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"};
+	std::string months[13] = {"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec"};
+	time_t now = std::time(0);
+	tm *ltm = localtime(&now);
+
+	std::string year = intToString(1900 + ltm->tm_year);
+	std::string month = months[1 + ltm->tm_mon];
+	std::string day = intToString(ltm->tm_mday);
+	std::string hour = intToString(ltm->tm_hour);
+	std::string minute = intToString(ltm->tm_min);
+	std::string sec = intToString(ltm->tm_sec);
+	std::string zone = ltm->tm_zone;
+	std::string wday = weekdays[ltm->tm_wday];
+
+	return(wday + ", " + day + " " + month + " " + year + " " + hour + ":" + minute + ":" + sec + " " + zone);
 }
 
 std::string	Response::buildErrorResponse(std::string dir, int code)
@@ -138,6 +159,7 @@ std::string	Response::buildErrorResponse(std::string dir, int code)
 	if (body.empty())
 		return ("");
 	ret += "HTTP/1.1 " + intToString(code) + " " + statusCodeDic[code] + "\r\n";
+	msg.addHeader("Date", generateDateHeader());
 	msg.addHeader("Content-Type", "text/html");
 	msg.addHeader("Content-Length", intToString(body.length()));
 	ret += msg.generateRawMsg();
