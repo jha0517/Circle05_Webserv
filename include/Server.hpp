@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 16:56:21 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 11:32:23 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,9 @@ class Server
 public:
 	Server();
 	~Server();
-	// Request					*parseResquest(const std::string &rawRequest);
-	// Request					*parseResquest(const std::string &rawRequest, size_t & messageEnd);
 	int						startListen();
 	int						acceptConnection();
 	void					newConnection();
-	void					demobilize();
 	int						port;
 	int						sockfd;
 	int						clientfd;
@@ -45,6 +42,7 @@ public:
 	std::string				root;
 	std::string				serverName;
 	std::string				locationRoot;
+	void					*manager;
 
 private:
 	Request					request;

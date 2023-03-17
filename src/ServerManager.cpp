@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 08:48:53 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 10:51:26 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,18 @@ ServerManager::~ServerManager()
 bool ServerManager::initiate(Config & config){
 	servers = config.servers;
 	error = false;
-	std::cout << "Initializeing Servers..." << std::endl;
+
+	this->log.printInit();
 	FD_ZERO(&currentSockets);
 	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
 	{
 		if ((*it)->startListen() < 0)
 		{
 			error = true;
-		std::cout << "Server Creation Failed : Host["<< (*it)->host << "] Port[" << (*it)->host << "]" << std::endl; 
+			this->log.printServerCreation(false, (*it));
 			return (false);
 		}
-		std::cout << "Server Created : Host["<< (*it)->host << "] Port[" << (*it)->port << "] AssignedFd[" << (*it)->sockfd << "]"<< std::endl; 
+		this->log.printServerCreation(true, (*it));
 		FD_SET((*it)->sockfd, &currentSockets);
 	}
 	return (true);

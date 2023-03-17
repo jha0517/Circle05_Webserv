@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 22:25:36 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 09:51:54 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ Response::Response()
 {
 	statusCodeDic.insert(std::pair<int, std::string>(200, "OK"));
 	statusCodeDic.insert(std::pair<int, std::string>(404, "Not Found"));
+	statusCodeDic.insert(std::pair<int, std::string>(400, "Bad Request"));
 }
 
 Response::~Response()
@@ -29,6 +30,7 @@ std::string	check_filename_get_str(const char *filename)
 	std::ifstream	ifs;
 	char	c;
 	
+	// if (checkPathRelative())
 	ifs.open(filename);
 	if (!ifs)
 	{

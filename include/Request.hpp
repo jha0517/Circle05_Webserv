@@ -1,6 +1,6 @@
 
-#ifndef WEBSERV_H
-# define WEBSERV_H
+#ifndef REQUEST_H
+# define REQUEST_H
 # include <string.h>
 # include "Uri.hpp"
 # include "MessageHeaders.hpp"

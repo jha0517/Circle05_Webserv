@@ -6,11 +6,12 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 16:53:54 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 11:14:40 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
+#include "../include/ServerManager.hpp"
 #include "../include/Connection.hpp"
 
 Server::Server() : sockfd(-1)
@@ -19,7 +20,6 @@ Server::Server() : sockfd(-1)
 
 Server::~Server()
 {
-	demobilize();
 }
 
 int	Server::startListen(){
@@ -47,17 +47,13 @@ int	Server::startListen(){
 	return (this->sockfd);
 }
 
-void	Server::demobilize(){
-}
-
 void	Server::newConnection(){
 	std::string	response;
 	Connection	connect(clientfd);
+	ServerManager *servManag;
 
-	std::cout << "New Connection : \
-	Host[" << inet_ntoa(clientAddr.sin_addr) <<"] \
-	PORT[" << ntohs(clientAddr.sin_port) << "] \
-	AssignedFd[" << clientfd << "]" << std::endl;
+	servManag = (ServerManager *)manager;
+	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
 	response = connect.constructResponse(*this);
 	printf("%s\n", response.c_str());
 	if (send(clientfd, response.c_str(), strlen(response.c_str()), 0) < 0)

@@ -20,6 +20,7 @@ SRCS		=	$(addprefix src/,									\
 												Uri.cpp				\
 												Response.cpp		\
 												Request.cpp			\
+												Log.cpp			\
 				)
 
 DEPS			= $(SRCS:.cpp=.d)

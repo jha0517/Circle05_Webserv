@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/03 15:43:44 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 14:05:46 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/17 08:53:30 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ TEST(UriTests, ParseFromStringPathCornerCases){
 	ASSERT_EQ((std::vector<std::string> {}), uri.getPath());
 
 	ASSERT_TRUE(uri.parsingFromString("foo/"));
-	ASSERT_EQ((std::vector<std::string> {"foo", ""}), uri.getPath());
+	ASSERT_EQ((std::vector<std::string> {"foo"}), uri.getPath());
 
 	ASSERT_TRUE(uri.parsingFromString("/foo"));
 	ASSERT_EQ((std::vector<std::string> {"", "foo"}), uri.getPath());
