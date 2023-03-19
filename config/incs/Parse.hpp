@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/18 13:54:20 by yhwang            #+#    #+#             */
-/*   Updated: 2023/03/19 01:40:54 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/03/19 19:47:04 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ private:
 	void		ServerBlockCheck(std::string *line);
 
 	int		_http_keyword_check;
+	int		_http_braket_open;
 	int		_http_block;
 	int		_root_flag;
 	std::string	_root;

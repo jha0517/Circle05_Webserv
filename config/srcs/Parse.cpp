@@ -6,20 +6,20 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/18 13:54:27 by yhwang            #+#    #+#             */
-/*   Updated: 2023/03/19 02:01:13 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/03/19 21:47:16 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../incs/Parse.hpp"
 
-Parse::Parse(): _http_keyword_check(0), _http_block(0), _root_flag(0), _root(""),
+Parse::Parse(): _http_keyword_check(0), _http_braket_open(0), _http_block(0), _root_flag(0), _root(""),
 			_autoindex_flag(0), _autoindex(""),
 			_default_err_page_flag(0), _default_err_page(""), _http_parse_done(0),
 			_server_keyword_check(0), _server_block(0), _location_block(0)
 {
 }
 
-Parse::Parse(std::string config_file): _http_keyword_check(0), _http_block(0), _root_flag(0), _root(""),
+Parse::Parse(std::string config_file): _http_keyword_check(0), _http_braket_open(0), _http_block(0), _root_flag(0), _root(""),
 			_autoindex_flag(0), _autoindex(""),
 			_default_err_page_flag(0), _default_err_page(""), _http_parse_done(0),
 			_server_keyword_check(0), _server_block(0), _location_block(0)
@@ -180,6 +180,8 @@ void	Parse::HttpBlockElementCheck(std::string *line)
 		if (TokenCount(2, temp) && _server_block == 0)
 			throw (InvalidHttpBlockException());
 	}
+	if (_root != "" && _autoindex != "" && _default_err_page != "")
+		_http_parse_done = 1;
 	
 }
 
@@ -189,28 +191,49 @@ void	Parse::HttpBlockCheck(std::string *line)
 	
 	if (_http_parse_done)
 		return ;
+	std::cout << "HTTP BLOCK: ";
 	if (temp.find("http") != std::string::npos)
 	{
 		if (temp.find("http") != 0)
 			temp = temp.substr(temp.find("http"), std::string::npos);
 		_http_keyword_check++;
+		if (temp.find("{") != std::string::npos)
+		{
+			_http_braket_open++;
+			if (temp.find("{") != 0)
+				temp = temp.substr(temp.find("{"), std::string::npos);
+			if (temp.substr(temp.find("{") + 1, std::string::npos).find("{") != std::string::npos)
+				throw (InvalidHttpBlockException());
+			if (_http_keyword_check == 1 && _http_braket_open == 1)
+			{
+				this->_http_block++;
+				_http_keyword_check--;
+				_http_braket_open++;
+			}
+			else
+				throw (InvalidHttpBlockException());
+		}
 	}
 	else if (temp.find("{") != std::string::npos)
 	{
+		_http_braket_open++;
 		if (temp.find("{") != 0)
 			temp = temp.substr(temp.find("{"), std::string::npos);
-		if (_http_keyword_check == 1)
+		if (temp.substr(temp.find("{") + 1, std::string::npos).find("{") != std::string::npos)
+			throw (InvalidHttpBlockException());
+		if (_http_keyword_check == 1 && _http_braket_open == 1)
 		{
 			this->_http_block++;
 			_http_keyword_check--;
+			_http_braket_open++;
 		}
+		else
+			throw (InvalidHttpBlockException());
 	}
 	else if (temp.find("root") != std::string::npos
 		|| temp.find("autoindex") != std::string::npos
 		|| temp.find("default_error_page") != std::string::npos)
-	{
 		return ;
-	}
 	else
 	{
 		for (int i = 0; i < (int)temp.length(); i++)
@@ -287,15 +310,10 @@ int	Parse::FileOpen(std::string config_file)
 	int		i = 0;
 	while (std::getline(f_read, line))
 	{
-		/* ignore comment */
 		if (line[0] == '#' || line == "")
 			continue ;
 		if (line.find("#"))
 			line = line.substr(0, line.find("#"));
-
-		if (_http_block && _root != "" && _autoindex != "" && _default_err_page != "")
-			_http_parse_done = 1;
-
 		if (!_http_parse_done)
 		{
 			HttpBlockCheck(&line);
@@ -303,9 +321,12 @@ int	Parse::FileOpen(std::string config_file)
 		}
 		else
 			ServerBlockCheck(&line);
-		std::cout << "i: " << i << " " << line << std::endl;
+		std::cout << "i: " << i << line << std::endl;
 		i++;
 	}
+	
+	if (_http_block != 1 || _root_flag != 1 || _autoindex_flag != 1)
+		throw (InvalidHttpBlockException());
 	
 	std::cout << "http_block: " << _http_block << std::endl;
 	std::cout << "root_flag: " << _root_flag << std::endl;
