@@ -49,6 +49,11 @@
 		"fstream": "cpp",
 		"stack": "cpp",
 		"list": "cpp",
-		"map": "cpp"
+		"map": "cpp",
+		"csignal": "cpp",
+		"ctime": "cpp",
+		"set": "cpp",
+		"optional": "cpp",
+		"sstream": "cpp"
 	}
 }
