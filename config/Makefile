@@ -6,7 +6,7 @@
 #    By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/18 13:55:40 by yhwang            #+#    #+#              #
-#    Updated: 2023/03/18 22:30:03 by yhwang           ###   ########.fr        #
+#    Updated: 2023/03/20 04:20:37 by yhwang           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,9 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
 RM = rm -f
 
 FILES = ./srcs/main \
-		./srcs/Parse
+		./srcs/Parse \
+		./srcs/HttpBlockParse \
+		./srcs/ParseUtils
 
 SRCS = $(addsuffix .cpp, $(FILES))
 OBJS = $(addsuffix .o, $(FILES))
