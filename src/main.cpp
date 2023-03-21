@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 20:32:45 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/21 11:31:25 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	main(int ac, char **av, char **env)
 	std::vector<Server *> servers;
 	Server			server1;
 	Server			server2;
-	server1.port = 8002;
+	server1.port = 8000;
 	server1.host = "127.0.0.1";
 	server1.root = "./data";
 	server1.serverName = "RatatouilleServer1";
@@ -78,12 +78,14 @@ int	main(int ac, char **av, char **env)
 	locbloc1.info.insert(std::pair<std::string, std::string>("dir", "/fruits"));
 	locbloc1.info.insert(std::pair<std::string, std::string>("index", "yummyfruits.html"));
 	server1.locationBloc.insert(&locbloc1);
+	server1.maxClientBodySize = 30000;
 	servers.push_back(&server1);
 	//=================================================
 
-	server2.port = 8003;
+	server2.port = 8001;
 	server2.host = "127.0.0.1";
-	server2.root = "data"; //path relative ok
+	server2.root = "data"; // no 400
+	server2.root = "/data"; // no
 	// server2.root = "/home/hyunah/Documents/webserv/data"; path absolute //ok
 	server2.serverName = "RatatouilleServer2";
 	server2.error_page = "/home/hyunah/Documents/webserv/data/error_pages";
@@ -96,6 +98,7 @@ int	main(int ac, char **av, char **env)
 
 	servers.push_back(&server2);
 	config.servers = servers;
+
 //config End
 
 	if (ac > 2)

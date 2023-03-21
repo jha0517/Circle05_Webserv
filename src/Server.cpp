@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 22:57:12 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/21 11:45:47 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,19 +47,93 @@ int	Server::startListen(){
 	return (this->sockfd);
 }
 
+// std::vector<char>	fileToBinaryTest(std::string file_name1)
+// {
+// // string create_html_output_for_binary(const string &full_path)
+// // {
+//     std::vector<char> buffer;
+//     const char* file_name = file_name1.c_str();
+
+//     FILE* file_stream = fopen(file_name, "rb");
+
+//     size_t file_size;
+//     //... other code here
+
+//     if(file_stream != NULL)
+//     {
+//         fseek(file_stream, 0, SEEK_END);
+//         long file_length = ftell(file_stream);
+//         rewind(file_stream);
+
+//         buffer.resize(file_length);
+
+//         file_size = fread(&buffer[0], 1, file_length, file_stream);
+// 		printf("file size is %li\n", file_size);
+//     }
+// 	return (buffer);
+//     // .... other code here
+// }
+
+// std::string intToString3(int a)
+// {
+// 	std::stringstream	ss;
+
+//     ss << a;
+//     return ss.str();
+// }
+
 void	Server::newConnection(){
-	std::string	response;
+	// std::string	response;
+    std::vector<char> data;
 	int			statusCode;
 	Connection	connect(clientfd);
 	ServerManager *servManag;
 
 	servManag = (ServerManager *)manager;
 	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
-	response = connect.constructResponse(*this, statusCode);
-	if (send(clientfd, response.c_str(), strlen(response.c_str()), 0) < 0)
-		std::cerr << "Sending message Failed" << std::endl;
+	data = connect.constructResponse(*this, statusCode);
+
+	// MessageHeaders	msg;
+
+	// msg.addHeader("Content-Type", "application/msword");
+	// msg.addHeader("Content-Transfer-Encoding", "binary");
+	// data = fileToBinaryTest("/home/hyunah/Documents/webserv/data/fruits/sampleDOC.doc");
+	// msg.addHeader("Content-Disposition", "inline; filename=\"myfile.doc\"");
+	// msg.addHeader("Content-Length", intToString3(data.size()));
+	// std::string msgTxt;
+	// msgTxt = ("HTTP/1.1 200 OK\r\n");
+	// msgTxt += msg.generateRawMsg();
+
+	//big image? 81mb ok
+	//png? ok
+	//video? avi ok but it is downloading with rubbish filename.
+	// pdf? yes.
+	// 
+
+	// data.insert(data.begin(), msgTxt.c_str(), msgTxt.c_str() + msgTxt.size());
+	size_t	size = data.size();
+	printf("data size is %li\n", size);
+	int	numSent = 0;
+	char	*p = static_cast<char *>(data.data());
+	// while (size != i)
+	while (size > 0)
+	{
+		// numSent = send(clientfd, p + i, 1, 0);
+		numSent = send(clientfd, p, size, 0);
+		// printf("Sending...\n");
+		// printf("numSent: %i\n", numSent);
+		if (numSent < 0)
+		{
+			std::cerr << "Sending message Failed" << std::endl;
+			return ;
+		}
+		size -= numSent;
+	}
+
+	// if (send(clientfd, response.data(), strlen(response.c_str()), 0) < 0)
+	// 	std::cerr << "Sending message Failed" << std::endl;
 	servManag->log.printResponse(clientfd, statusCode);
-	printf("Response:\n%s\n", response.c_str());
+	// printf("Response:\n%s\n", response.c_str());
 }
 
 int	Server::acceptConnection(){

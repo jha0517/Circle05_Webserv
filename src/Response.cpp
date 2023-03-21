@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 23:44:53 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/21 11:44:35 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ Response::Response()
     this->mimeMap.insert(std::make_pair("htm", "text/html"));
     this->mimeMap.insert(std::make_pair("html", "text/html"));
     this->mimeMap.insert(std::make_pair("jpeg", "image/jpeg"));
-    this->mimeMap.insert(std::make_pair("jpg", "image/jpeg"));
+    this->mimeMap.insert(std::make_pair("jpg", "image/jpg"));
     this->mimeMap.insert(std::make_pair("mpeg", "video/mpeg"));
     this->mimeMap.insert(std::make_pair("png", "image/png"));
     this->mimeMap.insert(std::make_pair("php", "application/x-httpd-php"));
@@ -97,13 +97,20 @@ std::string	Response::generateRawResponse(int code, MessageHeaders msg, std::str
 	return (ret);
 }
 
-std::string	Response::getMimeType(std::string filepath)
+std::string	Response::getFormat(std::string & filepath)
 {
 	std::size_t	formatDelimitor;
 	std::string	format;
 	formatDelimitor = filepath.find_last_of(".");
 	format = filepath.substr(formatDelimitor + 1);
 	std::cout << "format is : " << format << std::endl;
+	return (format);
+}
+
+std::string	Response::getMimeType(std::string & filepath)
+{
+	std::string	format;
+	format = getFormat(filepath);
 
 	for(std::map<std::string, std::string>::iterator it = mimeMap.begin(); it != mimeMap.end(); ++it)
 	{
@@ -113,18 +120,59 @@ std::string	Response::getMimeType(std::string filepath)
 	return ("text/plain");
 }
 
-std::string	Response::buildResponse(std::string dir, int code)
+std::vector<char> Response::fileToBinary(std::string file_name1)
+{
+    std::vector<char> buffer;
+    const char* file_name = file_name1.c_str();
+    FILE* file_stream = fopen(file_name, "rb");
+    size_t file_size;
+
+	(void) file_size;
+    if(file_stream != NULL)
+    {
+        fseek(file_stream, 0, SEEK_END);
+        long file_length = ftell(file_stream);
+        rewind(file_stream);
+
+        buffer.resize(file_length);
+
+        file_size = fread(&buffer[0], 1, file_length, file_stream);
+    }
+	return (buffer);
+}
+
+std::vector<char>	Response::buildResponse(std::string dir, int code)
 {
 	MessageHeaders	msg;
 	std::string		ret;
+	std::string		txtBody;
+	std::vector<char> null;
 
-	body = check_filename_get_str(dir.c_str());
-	if (body.empty())
-		return ("");
+	(void) code;
 	msg.addHeader("Date", generateDateHeader());
 	msg.addHeader("Content-Type", getMimeType(dir));
-	msg.addHeader("Content-Length", intToString(body.length()));
-	return (generateRawResponse(code, msg, body));
+	if (getMimeType(dir) == "text/plain" || getMimeType(dir) == "text/html")
+	{
+		std::cout << "gogo" << std::endl;
+		txtBody = check_filename_get_str(dir.c_str());
+		if (txtBody.empty())
+			return (null);
+		data.insert(data.begin(), txtBody.c_str(), txtBody.c_str() + txtBody.size());
+	}
+	else
+	{
+		Uri	uri;
+		uri.parsingFromString(dir);
+		std::string fileDefaultFileName = "inline; filename=";
+		fileDefaultFileName += "\"" + uri.getPath().back() + "\"";
+		msg.addHeader("Content-Disposition", fileDefaultFileName.c_str());
+		data = fileToBinary(dir);
+	}
+	msg.addHeader("Content-Length", intToString(data.size()));
+	ret = ("HTTP/1.1 200 OK\r\n");
+	ret += msg.generateRawMsg();
+	data.insert(data.begin(), ret.c_str(), ret.c_str()+ ret.size());
+	return (data);
 }
 
 std::string	Response::generateDateHeader()
@@ -146,30 +194,35 @@ std::string	Response::generateDateHeader()
 	return(wday + ", " + day + " " + month + " " + year + " " + hour + ":" + minute + ":" + sec + " " + zone);
 }
 
-std::string	Response::buildErrorResponse(std::string dir, int code)
+std::vector<char>	Response::buildErrorResponse(std::string dir, int code)
 {
 	MessageHeaders	msg;
 	std::string		ret;
 	std::string		body;
 	std::string		filePath;
+	std::vector<char> null;
 
+	if (statusCodeDic[code].empty())
+		std::cout << "There is no status available in Dictionnary for code " << intToString(code) << std::endl;
 	filePath = dir + "/"+ intToString(code) + ".html";
 	std::cout << "FilePathName : " << filePath << std::endl;
 	body = check_filename_get_str(filePath.c_str());
 	if (body.empty())
-		return ("");
+		return (null);
 	ret += "HTTP/1.1 " + intToString(code) + " " + statusCodeDic[code] + "\r\n";
 	msg.addHeader("Date", generateDateHeader());
 	msg.addHeader("Content-Type", "text/html");
 	msg.addHeader("Content-Length", intToString(body.length()));
 	ret += msg.generateRawMsg();
 	ret += body;
-	return (ret);
+	// make ret. return type to vector<char> and change the send function to see if the whole size of ficher+header has been transfered.
+	data.insert(data.end(), ret.c_str(), ret.c_str()+ ret.size());
+	return (data);
 }
 
-std::string	Response::getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
+std::vector<char>	Response::getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
 	(void) messageEnd;
-	std::string	ret;
+	// std::string	ret;
 
 	// GET must have empty body, if not, Bad Request.
 	if (!request->body.empty())
@@ -177,46 +230,47 @@ std::string	Response::getMethod(Server &server, Request *request, std::size_t me
 		statusCode = 400;
 		return (buildErrorResponse(server.error_page, 400));
 	}
-	ret = buildResponse(server.findMatchingUri(request->target.generateString()), 200);
+	clientfd = server.clientfd;
+	data = buildResponse(server.findMatchingUri(request->target.generateString()), 200);
 	statusCode = 200;
-	if (ret.empty())
+	if (data.empty())
 	{
 		statusCode = 400;
 		return (buildErrorResponse(server.error_page, 400));	
 	}
-	return (ret);
+	return (data);
 }
 
-std::string	Response::postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
-	(void) request;
-	(void) messageEnd;
-	(void) request;
-	(void) statusCode;
-	(void) server;
-	std::cout << "In PostMethod\n";
-	std::string	expectedResponse = (
-     "HTTP/1.1 404 Not Found\r\n"
-     "Content-Length: 35\r\n"
-     "Content-Type: text/plain\r\n"
-	 "\r\n"
-     "Hello This is Ratatouille server!\r\n"
-	);
-	return (expectedResponse);
-}
+// std::string	Response::postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
+// 	(void) request;
+// 	(void) messageEnd;
+// 	(void) request;
+// 	(void) statusCode;
+// 	(void) server;
+// 	std::cout << "In PostMethod\n";
+// 	std::string	expectedResponse = (
+//      "HTTP/1.1 404 Not Found\r\n"
+//      "Content-Length: 35\r\n"
+//      "Content-Type: text/plain\r\n"
+// 	 "\r\n"
+//      "Hello This is Ratatouille server!\r\n"
+// 	);
+// 	return (expectedResponse);
+// }
 
-std::string	Response::deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
-	(void) request;
-	(void) messageEnd;
-	(void) request;
-	(void) statusCode;
-	(void) server;
-	std::cout << "In DeleteMethod\n";
-	std::string	expectedResponse = (
-     "HTTP/1.1 404 Not Found\r\n"
-     "Content-Length: 35\r\n"
-     "Content-Type: text/plain\r\n"
-	 "\r\n"
-     "Hello This is Ratatouille server!\r\n"
-	);
-	return (expectedResponse);
-}
+// std::string	Response::deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
+// 	(void) request;
+// 	(void) messageEnd;
+// 	(void) request;
+// 	(void) statusCode;
+// 	(void) server;
+// 	std::cout << "In DeleteMethod\n";
+// 	std::string	expectedResponse = (
+//      "HTTP/1.1 404 Not Found\r\n"
+//      "Content-Length: 35\r\n"
+//      "Content-Type: text/plain\r\n"
+// 	 "\r\n"
+//      "Hello This is Ratatouille server!\r\n"
+// 	);
+// 	return (expectedResponse);
+// }

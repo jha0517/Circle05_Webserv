@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 23:16:32 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/21 11:24:44 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,11 @@
 #include "../include/ServerManager.hpp"
 #include <sys/stat.h>
 
-Connection::Connection() : dataReceivedDelegate(NULL)
-{
-}
+Connection::Connection(){}
 
-Connection::Connection(int new_socketfd) : socketfd(new_socketfd)
-{
-}
+Connection::Connection(int new_socketfd) : socketfd(new_socketfd){}
 
-Connection::~Connection()
-{
-}
+Connection::~Connection(){}
 
 #define BUFFSIZE 3000
 
@@ -56,7 +50,7 @@ bool	checkURIaccess(std::string path, std::string method)
 	return (true);
 }
 
-std::string	Connection::constructResponse(Server & server, int & statusCode){
+std::vector<char>	Connection::constructResponse(Server & server, int & statusCode){
 	std::string		responseStr;
 	std::size_t		messageEnd;
 	Response		response;
@@ -68,14 +62,13 @@ std::string	Connection::constructResponse(Server & server, int & statusCode){
 	manag = (ServerManager	*)server.manager;
 
 	// recv enought to know the content-length and for the body-> store in the vector<char>
-	
+	// if request msg is not finished, do a loop and get the full msg.	
 	if (recv(server.clientfd, buffer, BUFFSIZE, 0) < 0)
 	{
 		std::cout << "request receiving Failed.\n";
 		statusCode = 404;
 		return (response.buildErrorResponse(server.error_page, 404));
 	}
-	
 	parsed = request.parseResquest(buffer, messageEnd);
 	manag->log.printRequest(server.clientfd, request.method, request.target.generateString());
 	printf("%s", buffer);
@@ -118,12 +111,12 @@ std::string	Connection::constructResponse(Server & server, int & statusCode){
 
 	// build response
 	if (request.method == "GET")
-		responseStr = response.getMethod(server, &request, messageEnd, statusCode);
-	else if (request.method == "POST")
-		responseStr = response.postMethod(server, &request, messageEnd, statusCode);
-	else if (request.method == "DELETE")
-		responseStr= response.deleteMethod(server, &request, messageEnd, statusCode);
+		dataReceived = response.getMethod(server, &request, messageEnd, statusCode);
+	// else if (request.method == "POST")
+		// responseStr = response.postMethod(server, &request, messageEnd, statusCode);
+	// else if (request.method == "DELETE")
+		// responseStr= response.deleteMethod(server, &request, messageEnd, statusCode);
 	else
 		return (response.buildErrorResponse(server.error_page, 500));
-	return (responseStr);
+	return (dataReceived);
 }

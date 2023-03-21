@@ -98,9 +98,9 @@ std::string	MessageHeaders::generateRawMsg(){
 	for (unsigned i=0; i != headers.size(); i++)
 	{
 		buffer << headers[i].name << ": " << headers[i].value << "\r\n";
-	}	
+	}
 	buffer << "\r\n";
-	buffer << body;
+	// buffer << body;
 	return (buffer.str());
 }
 

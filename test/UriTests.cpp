@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/03 15:43:44 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 08:53:30 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/21 10:40:30 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -292,4 +292,14 @@ TEST(UriTests, GenerateString){
 	uri2.parsingFromString("http://www.example.com/bar/foo");
 	ASSERT_EQ(uri2.generateString(), "http://www.example.com/bar/foo");
 
+}
+
+
+TEST(UriTests, GenerateHeaderDisposition){
+	Uri	uri;
+
+	uri.parsingFromString("/home/hyunah/Documents/webserv/data/fruits/sampleVideo.avi");
+	std::string fileDefaultFileName = "inline; filename=";
+	fileDefaultFileName += "\"" + uri.getPath().back() + "\"";
+	ASSERT_EQ("inline; filename=\"sampleVideo.avi\"", fileDefaultFileName);
 }
