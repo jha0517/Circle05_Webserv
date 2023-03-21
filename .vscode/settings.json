@@ -49,6 +49,15 @@
 		"fstream": "cpp",
 		"stack": "cpp",
 		"list": "cpp",
-		"map": "cpp"
+		"map": "cpp",
+		"any": "cpp",
+		"csignal": "cpp",
+		"ctime": "cpp",
+		"set": "cpp",
+		"optional": "cpp",
+		"iomanip": "cpp",
+		"sstream": "cpp",
+		"cinttypes": "cpp",
+		"variant": "cpp"
 	}
 }
