@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/21 11:31:25 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/22 16:35:25 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,24 @@ std::string	checkFileAndGetContent(char *filename)
 	ifs.close();
 	return (src);
 }
+// 
+// int	main(int ac, char **av, char **env)
+// {
+// 	std::string str = "abcdefg\r\n";
+// 	std::string str2 = "\r\n";
+// 	std::vector<char>	vec1;
+// 	int result;
 
+// 	vec1.insert(vec1.begin(), str.c_str(), str.c_str() + str.length());
+// 	result = str.find(str2);
+// 	printf("Good result : %i\n", result);
+// 	result = vecFind(vec1, str2);
+// 	printf("Compare with : %i\n", result);
+
+// 	std::cout << "Good result : " << str.substr(4, str.length()) << std::endl;
+// 	std::cout << "Compare with : " << vecSubstr(vec1, 4, vec1.size()) << std::endl;
+// 	return 0;
+// }
 int	main(int ac, char **av, char **env)
 {
 	signal(SIGINT, signalHandler);
@@ -123,13 +140,3 @@ int	main(int ac, char **av, char **env)
 	serverManager.run();
 	return (EXIT_SUCCESS);
 }
-
-// bool	formatcheck(char *configFile)
-// {
-// 	std::string	str;
-
-// 	str = checkFileAndGetContent(configFile);
-// 	if (!checkBalancedParantheses(str))
-// 		throw ServerManager::errorMsg("Error : Config file Parantheses not balanced\n");
-// 	return (true);
-// }

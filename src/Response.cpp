@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/21 11:44:35 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/22 14:07:14 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ std::vector<char>	Response::buildResponse(std::string dir, int code)
 	msg.addHeader("Content-Type", getMimeType(dir));
 	if (getMimeType(dir) == "text/plain" || getMimeType(dir) == "text/html")
 	{
-		std::cout << "gogo" << std::endl;
+		// std::cout << "gogo" << std::endl;
 		txtBody = check_filename_get_str(dir.c_str());
 		if (txtBody.empty())
 			return (null);
@@ -241,22 +241,17 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 	return (data);
 }
 
-// std::string	Response::postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
-// 	(void) request;
-// 	(void) messageEnd;
-// 	(void) request;
-// 	(void) statusCode;
-// 	(void) server;
-// 	std::cout << "In PostMethod\n";
-// 	std::string	expectedResponse = (
-//      "HTTP/1.1 404 Not Found\r\n"
-//      "Content-Length: 35\r\n"
-//      "Content-Type: text/plain\r\n"
-// 	 "\r\n"
-//      "Hello This is Ratatouille server!\r\n"
-// 	);
-// 	return (expectedResponse);
-// }
+std::vector<char>	Response::postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
+	// (void) request;
+	// (void) messageEnd;
+	// (void) request;
+	// (void) statusCode;
+	// (void) server;
+	std::cout << "In PostMethod\n";
+	statusCode = 404;
+	// request->body;
+	return (buildErrorResponse(server.error_page, 404));
+}
 
 // std::string	Response::deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
 // 	(void) request;

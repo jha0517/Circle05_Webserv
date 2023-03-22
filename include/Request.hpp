@@ -13,11 +13,14 @@ public:
 	~Request();
 	std::string		method;
 	std::string		protocol;
-	std::string		body;
+	// std::string		body;
+	std::vector<char>	body;
 	Uri				target;
 	MessageHeaders	headers;
-	bool			parseResquest(const std::string &rawRequest, size_t & messageEnd);
-	bool			parseResquest(const std::string &rawRequest);
+	bool			parseResquest(const std::vector<char> rawRequest, size_t & messageEnd);
+	bool			parseResquest(const std::vector<char> rawRequest);
+	// bool			parseResquest(const std::string &rawRequest, size_t & messageEnd);
+	// bool			parseResquest(const std::string &rawRequest);
 };
 
 #endif

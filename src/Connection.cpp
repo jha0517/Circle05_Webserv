@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/21 11:24:44 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/22 16:34:19 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,23 +56,40 @@ std::vector<char>	Connection::constructResponse(Server & server, int & statusCod
 	Response		response;
 	Request			request;
 	char			buffer[BUFFSIZE];
+	std::vector<char>	receivedData;
+	int				n;
 	ServerManager	*manag;
 	bool			parsed;
 	
 	manag = (ServerManager	*)server.manager;
 
+	printf("1\n");
 	// recv enought to know the content-length and for the body-> store in the vector<char>
 	// if request msg is not finished, do a loop and get the full msg.	
-	if (recv(server.clientfd, buffer, BUFFSIZE, 0) < 0)
+	if (( n = recv(server.clientfd, buffer, BUFFSIZE, 0)) < 0)
 	{
 		std::cout << "request receiving Failed.\n";
 		statusCode = 404;
 		return (response.buildErrorResponse(server.error_page, 404));
 	}
-	parsed = request.parseResquest(buffer, messageEnd);
-	manag->log.printRequest(server.clientfd, request.method, request.target.generateString());
-	printf("%s", buffer);
+
+	printf("2\n");
+	receivedData.insert(receivedData.end(), buffer, buffer + n);
+
+	parsed = request.parseResquest(receivedData, messageEnd);
 	bzero(buffer, sizeof(buffer));
+	
+	printf("3\n");
+	manag->log.printRequest(server.clientfd, request.method, request.target.generateString());
+	
+	// printf("%s", buffer);
+	std::cout << "Vector, MessageEnd : "<< messageEnd << std::endl;
+	for	(std::vector<char>::iterator it = receivedData.begin(); it != receivedData.end(); ++it)
+		std::cout << *it;
+	std::cout << std::endl;
+
+	printf("4\n");
+	// request.body.insert(request.body.begin(), receivedData.begin()+ messageEnd, receivedData.end());
 
 	// Bad Request parsing failed.-> error 400.
 	if (!parsed)
@@ -108,12 +125,12 @@ std::vector<char>	Connection::constructResponse(Server & server, int & statusCod
 		std::cout << "URI not accessible.\n";
 		return (response.buildErrorResponse(server.error_page, 404));
 	}
-
+	std::cout << "request.method : " << request.method << std::endl;
 	// build response
 	if (request.method == "GET")
 		dataReceived = response.getMethod(server, &request, messageEnd, statusCode);
-	// else if (request.method == "POST")
-		// responseStr = response.postMethod(server, &request, messageEnd, statusCode);
+	else if (request.method == "POST")
+		dataReceived = response.postMethod(server, &request, messageEnd, statusCode);
 	// else if (request.method == "DELETE")
 		// responseStr= response.deleteMethod(server, &request, messageEnd, statusCode);
 	else

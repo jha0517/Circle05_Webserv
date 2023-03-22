@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/21 11:06:37 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/22 13:38:01 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ public:
 	std::string		generateDateHeader();
 	std::string		generateRawResponse(int code, MessageHeaders msg, std::string body);
 	std::vector<char>	getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
-	// std::string		postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
+	std::vector<char>	postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
 	// std::string		deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
 	std::vector<char>	buildResponse(std::string dir, int errorCode);
 	std::vector<char>	buildErrorResponse(std::string dir, int errorCode);

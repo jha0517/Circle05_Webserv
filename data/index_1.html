@@ -8,8 +8,10 @@
             This is Ratatouille Server!<br><br>
             <a href="/fruits">Test GET images</a>,<br>
             <br> Test Post File <br>
-            <form name="" method="" action="">
-            <input type="file">
+            <form action="upload.php" method="post" enctype="multipart/form-data">
+            <input type="file" name="file"/>
+            <input type="submit" value="Upload" />
         </form>
+
     </body>
 </html>
