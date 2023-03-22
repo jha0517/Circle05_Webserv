@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 16:35:23 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/22 16:44:50 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/22 17:00:18 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ std::size_t	vecFind(std::vector<char> rawRequest, std::string str)
 			while (*(it + i) == str[i])
 			{
 				printf("Comparing vector char %c with str %c\n", *(it + 1), str[i]);
+				printf("i is %li, str.length is %li, returning %li\n", i, str.length()-1, v);
 				if (i == str.length() - 1)
 					return (v);
 				i++;
@@ -106,11 +107,9 @@ bool	Request::parseResquest(const std::vector<char> rawRequest, size_t & message
 	std::string	CRLF = "\r\n";
 
 	// parse the request line.
-	// std::size_t	requestLineEnd	= rawRequest.find(CRLF);	
 	std::size_t	requestLineEnd	= vecFind(rawRequest, CRLF);	
 	if (requestLineEnd == std::string::npos)
 		return (printf("No request Line End\n"), false);
-	// std::string	requestLine = rawRequest.substr(0, requestLineEnd);
 	std::string	requestLine = vecSubstr(rawRequest, 0, requestLineEnd);
 	if (!parseRequestLine(this, requestLine))
 		return (printf("request Line Not Parsable\n"), false);
@@ -118,8 +117,7 @@ bool	Request::parseResquest(const std::vector<char> rawRequest, size_t & message
 	// parse the headers line.
 	size_t	bodyOffset = 0;
 	size_t	headerOffset = requestLineEnd + CRLF.length();
-	// if (!this->headers.parseFromString(rawRequest.substr(headerOffset), bodyOffset))
-	if (!this->headers.parseFromString(vecSubstr(rawRequest, headerOffset, bodyOffset)))
+	if (!this->headers.parseFromString(vecSubstr(rawRequest, headerOffset, rawRequest.size()), bodyOffset))
 		return (printf("Header Line End\n"), false);
 
 	// check for content-length header. if present, use this to determine how many character should be in the body.
@@ -134,18 +132,10 @@ bool	Request::parseResquest(const std::vector<char> rawRequest, size_t & message
 		if (contentLength > maxContentLength)
 			return (printf("Content-length > MaxContentLength\n"), false);
 		else
-		{
-			// this->body = rawRequest.substr(bodyOffset, contentLength);
-			// std::cout << "Content Head ok, Body is : "<< body << std::endl;
 			messageEnd = bodyOffset + contentLength + CRLF.length();
-		}
 	}
 	else
-	{
-		// this->body = rawRequest.substr(bodyOffset);
-		// std::cout << "Content Head non exist, Body is : "<< body << std::endl;
 		messageEnd = bodyOffset;
-	}
 	return (true);
 }
 	
@@ -156,58 +146,3 @@ bool	Request::parseResquest(const std::vector<char> rawRequest){
 		return (false);
 	return (true);
 }
-
-/*
-bool	Request::parseResquest(const std::string &rawRequest, size_t & messageEnd){
-	std::string	CRLF = "\r\n";
-
-	// parse the request line.
-	std::size_t	requestLineEnd	= rawRequest.find(CRLF);	
-	if (requestLineEnd == std::string::npos)
-		return (printf("No request Line End\n"), false);
-	std::string	requestLine = rawRequest.substr(0, requestLineEnd);
-	if (!parseRequestLine(this, requestLine))
-		return (printf("request Line Not Parsable\n"), false);
-
-	// parse the headers line.
-	size_t	bodyOffset;
-	size_t	headerOffset = requestLineEnd + CRLF.length();
-	if (!this->headers.parseFromString(rawRequest.substr(headerOffset), bodyOffset))
-		return (printf("Header Line End\n"), false);
-
-	// check for content-length header. if present, use this to determine how many character should be in the body.
-	bodyOffset += headerOffset;
-	size_t	maxContentLength = rawRequest.length() - bodyOffset;
-	size_t	contentLength;
-	// extract body.
-	if (this->headers.hasHeader("Content-Length"))
-	{
-		if (!parseSize(this->headers.getHeaderValue("Content-Length"), contentLength))
-			return (printf("Content-length Size parsing\n"), false);
-		if (contentLength > maxContentLength)
-			return (printf("Content-length > MaxContentLength\n"), false);
-		else
-		{
-			// this->body = rawRequest.substr(bodyOffset, contentLength);
-			// std::cout << "Content Head ok, Body is : "<< body << std::endl;
-			messageEnd = bodyOffset + contentLength + CRLF.length();
-		}
-	}
-	else
-	{
-		// this->body = rawRequest.substr(bodyOffset);
-		// std::cout << "Content Head non exist, Body is : "<< body << std::endl;
-		messageEnd = bodyOffset;
-	}
-	return (true);
-}
-	
-bool	Request::parseResquest(const std::string &rawRequest){
-	std::size_t	messageEnd;
-
-	if (!this->parseResquest(rawRequest, messageEnd))
-		return (false);
-	return (true);
-}
-
-*/
