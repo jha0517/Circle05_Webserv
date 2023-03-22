@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/22 16:34:19 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/22 16:42:00 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,6 @@ std::vector<char>	Connection::constructResponse(Server & server, int & statusCod
 	printf("3\n");
 	manag->log.printRequest(server.clientfd, request.method, request.target.generateString());
 	
-	// printf("%s", buffer);
 	std::cout << "Vector, MessageEnd : "<< messageEnd << std::endl;
 	for	(std::vector<char>::iterator it = receivedData.begin(); it != receivedData.end(); ++it)
 		std::cout << *it;

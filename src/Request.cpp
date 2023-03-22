@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 16:35:23 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/22 16:33:29 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/22 16:44:50 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,8 @@ bool	parseSize(const	std::string & numberString, size_t	& number)
 
 std::size_t	vecFind(std::vector<char> rawRequest, std::string str)
 {
-	int	i = 0;
-	int	v = 0;
+	size_t	i = 0;
+	size_t	v = 0;
 
 	for (std::vector<char>::iterator it = rawRequest.begin(); it != rawRequest.end(); ++it)
 	{
@@ -82,8 +82,8 @@ std::size_t	vecFind(std::vector<char> rawRequest, std::string str)
 
 std::string	vecSubstr(std::vector<char> rawRequest, size_t start, size_t end)
 {
-	int	i = 0;
-	int	v = 0;
+	size_t	i = 0;
+	size_t	v = 0;
 	std::string	ret;
 
 	for (std::vector<char>::iterator it = rawRequest.begin(); it != rawRequest.end(); ++it)
@@ -116,7 +116,7 @@ bool	Request::parseResquest(const std::vector<char> rawRequest, size_t & message
 		return (printf("request Line Not Parsable\n"), false);
 
 	// parse the headers line.
-	size_t	bodyOffset;
+	size_t	bodyOffset = 0;
 	size_t	headerOffset = requestLineEnd + CRLF.length();
 	// if (!this->headers.parseFromString(rawRequest.substr(headerOffset), bodyOffset))
 	if (!this->headers.parseFromString(vecSubstr(rawRequest, headerOffset, bodyOffset)))

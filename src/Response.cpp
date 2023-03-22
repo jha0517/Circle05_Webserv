@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/22 14:07:14 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/22 16:43:07 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,11 +242,11 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 }
 
 std::vector<char>	Response::postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
-	// (void) request;
-	// (void) messageEnd;
-	// (void) request;
-	// (void) statusCode;
-	// (void) server;
+	(void) request;
+	(void) messageEnd;
+	(void) request;
+	(void) statusCode;
+	(void) server;
 	std::cout << "In PostMethod\n";
 	statusCode = 404;
 	// request->body;
