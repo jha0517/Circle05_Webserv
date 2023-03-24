@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 16:35:23 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/22 17:00:18 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/22 17:52:18 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,8 @@ bool	Request::parseResquest(const std::vector<char> rawRequest, size_t & message
 	}
 	else
 		messageEnd = bodyOffset;
+	std::string	doubleCRLF = "\r\n\r\n";
+	messageEnd = vecFind(rawRequest, doubleCRLF) + 4;
 	return (true);
 }
 	

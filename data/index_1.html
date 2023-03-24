@@ -8,10 +8,21 @@
             This is Ratatouille Server!<br><br>
             <a href="/fruits">Test GET images</a>,<br>
             <br> Test Post File <br>
+            
+            <h1>The form action attribute</h1>
+
+            <form action="/query.php">
+              <label for="fname">First name:</label>
+              <input type="text" id="fname" name="fname"><br><br>
+              <!-- <label for="lname">Last name:</label>
+              <input type="text" id="lname" name="lname"><br><br> -->
+              <input type="submit" value="Submit">
+            </form><br><br>
+
             <form action="upload.php" method="post" enctype="multipart/form-data">
             <input type="file" name="file"/>
             <input type="submit" value="Upload" />
-        </form>
+            </form>
 
     </body>
 </html>

@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 10:51:26 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/24 16:00:06 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ bool ServerManager::initiate(Config & config){
 			return (false);
 		}
 		this->log.printServerCreation(true, (*it));
+		serverFds.push_back((*it)->sockfd);
 		FD_SET((*it)->sockfd, &currentSockets);
 	}
 	return (true);
@@ -66,18 +67,36 @@ Server	*findServer(int i, std::vector<Server *> servers, int & isForServer)
 	}
 	return (NULL);
 }
+bool	g_run = 1;
+
+void	signalHandler(int signum)
+{
+	(void) signum;
+	std::cout << "\nLeaving the server...Byeee!" << std::endl;
+	g_run = 0;
+	// exit(EXIT_SUCCESS);
+}
 
 bool	ServerManager::run(){
 	int				isForServer;
 	Server			*server;
+	signal(SIGINT, signalHandler);
 
 	if (error == true)
 		return (false);
-	while (true)
+	while (g_run)
 	{
 		readySockets = currentSockets;
 		if (select(FD_SETSIZE, &readySockets, NULL, NULL, NULL) <= 0)
 		{
+			if (!g_run)
+			{
+				for (std::vector<int>::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
+				{
+					close(*it);
+				}
+				return (0);
+			}
 			std::cerr << "Error in Select" << std::endl;
 			return (EXIT_FAILURE);
 		}
@@ -100,4 +119,12 @@ bool	ServerManager::run(){
 			}
 		}
 	}
+	if (!g_run)
+	{
+		for (std::vector<int>::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
+		{
+			close(*it);
+		}
+	}
+	return (0);
 }

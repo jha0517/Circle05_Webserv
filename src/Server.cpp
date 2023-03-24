@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/21 11:45:47 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/24 09:05:41 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ void	Server::newConnection(){
 	// data = fileToBinaryTest("/home/hyunah/Documents/webserv/data/fruits/sampleDOC.doc");
 	// msg.addHeader("Content-Disposition", "inline; filename=\"myfile.doc\"");
 	// msg.addHeader("Content-Length", intToString3(data.size()));
-	// std::string msgTxt;
+	// std::revstring msgTxt;
 	// msgTxt = ("HTTP/1.1 200 OK\r\n");
 	// msgTxt += msg.generateRawMsg();
 
@@ -133,6 +133,7 @@ void	Server::newConnection(){
 	// if (send(clientfd, response.data(), strlen(response.c_str()), 0) < 0)
 	// 	std::cerr << "Sending message Failed" << std::endl;
 	servManag->log.printResponse(clientfd, statusCode);
+	close(clientfd);
 	// printf("Response:\n%s\n", response.c_str());
 }
 

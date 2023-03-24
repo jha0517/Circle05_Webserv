@@ -6,11 +6,12 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/22 16:43:07 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/24 16:46:01 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Response.hpp"
+#include <sys/wait.h>
 
 Response::Response()
 {
@@ -194,6 +195,7 @@ std::string	Response::generateDateHeader()
 	return(wday + ", " + day + " " + month + " " + year + " " + hour + ":" + minute + ":" + sec + " " + zone);
 }
 
+
 std::vector<char>	Response::buildErrorResponse(std::string dir, int code)
 {
 	MessageHeaders	msg;
@@ -230,6 +232,55 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		statusCode = 400;
 		return (buildErrorResponse(server.error_page, 400));
 	}
+	if (!request->target.getQuery().empty())
+	{
+		// size_t	deliminator = request->target.getQuery().find("=");
+		// std::string	value = request->target.getQuery().substr(deliminator + 1);
+		std::string pathphp = "/home/hyunah/Documents/webserv/data/query.php";
+		std::string arg1 = "php-cgi";
+		char	*path[] = {strdup(arg1.c_str()), strdup(pathphp.c_str()), NULL};
+		char	*newEnv[] = {strdup(request->target.getQuery().c_str()), NULL};
+
+
+		int pipefd[2];
+		if (pipe(pipefd) == -1)
+		{
+			printf("Error in opening pipe\n");
+		}
+
+		int id = fork();
+		if (id == 0)
+		{
+			close(pipefd[0]);    // close reading end in the child
+
+			dup2(pipefd[1], 1);  // send stdout to the pipe
+			// dup2(pipefd[1], 2);  // send stderr to the pipe
+
+			close(pipefd[1]);    // this descriptor is no longer needed
+
+			execve("/usr/bin/php-cgi", path, newEnv);
+			// exec(...);
+		}
+		else
+		{
+			// parent
+
+			char buffer[1024];
+
+			close(pipefd[1]);  // close the write end of the pipe in the parent
+
+			int n;
+			while ((n = read(pipefd[0], buffer, 1000)) > 0)
+			{
+				if (n < 0)
+					printf("read failed\n");				
+			}
+			printf("Got from child Process -%s-\n", buffer);
+		}
+		wait(NULL);
+		printf("End php function\n");
+		// return ();
+	}
 	clientfd = server.clientfd;
 	data = buildResponse(server.findMatchingUri(request->target.generateString()), 200);
 	statusCode = 200;
@@ -241,6 +292,42 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 	return (data);
 }
 
+std::size_t	vecFind2(std::vector<char> rawRequest, std::string str)
+{
+	size_t	i = 0;
+	size_t	v = 0;
+
+	for (std::vector<char>::iterator it = rawRequest.begin(); it != rawRequest.end(); ++it)
+	{
+		i = 0;
+		if (*it == str[i])
+		{
+			while (*(it + i) == str[i])
+			{
+				// printf("Comparing vector char %c with str %c\n", *(it + 1), str[i]);
+				// printf("i is %li, str.length is %li, returning %li\n", i, str.length()-1, v);
+				if (i == str.length() - 1)
+					return (v);
+				i++;
+			}
+		}
+		v++;
+	}
+	return (std::string::npos);
+}
+
+void makeArray(char **env)
+{
+	int i = -1;
+	while (env[++i])
+		printf("%s\n",env[i]);
+	printf("total %i\n", i);
+	// std::string newenv1 = "TESTHYUNAH=HYUNAH";
+	// char	*newEnv[] = {strdup(newenv1.c_str()), NULL};
+
+	return ;
+}
+
 std::vector<char>	Response::postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
 	(void) request;
 	(void) messageEnd;
@@ -248,6 +335,67 @@ std::vector<char>	Response::postMethod(Server &server, Request *request, std::si
 	(void) statusCode;
 	(void) server;
 	std::cout << "In PostMethod\n";
+	// think how we gonna use cgi to post file.
+
+	std::cout << "BEFORE request->body.size() : " << request->body.size() << std::endl;
+	std::string bodyDeliminator = "\r\n\r\n";
+	std::size_t i = vecFind2(request->body, bodyDeliminator);
+	std::cout << "Body deliminator :  " << i << "\n";
+	request->body.erase(request->body.begin(), request->body.begin() + i + 4);
+	
+	std::string pathphp = "/home/hyunah/Documents/webserv/data/upload.php";
+	// char	*path[] = {strdup(pathphp.c_str()), NULL};
+	// std::string pathphp = "hello";
+	std::string arg1 = "php-cgi";
+	char	*path[] = {strdup(arg1.c_str()), strdup(pathphp.c_str()), NULL};
+	std::string newenv1 = "TESTHYUNAH=HYUNAH";
+	// std::string newenv2 = "REQUEST_METHOD=POST";
+	// std::string newenv3 = "CONTENT_LENGTH=" + intToString(request->body.size());
+	// std::string newenv4 = "REDIRECT_STATUS=true";
+
+	// std::string newenv1 = "TESTHYUNAH=HYUNAH";
+	char	*newEnv[] = {strdup(newenv1.c_str()), NULL};
+	// char	*newEnv[] = {strdup(newenv1.c_str()),strdup(newenv2.c_str()),strdup(newenv3.c_str()),strdup(newenv4.c_str()), NULL};
+
+	int id = fork();
+
+	if (id == 0)
+	{
+		// printf("calling php function\n");
+		// for (int i = 0; env[i] != NULL; i++)
+		// {
+		// 	printf("%i: %s\n", i, env[i]);
+		// }
+		// makeArray(newEnv);
+		execve("/usr/bin/php-cgi", path, newEnv);
+		// execve("/usr/bin/echo", path, env);
+		// printf("IF ERROR:\n");
+		perror("execve");
+		// execve("/usr/bin/php-cgi", (char * const)path.c_str(), env);
+		// execl("/usr/bin/php -q", "/home/hyunah/Documents/webserv/data/test.php", NULL);
+	}
+	wait(NULL);
+	printf("End php function\n");
+	// for	(std::vector<char>::iterator it = request->body.begin(); it != request->body.end(); ++it)
+	// 	std::cout << *it;
+	// std::cout << std::endl;
+	
+	// std::cout << "2BEFORE request->body.size() : " << request->body.size() << std::endl;
+	// i = vecFind2(request->body, bodyDeliminator);
+	// request->body.erase(request->body.begin(), request->body.begin() + i + 4);
+	// std::cout << "2AFTER request->body.size() : " << request->body.size() << std::endl;
+	// for	(std::vector<char>::iterator it = request->body.begin(); it != request->body.end(); ++it)
+	// 	std::cout << *it;
+	// std::cout << std::endl;
+	
+	// std::cout << "3BEFORE request->body.size() : " << request->body.size() << std::endl;
+	// i = vecFind2(request->body, "\r\n");
+	// request->body.erase(request->body.begin() + i, request->body.end());
+	// std::cout << "3AFTER request->body.size() : " << request->body.size() << std::endl;
+	// for	(std::vector<char>::iterator it = request->body.begin(); it != request->body.end(); ++it)
+	// 	std::cout << *it;
+	// std::cout << std::endl;
+
 	statusCode = 404;
 	// request->body;
 	return (buildErrorResponse(server.error_page, 404));

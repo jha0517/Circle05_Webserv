@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 22:57:40 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/24 09:23:38 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ public:
 	std::set<std::string>	allowedMethod;
 	void					*manager;
 	std::string				findMatchingUri(std::string path);
-
+	char					**env;
 private:
 	Request					request;
 

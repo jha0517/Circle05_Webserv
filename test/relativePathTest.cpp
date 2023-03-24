@@ -15,5 +15,3 @@
 // 	ASSERT_TRUE(checkPathRelative("./www"));
 // 	ASSERT_FALSE(checkPathRelative("/home/hyunah/Documents/webserv/test/www"));
 // }
-
-

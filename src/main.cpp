@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/22 17:01:04 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/24 16:29:12 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-void	signalHandler(int signum)
-{
-	(void) signum;
-	std::cout << "\nLeaving the server...Bye!" << std::endl;
-	exit(EXIT_SUCCESS);
-}
 
 std::string	checkFileAndGetContent(char *filename)
 {
@@ -47,9 +41,43 @@ std::string	checkFileAndGetContent(char *filename)
 	return (src);
 }
 
+// int	main(int ac, const char **av, char **env)
+// {
+// 	(void) ac;
+// 	(void) av;
+// 	(void) env;
+// 	std::string pathphp = "/home/hyunah/Documents/webserv/data/upload.php";
+// 	// char	*path[] = {strdup(pathphp.c_str()), NULL};
+// 	// std::string pathphp = "hello";
+// 	std::string arg1 = "php-cgi";
+// 	char	*path[] = {strdup(arg1.c_str()), strdup(pathphp.c_str()), NULL};
+
+// 	std::string newenv1 = "TESTHYUNAH=HYUNAH";
+// 	char	*newEnv[] = {strdup(newenv1.c_str()), NULL};
+	
+// 	int id = fork();
+
+// 	if (id == 0)
+// 	{
+// 		// printf("calling php function\n");
+// 		// for (int i = 0; env[i] != NULL; i++)
+// 		// {
+// 		// 	printf("%i: %s\n", i, env[i]);
+// 		// }
+// 		execve("/usr/bin/php-cgi", path, newEnv);
+// 		// execve("/usr/bin/echo", path, env);
+// 		perror("execve");
+// 		// execve("/usr/bin/php-cgi", (char * const)path.c_str(), env);
+// 		// execl("/usr/bin/php -q", "/home/hyunah/Documents/webserv/data/test.php", NULL);
+// 	}
+// 	wait(NULL);
+// 	// printf("End php function\n");
+// }
+
+
 int	main(int ac, char **av, char **env)
 {
-	signal(SIGINT, signalHandler);
+	// signal(SIGINT, signalHandler);
 
 	(void)			env;
 	std::vector<int> serverFds;
@@ -79,6 +107,7 @@ int	main(int ac, char **av, char **env)
 	locbloc1.info.insert(std::pair<std::string, std::string>("index", "yummyfruits.html"));
 	server1.locationBloc.insert(&locbloc1);
 	server1.maxClientBodySize = 30000;
+	server1.env = env;
 	servers.push_back(&server1);
 	//=================================================
 
