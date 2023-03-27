@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/18 13:56:00 by yhwang            #+#    #+#             */
-/*   Updated: 2023/03/18 20:32:59 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/03/20 21:05:01 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,9 @@ int	main(int argc, char **argv)
 		else
 			Parse	p(argv[1]);
 	}
-	catch(const std::exception& e)
+	catch(std::string err_msg)
 	{
-		std::cerr << "Error: " << e.what() << std::endl;
-		return (1);
+		std::cerr << err_msg << std::endl;
 	}
 	
 	

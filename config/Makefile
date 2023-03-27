@@ -6,11 +6,11 @@
 #    By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/18 13:55:40 by yhwang            #+#    #+#              #
-#    Updated: 2023/03/20 04:20:37 by yhwang           ###   ########.fr        #
+#    Updated: 2023/03/22 00:43:15 by yhwang           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = parse_test
+NAME = parse
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
 RM = rm -f
@@ -18,6 +18,7 @@ RM = rm -f
 FILES = ./srcs/main \
 		./srcs/Parse \
 		./srcs/HttpBlockParse \
+		./srcs/ServerBlockParse \
 		./srcs/ParseUtils
 
 SRCS = $(addsuffix .cpp, $(FILES))
