@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/24 09:05:41 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/27 11:34:38 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ std::string	Server::findMatchingUri(std::string path){
 	for (std::set<LocationBlock *>::iterator it = this->locationBloc.begin(); it != this->locationBloc.end(); ++it)
 	{
 		itMap = (*it)->info.find("dir");
-		std::cout << "Looping throuh...: " << itMap->second << std::endl;
+		std::cout << "Looping throuh...: " << itMap->second << " == ? "<< path << std::endl;
 		if (itMap->second == path)
 		{
 			itMap = (*it)->info.find("index");

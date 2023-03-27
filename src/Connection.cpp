@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/24 11:43:39 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/27 11:53:01 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,11 +121,14 @@ std::vector<char>	Connection::constructResponse(Server & server, int & statusCod
 		return (response.buildErrorResponse(server.error_page, 505));
 	}
 	// Check URI exist if not 404 error. if yes. check Access is ok, if not, 403 error.
-	if (!checkURIexist(server.findMatchingUri(request.target.constructPath())))
+	if (!checkURIexist(server.findMatchingUri(request.target.generateString())))
 	{
-		statusCode = 404;
-		std::cout << "Non existing URI .\n";
-		return (response.buildErrorResponse(server.error_page, 404));
+		if (!checkURIexist(server.findMatchingUri(request.target.constructPath())))
+		{
+			statusCode = 404;
+			std::cout << "Non existing URI .\n";
+			return (response.buildErrorResponse(server.error_page, 404));
+		}
 	}
 	if (!checkURIaccess(request.target.generateString(), request.method))
 	{

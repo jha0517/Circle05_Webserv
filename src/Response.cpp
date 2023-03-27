@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/24 16:46:01 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/27 11:10:18 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,6 @@ std::vector<char>	Response::buildResponse(std::string dir, int code)
 	msg.addHeader("Content-Type", getMimeType(dir));
 	if (getMimeType(dir) == "text/plain" || getMimeType(dir) == "text/html")
 	{
-		// std::cout << "gogo" << std::endl;
 		txtBody = check_filename_get_str(dir.c_str());
 		if (txtBody.empty())
 			return (null);
@@ -195,6 +194,29 @@ std::string	Response::generateDateHeader()
 	return(wday + ", " + day + " " + month + " " + year + " " + hour + ":" + minute + ":" + sec + " " + zone);
 }
 
+std::size_t	vecFind2(std::vector<char> rawRequest, std::string str)
+{
+	size_t	i = 0;
+	size_t	v = 0;
+
+	for (std::vector<char>::iterator it = rawRequest.begin(); it != rawRequest.end(); ++it)
+	{
+		i = 0;
+		if (*it == str[i])
+		{
+			while (*(it + i) == str[i])
+			{
+				// printf("Comparing vector char %c with str %c\n", *(it + 1), str[i]);
+				// printf("i is %li, str.length is %li, returning %li\n", i, str.length()-1, v);
+				if (i == str.length() - 1)
+					return (v);
+				i++;
+			}
+		}
+		v++;
+	}
+	return (std::string::npos);
+}
 
 std::vector<char>	Response::buildErrorResponse(std::string dir, int code)
 {
@@ -222,9 +244,32 @@ std::vector<char>	Response::buildErrorResponse(std::string dir, int code)
 	return (data);
 }
 
+std::vector<char>	Response::buildResponseForCgi(std::vector<char> data, int code)
+{
+	MessageHeaders	msg;
+	std::string		ret;
+	std::string		txtBody;
+	std::vector<char> null;
+
+	(void) code;
+	std::string str(data.begin(), data.end());
+	msg.addHeader("Date", generateDateHeader());
+	std::string bodyDeliminator = "\r\n\r\n";
+	std::size_t i = vecFind2(data, bodyDeliminator);
+	std::string header(data.begin(), data.begin() + i + 2);
+	std::cout << "header : " << header << "\n";
+	std::cout << "Body deliminator :  " << i << "\n";
+	data.erase(data.begin(), data.begin() + i + 4);
+	msg.addHeader("Content-Length", intToString(data.size()));
+	ret = ("HTTP/1.1 200 OK\r\n");
+	ret += header;
+	ret += msg.generateRawMsg();
+	data.insert(data.begin(), ret.c_str(), ret.c_str()+ ret.size());
+	return (data);
+}
+
 std::vector<char>	Response::getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
 	(void) messageEnd;
-	// std::string	ret;
 
 	// GET must have empty body, if not, Bad Request.
 	if (!request->body.empty())
@@ -234,13 +279,11 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 	}
 	if (!request->target.getQuery().empty())
 	{
-		// size_t	deliminator = request->target.getQuery().find("=");
-		// std::string	value = request->target.getQuery().substr(deliminator + 1);
 		std::string pathphp = "/home/hyunah/Documents/webserv/data/query.php";
 		std::string arg1 = "php-cgi";
 		char	*path[] = {strdup(arg1.c_str()), strdup(pathphp.c_str()), NULL};
 		char	*newEnv[] = {strdup(request->target.getQuery().c_str()), NULL};
-
+		std::vector<char>	data;
 
 		int pipefd[2];
 		if (pipe(pipefd) == -1)
@@ -265,21 +308,29 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		{
 			// parent
 
-			char buffer[1024];
+			char buffer[1];
 
 			close(pipefd[1]);  // close the write end of the pipe in the parent
 
 			int n;
-			while ((n = read(pipefd[0], buffer, 1000)) > 0)
+			while ((n = read(pipefd[0], buffer, 1)) > 0)
 			{
 				if (n < 0)
-					printf("read failed\n");				
+					printf("read failed\n");
+				data.insert(data.end(), buffer, buffer + n);
+				bzero(buffer, sizeof(buffer));
 			}
-			printf("Got from child Process -%s-\n", buffer);
+			printf("Got from child Process\n");
+			for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+			{
+				std::cout << *it;
+			}
+			std::cout << std::endl;
 		}
 		wait(NULL);
-		printf("End php function\n");
-		// return ();
+		// printf("End php function\n");
+		data = buildResponseForCgi(data, 200);
+		return (data);
 	}
 	clientfd = server.clientfd;
 	data = buildResponse(server.findMatchingUri(request->target.generateString()), 200);
@@ -290,30 +341,6 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		return (buildErrorResponse(server.error_page, 400));	
 	}
 	return (data);
-}
-
-std::size_t	vecFind2(std::vector<char> rawRequest, std::string str)
-{
-	size_t	i = 0;
-	size_t	v = 0;
-
-	for (std::vector<char>::iterator it = rawRequest.begin(); it != rawRequest.end(); ++it)
-	{
-		i = 0;
-		if (*it == str[i])
-		{
-			while (*(it + i) == str[i])
-			{
-				// printf("Comparing vector char %c with str %c\n", *(it + 1), str[i]);
-				// printf("i is %li, str.length is %li, returning %li\n", i, str.length()-1, v);
-				if (i == str.length() - 1)
-					return (v);
-				i++;
-			}
-		}
-		v++;
-	}
-	return (std::string::npos);
 }
 
 void makeArray(char **env)

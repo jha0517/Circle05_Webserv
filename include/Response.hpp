@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/22 13:38:01 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/27 11:07:20 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ public:
 	// std::string		deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
 	std::vector<char>	buildResponse(std::string dir, int errorCode);
 	std::vector<char>	buildErrorResponse(std::string dir, int errorCode);
+	std::vector<char>	buildResponseForCgi(std::vector<char> data, int code);
 };
 
 #endif

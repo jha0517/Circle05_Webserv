@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:10 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 18:28:48 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/27 11:47:18 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,15 +222,16 @@ std::string	Uri::generateString(){
 		buffer << "//" << host;
 	if (!path.empty())
 	{
+		std::cout << "LOLO" << std::endl;
 		if (path.size() == 1)
 		{
-			buffer << '/';
+			buffer << "/";
 		}
 		else
 		{
 			for (std::vector<std::string>::iterator it = path.begin() + 1; it != path.end(); ++it)
 			{
-				buffer << '/' << *it;
+				buffer << "/" << *it;
 			}
 		}
 	}
