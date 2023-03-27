@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/27 11:10:18 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/27 22:51:39 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -355,6 +355,11 @@ void makeArray(char **env)
 	return ;
 }
 
+void	addEnv(std::vector<std::string> &env, std::string key, std::string value)
+{
+	env.push_back(key + "=" + value);
+}
+
 std::vector<char>	Response::postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
 	(void) request;
 	(void) messageEnd;
@@ -364,42 +369,50 @@ std::vector<char>	Response::postMethod(Server &server, Request *request, std::si
 	std::cout << "In PostMethod\n";
 	// think how we gonna use cgi to post file.
 
-	std::cout << "BEFORE request->body.size() : " << request->body.size() << std::endl;
-	std::string bodyDeliminator = "\r\n\r\n";
-	std::size_t i = vecFind2(request->body, bodyDeliminator);
-	std::cout << "Body deliminator :  " << i << "\n";
-	request->body.erase(request->body.begin(), request->body.begin() + i + 4);
+	// std::cout << "BEFORE request->body.size() : " << request->body.size() << std::endl;
+	// std::string bodyDeliminator = "\r\n\r\n";
+	// std::size_t i = vecFind2(request->body, bodyDeliminator);
+	// std::cout << "Body deliminator :  " << i << "\n";
+	// request->body.erase(request->body.begin(), request->body.begin() + i + 4);
 	
+	// Replace to config path later.
 	std::string pathphp = "/home/hyunah/Documents/webserv/data/upload.php";
-	// char	*path[] = {strdup(pathphp.c_str()), NULL};
-	// std::string pathphp = "hello";
 	std::string arg1 = "php-cgi";
 	char	*path[] = {strdup(arg1.c_str()), strdup(pathphp.c_str()), NULL};
-	std::string newenv1 = "TESTHYUNAH=HYUNAH";
-	// std::string newenv2 = "REQUEST_METHOD=POST";
-	// std::string newenv3 = "CONTENT_LENGTH=" + intToString(request->body.size());
-	// std::string newenv4 = "REDIRECT_STATUS=true";
 
-	// std::string newenv1 = "TESTHYUNAH=HYUNAH";
-	char	*newEnv[] = {strdup(newenv1.c_str()), NULL};
-	// char	*newEnv[] = {strdup(newenv1.c_str()),strdup(newenv2.c_str()),strdup(newenv3.c_str()),strdup(newenv4.c_str()), NULL};
 
 	int id = fork();
 
 	if (id == 0)
 	{
-		// printf("calling php function\n");
-		// for (int i = 0; env[i] != NULL; i++)
-		// {
-		// 	printf("%i: %s\n", i, env[i]);
-		// }
-		// makeArray(newEnv);
+		printf("calling php function\n");
+	std::vector<std::string> env;
+
+	addEnv(env, "AUTH_TYPE", "Basic");
+	// addEnv(env, "CONTENT_LENGTH", request->headers.getHeaderValue("Content-Length"));
+	addEnv(env, "CONTENT_TYPE", request->headers.getHeaderValue("Content-Type"));
+	addEnv(env, "GATEWAY_INTERFACE", "CGI/1.1");
+	addEnv(env, "SCRIPT_NAME", "upload.php");
+	addEnv(env, "SCRIPT_FILENAME", pathphp);
+	addEnv(env, "REDIRECT_STATUS", "200");
+	addEnv(env, "QUERY_STRING", request->target.getQuery());
+	addEnv(env, "REMOTE_ADDR", server.host + ":" + intToString(server.port));
+	addEnv(env, "SERVER_NAME", server.host);
+	addEnv(env, "SERVER_PORT", intToString(server.port));
+	addEnv(env, "REQUEST_METHOD", request->method);
+	addEnv(env, "REQUEST_URI", request->target.generateString());
+	addEnv(env, "SERVER_PROTOCOL", "HTTP/1.1");
+
+	char	**newEnv = (char **)calloc(sizeof(char *), env.size() + 1);
+	int i = 0;
+	for (std::vector<std::string>::iterator it = env.begin(); it != env.end(); ++it)
+	{
+		newEnv[i] = strdup(it->c_str());
+		std::cout << i << ". " << it->c_str() << std::endl;
+		i++;
+	}
 		execve("/usr/bin/php-cgi", path, newEnv);
-		// execve("/usr/bin/echo", path, env);
-		// printf("IF ERROR:\n");
 		perror("execve");
-		// execve("/usr/bin/php-cgi", (char * const)path.c_str(), env);
-		// execl("/usr/bin/php -q", "/home/hyunah/Documents/webserv/data/test.php", NULL);
 	}
 	wait(NULL);
 	printf("End php function\n");
