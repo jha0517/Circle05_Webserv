@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 16:35:23 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/22 17:52:18 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/28 11:37:01 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,8 @@ std::size_t	vecFind(std::vector<char> rawRequest, std::string str)
 		{
 			while (*(it + i) == str[i])
 			{
-				printf("Comparing vector char %c with str %c\n", *(it + 1), str[i]);
-				printf("i is %li, str.length is %li, returning %li\n", i, str.length()-1, v);
+				// printf("Comparing vector char %c with str %c\n", *(it + 1), str[i]);
+				// printf("i is %li, str.length is %li, returning %li\n", i, str.length()-1, v);
 				if (i == str.length() - 1)
 					return (v);
 				i++;
