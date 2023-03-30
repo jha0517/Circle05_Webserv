@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/29 14:11:37 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 17:36:48 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,19 +269,26 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		statusCode = 400;
 		return (buildErrorResponse(server.error_page, 400));
 	}
+
 	if (!request->target.getQuery().empty())
 	{
-		std::string pathphp = "/home/hyunah/Documents/webserv/data/query.php";
-		std::string arg1 = "php-cgi";
-		char	*path[] = {strdup(arg1.c_str()), strdup(pathphp.c_str()), NULL};
+		Cgi cgi;
+		cgi.analyse(&server, request);
+		// cgi.getPath();
+		// cgi.getCmd();
+		std::string pathphp = server.cgiBloc.cgiPath + "/" + request->target.getPath().back();
+		std::string	cmd;
+
+		if (request->target.getPath().back().find(".php"))
+			cmd = "php-cgi";
+
+		char	*path[] = {strdup(cmd.c_str()), strdup(pathphp.c_str()), NULL};
 		char	*newEnv[] = {strdup(request->target.getQuery().c_str()), NULL};
 		std::vector<char>	data;
 
 		int pipefd[2];
 		if (pipe(pipefd) == -1)
-		{
 			printf("Error in opening pipe\n");
-		}
 
 		int id = fork();
 		if (id == 0)
@@ -309,12 +316,12 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 				data.insert(data.end(), buffer, buffer + n);
 				bzero(buffer, sizeof(buffer));
 			}
-			printf("Got from child Process\n");
-			for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
-			{
-				std::cout << *it;
-			}
-			std::cout << std::endl;
+			// printf("Got from child Process\n");
+			// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+			// {
+			// 	std::cout << *it;
+			// }
+			// std::cout << std::endl;
 		}
 		wait(NULL);
 		// printf("End php function\n");
@@ -347,6 +354,9 @@ std::vector<char>	Response::postMethod(Server &server, Request *request, std::si
 	// think how we gonna use cgi to post file.
 
 	// Replace to config path later.
+	Cgi cgi;
+	cgi.analyse(&server, request);
+	// cgi.getPathArray();
 	std::string pathphp = "/home/hyunah/Documents/webserv/data/upload.php";
 	std::string arg1 = "php-cgi";
 	char	*path[] = {strdup(arg1.c_str()), strdup(pathphp.c_str()), NULL};

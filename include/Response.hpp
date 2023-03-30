@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/27 11:07:20 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 16:35:28 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include "Uri.hpp"
 # include "MessageHeaders.hpp"
 # include "Server.hpp"
+# include "Cgi.hpp"
 # include "Request.hpp"
 # include <map>
 # include <ctime>

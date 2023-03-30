@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 14:47:59 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 15:22:15 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,22 +121,22 @@ std::vector<char>	Connection::constructResponse(Server & server, int & statusCod
 		return (response.buildErrorResponse(server.error_page, 505));
 	}
 	// Check URI exist if not 404 error. if yes. check Access is ok, if not, 403 error.
-	if (!checkURIexist(server.findMatchingUri(request.target.generateString())))
-	{
-		// if (!checkURIexist(server.findMatchingUri(request.target.constructPath())))
-		// {
-			statusCode = 404;
-			std::cout << "Non existing URI .\n";
-			return (response.buildErrorResponse(server.error_page, 404));
-		// }
-	}
-	if (!checkURIaccess(request.target.generateString(), request.method))
-	{
-		statusCode = 404;
-		std::cout << "URI not accessible.\n";
-		return (response.buildErrorResponse(server.error_page, 404));
-	}
-	std::cout << "request.method : " << request.method << std::endl;
+	// if (!checkURIexist(server.findMatchingUri(request.target.generateString())))
+	// {
+	// 	// if (!checkURIexist(server.findMatchingUri(request.target.constructPath())))
+	// 	// {
+	// 		statusCode = 404;
+	// 		std::cout << "Non existing URI .\n";
+	// 		return (response.buildErrorResponse(server.error_page, 404));
+	// 	// }
+	// }
+	// if (!checkURIaccess(request.target.generateString(), request.method))
+	// {
+	// 	statusCode = 404;
+	// 	std::cout << "URI not accessible.\n";
+	// 	return (response.buildErrorResponse(server.error_page, 404));
+	// }
+	// std::cout << "request.method : " << request.method << std::endl;
 	// build response
 	if (request.method == "GET")
 		dataReceived = response.getMethod(server, &request, messageEnd, statusCode);
