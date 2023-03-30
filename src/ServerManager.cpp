@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 10:14:14 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 11:17:41 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,41 +52,41 @@ bool ServerManager::initiate(){
 
 	this->log.printInit();
 	FD_ZERO(&currentSockets);
-	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
+	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it)
 	{
-		if ((*it)->startListen() < 0)
+		if ((*it).startListen() < 0)
 		{
 			error = true;
-			this->log.printServerCreation(false, (*it));
+			this->log.printServerCreation(false, &(*it));
 			return (false);
 		}
-		this->log.printServerCreation(true, (*it));
-		serverFds.push_back((*it)->sockfd);
-		FD_SET((*it)->sockfd, &currentSockets);
+		this->log.printServerCreation(true, &(*it));
+		serverFds.push_back((*it).sockfd);
+		FD_SET((*it).sockfd, &currentSockets);
 	}
 	return (true);
 }
 
-Server	*findServer(int i, std::vector<Server *> servers, int & isForServer)
+Server	*findServer(int i, std::vector<Server> servers, int & isForServer)
 {
-	std::vector<Server *>::iterator itS = servers.begin();
-	std::vector<Server *>::iterator itE = servers.end();
+	std::vector<Server>::iterator itS = servers.begin();
+	std::vector<Server>::iterator itE = servers.end();
 	while (itS != itE)
 	{
-		if ((*itS)->sockfd == i)
+		if ((*itS).sockfd == i)
 		{
 			isForServer = 1;
-			return (*itS);
+			return (&(*itS));
 		}
 		itS++;
 	}
 	itS = servers.begin();
 	while (itS != itE)
 	{
-		if ((*itS)->clientfd == i)
+		if ((*itS).clientfd == i)
 		{
 			isForServer = 0;
-			return (*itS);
+			return (&(*itS));
 		}
 		itS++;
 	}
@@ -148,10 +148,9 @@ void	ServerManager::setCommonParameter(std::string root, bool autoindex, std::st
 	this->commonDefaultErrorPage = defaultErrorPage;
 }
 
-Server	ServerManager::addServerBlock(){
+void	ServerManager::addServerBlock(){
 	Server sv;
 
 	sv.manager = this;
-	this->servers.push_back(&sv);
-	return (sv);
+	this->servers.push_back(sv);
 }

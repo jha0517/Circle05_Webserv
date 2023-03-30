@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 10:18:09 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 11:25:21 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,54 +28,53 @@ int	main(int ac, char **av)
 {
 	(void) ac;
 	(void) av;
-	ServerManager	servManager;
+	ServerManager	sm;
 	
-	//config Start
-	servManager.setRoot("./data");
-	servManager.setAutoIndex(true);
-	servManager.setDefaultErrorPage("/error_pages/404.html");
 
-	servManager.setServerBlockCount(1);
+	//config Start
+	sm.setRoot("./data");
+	sm.setAutoIndex(true);
+	sm.setDefaultErrorPage("/error_pages/404.html");
+
+	sm.setServerBlockCount(1);
 	// iterate number of server block
-	for (unsigned int num = 0; num < servManager.getServerBlockCount(); num++)
+	for (unsigned int i = 0; i < sm.getServerBlockCount(); i++)
 	{
-		Server	sv;
-		
 		// add server and set param
-		sv = servManager.addServerBlock();
-		sv.setPort(8000);
-		sv.setHost("127.0.0.1");
-		sv.setMaxClientBodySize(1024);
-		sv.setIndex("index_1.html");
+		sm.addServerBlock();
+		sm.servers.at(i).setPort(8000);
+		sm.servers.at(i).setHost("127.0.0.1");
+		sm.servers.at(i).setMaxClientBodySize(1024);
+		sm.servers.at(i).setIndex("index_1.html");
 
 		std::set<std::string> method;
 		method.insert("GET");
 		method.insert("POST");
-		sv.setAllowedMethod(method);
+		sm.servers.at(i).setAllowedMethod(method);
 
-		sv.hasCgiBlock = 1;
+		sm.servers.at(i).hasCgiBlock = 1;
 		// if there is add cgiBlock and set param
-		if (sv.hasCgiBlock)
+		if (sm.servers.at(i).hasCgiBlock)
 		{
-			sv.setCgiPath("./data/cgi-bin");
+			sm.servers.at(i).setCgiPath("./data/cgi-bin");
 			std::set<std::string> ex;
 			ex.insert(".php");
-			sv.setCgiExt(ex);
+			sm.servers.at(i).setCgiExt(ex);
 		}
-	
-		sv.setLocBlockCount(1);
-		// if there is add cgiBlock and set param
-		for (unsigned int num = 0; num < sv.getLocBlockCount(); num++)
-			sv.addLocBlock("/fruits", "yummyfruits.html");
 
-		sv.setRedirectBlockCount(1);
-		for (unsigned int num = 0; num < sv.getRedirectBlockCount(); num++)
-			sv.addRedirectBlock("/redirection_intra/", "http://http://intra.42.fr/");
+		sm.servers.at(i).setLocBlockCount(1);
+		// if there is add cgiBlock and set param
+		for (unsigned int j = 0; j < sm.servers.at(i).getLocBlockCount(); j++)
+			sm.servers.at(i).addLocBlock("/fruits", "yummyfruits.html");
+
+		sm.servers.at(i).setRedirectBlockCount(1);
+		for (unsigned int k = 0; k < sm.servers.at(i).getRedirectBlockCount(); k++)
+			sm.servers.at(i).addRedirectBlock("/redirection_intra/", "http://http://intra.42.fr/");
 	}
 
 //config End
 
-	servManager.initiate();
-	servManager.run();
+	sm.initiate();
+	sm.run();
 	return (EXIT_SUCCESS);
 }
