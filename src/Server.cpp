@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 09:55:23 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 14:47:40 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,22 +68,22 @@ unsigned int	Server::getRedirectBlockCount(){return (this->nRedirect);}
 
 void	Server::addLocBlock(std::string dir, std::string index)
 {
-	LocationBlock loc;
-	loc.index = "index.html";
+	LocationBlock *loc = new LocationBlock();
+	loc->index = "index.html";
 
-	loc.dir = dir;
+	loc->dir = dir;
 	if (!index.empty())
-		loc.index = index;
-	this->locationBloc.insert(&loc);
+		loc->index = index;
+	this->locationBloc.insert(loc);
 }
 
 void	Server::addRedirectBlock(std::string dir, std::string ret)
 {
-	RedirectBlock	rblock;
+	RedirectBlock	*rblock = new RedirectBlock();
 
-	rblock.dir = dir;
-	rblock.ret = ret;
-	this->redirectionBloc.insert(&rblock);
+	rblock->dir = dir;
+	rblock->ret = ret;
+	this->redirectionBloc.insert(rblock);
 }
 
 int	Server::startListen(){
@@ -93,27 +93,18 @@ int	Server::startListen(){
 	servManag = (ServerManager *)manager;
 	this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->sockfd < 0)
-	{
-		servManag->log.printError("Error in Connection");
-		// std::cout <<"Error in Connection\n" << std::endl;
-		return (-1);
-	}
+		return (servManag->log.printError("Error in Connection"), -1);
+
 	memset(&serverAddr, '\0', sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(this->port);
 	serverAddr.sin_addr.s_addr = inet_addr(this->host.c_str());
+
 	if (bind(this->sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
-	{
-		servManag->log.printError("Error in binding");
-		// std::cerr <<"Error in binding\n" << std::endl;
-		return (-1);
-	}
+		return (servManag->log.printError("Error in binding"), -1);
 	if ((listen(this->sockfd, 10)) != 0)
-	{
-		servManag->log.printError("Error in Listening");
-		// std::cerr <<"Error in Listening\n" << std::endl;
-		return (-1);
-	}
+		return (servManag->log.printError("Error in Listening"), -1);
+
 	return (this->sockfd);
 }
 
@@ -134,10 +125,7 @@ void	Server::newConnection(){
 	{
 		numSent = send(clientfd, p, size, 0);
 		if (numSent < 0)
-		{
-			std::cerr << "Sending message Failed" << std::endl;
-			return ;
-		}
+			return (servManag->log.printError("Sending message Failed"));
 		size -= numSent;
 	}
 	servManag->log.printResponse(clientfd, statusCode);
@@ -158,9 +146,7 @@ std::string	Server::findMatchingUri(std::string path){
 	std::string indexfilename = "index.html";
 
 	if (path.find(".") != std::string::npos)
-	{
 		return (this->root + path);
-	}
 	if (path == "/")
 	{
 		indexfilename = this->index;

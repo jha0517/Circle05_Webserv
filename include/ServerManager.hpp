@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:05 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 11:03:03 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 12:31:22 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ public:
 	bool	initiate();
 	bool	run();
 
-	std::vector<Server>	servers;
+	std::vector<Server *>	servers;
 	void			setServerBlockCount(int servBlockCount);
 	unsigned int	getServerBlockCount(void) const;
 	void			setCommonParameter(std::string root, bool autoindex, std::string defaultErrorPage);

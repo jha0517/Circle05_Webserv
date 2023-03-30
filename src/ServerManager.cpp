@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 11:17:41 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 14:19:39 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,9 @@ ServerManager & ServerManager::operator=(ServerManager const & rhs){
 
 unsigned int	ServerManager::getServerBlockCount(void) const{return (this->servBlockCount);}
 void	ServerManager::setServerBlockCount(int i){this->servBlockCount = i;}
-void	ServerManager::setRoot(std::string root){this->commonRoot = root;}
+void	ServerManager::setRoot(std::string root){
+	this->commonRoot = root;
+	}
 void	ServerManager::setAutoIndex(bool autoindex){this->commonAutoIndex = autoindex;}
 void	ServerManager::setDefaultErrorPage(std::string dir){this->commonDefaultErrorPage = dir;}
 
@@ -52,45 +54,55 @@ bool ServerManager::initiate(){
 
 	this->log.printInit();
 	FD_ZERO(&currentSockets);
-	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it)
+	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
 	{
-		if ((*it).startListen() < 0)
+		if ((*it)->startListen() < 0)
 		{
 			error = true;
-			this->log.printServerCreation(false, &(*it));
+			this->log.printServerCreation(false, (*it));
 			return (false);
 		}
-		this->log.printServerCreation(true, &(*it));
-		serverFds.push_back((*it).sockfd);
-		FD_SET((*it).sockfd, &currentSockets);
+		this->log.printServerCreation(true, (*it));
+		serverFds.push_back((*it)->sockfd);
+		FD_SET((*it)->sockfd, &currentSockets);
 	}
 	return (true);
 }
 
-Server	*findServer(int i, std::vector<Server> servers, int & isForServer)
+Server	*findServer(int i, std::vector<Server *> servers, int & isForServer)
 {
-	std::vector<Server>::iterator itS = servers.begin();
-	std::vector<Server>::iterator itE = servers.end();
+	std::vector<Server *>::iterator itS = servers.begin();
+	std::vector<Server *>::iterator itE = servers.end();
 	while (itS != itE)
 	{
-		if ((*itS).sockfd == i)
+		if ((*itS)->sockfd == i)
 		{
 			isForServer = 1;
-			return (&(*itS));
+			return ((*itS));
 		}
 		itS++;
 	}
 	itS = servers.begin();
 	while (itS != itE)
 	{
-		if ((*itS).clientfd == i)
+		if ((*itS)->clientfd == i)
 		{
 			isForServer = 0;
-			return (&(*itS));
+			return ((*itS));
 		}
 		itS++;
 	}
 	return (NULL);
+}
+
+int	closeAndFreeMem(std::vector<int> serverFds, std::vector<Server *>servers)
+{
+	for (std::vector<int>::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
+		close(*it);
+
+	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
+		delete (*it);
+	return (0);
 }
 
 bool	ServerManager::run(){
@@ -106,13 +118,8 @@ bool	ServerManager::run(){
 		if (select(FD_SETSIZE, &readySockets, NULL, NULL, NULL) <= 0)
 		{
 			if (!g_run)
-			{
-				for (std::vector<int>::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
-					close(*it);
-				return (0);
-			}
+				return (closeAndFreeMem(serverFds, servers));
 			log.printError("Error in Select");
-			// std::cerr << "Error in Select" << std::endl;
 			return (EXIT_FAILURE);
 		}
 		for (int i = 0; i < FD_SETSIZE; i++)
@@ -134,11 +141,6 @@ bool	ServerManager::run(){
 			}
 		}
 	}
-	if (!g_run)
-	{
-		for (std::vector<int>::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
-			close(*it);
-	}
 	return (0);
 }
 
@@ -149,8 +151,9 @@ void	ServerManager::setCommonParameter(std::string root, bool autoindex, std::st
 }
 
 void	ServerManager::addServerBlock(){
-	Server sv;
+	Server *sv = new Server();
 
-	sv.manager = this;
+	sv->root = this->commonRoot;
+	sv->manager = this;
 	this->servers.push_back(sv);
 }

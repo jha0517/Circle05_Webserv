@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 11:25:21 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 14:11:29 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,34 +42,34 @@ int	main(int ac, char **av)
 	{
 		// add server and set param
 		sm.addServerBlock();
-		sm.servers.at(i).setPort(8000);
-		sm.servers.at(i).setHost("127.0.0.1");
-		sm.servers.at(i).setMaxClientBodySize(1024);
-		sm.servers.at(i).setIndex("index_1.html");
+		sm.servers[i]->setPort(8001);
+		sm.servers[i]->setHost("127.0.0.1");
+		sm.servers[i]->setMaxClientBodySize(1024);
+		sm.servers[i]->setIndex("index_1.html");
 
 		std::set<std::string> method;
 		method.insert("GET");
 		method.insert("POST");
-		sm.servers.at(i).setAllowedMethod(method);
+		sm.servers[i]->setAllowedMethod(method);
 
-		sm.servers.at(i).hasCgiBlock = 1;
+		sm.servers[i]->hasCgiBlock = 1;
 		// if there is add cgiBlock and set param
-		if (sm.servers.at(i).hasCgiBlock)
+		if (sm.servers.at(i)->hasCgiBlock)
 		{
-			sm.servers.at(i).setCgiPath("./data/cgi-bin");
+			sm.servers.at(i)->setCgiPath("./data/cgi-bin");
 			std::set<std::string> ex;
 			ex.insert(".php");
-			sm.servers.at(i).setCgiExt(ex);
+			sm.servers.at(i)->setCgiExt(ex);
 		}
 
-		sm.servers.at(i).setLocBlockCount(1);
+		sm.servers.at(i)->setLocBlockCount(1);
 		// if there is add cgiBlock and set param
-		for (unsigned int j = 0; j < sm.servers.at(i).getLocBlockCount(); j++)
-			sm.servers.at(i).addLocBlock("/fruits", "yummyfruits.html");
+		for (unsigned int j = 0; j < sm.servers.at(i)->getLocBlockCount(); j++)
+			sm.servers.at(i)->addLocBlock("/fruits", "yummyfruits.html");
 
-		sm.servers.at(i).setRedirectBlockCount(1);
-		for (unsigned int k = 0; k < sm.servers.at(i).getRedirectBlockCount(); k++)
-			sm.servers.at(i).addRedirectBlock("/redirection_intra/", "http://http://intra.42.fr/");
+		sm.servers.at(i)->setRedirectBlockCount(1);
+		for (unsigned int k = 0; k < sm.servers.at(i)->getRedirectBlockCount(); k++)
+			sm.servers.at(i)->addRedirectBlock("/redirection_intra/", "http://http://intra.42.fr/");
 	}
 
 //config End
