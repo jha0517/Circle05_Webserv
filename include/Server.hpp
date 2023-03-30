@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/24 09:23:38 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 09:13:58 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,45 +29,67 @@
 class Server
 {
 public:
-	struct LocationBlock{
-		bool				isCgi_bin;		
-		bool				hasReturn;
-		std::map<std::string, std::string>	info;		
-		// std::map<std::string, std::set<std::string>> data;
-		// redirection "/redirection_intra/", "http://http://intra.42.fr/"
-		// cgi         "root", "./"
-		// 			   "cgi_path", set<std::string>"/usr/bin/python3", "/bin/bash"
-		// 			   "cgi_ext", set<std::string>".py", ".sh"
-		// dir			"/fruits"
-	};
-
 	Server();
 	~Server();
-	int						startListen();
-	int						acceptConnection();
-	void					newConnection();
+	Server(Server const &src);
+	Server &operator=(Server const &rhs);
+
+	struct LocationBlock{
+		std::string	dir;
+		std::string	index;};
+
+	struct CgiBlock{
+		std::string	cgiPath;
+		std::set<std::string>	cgiExt;};
+
+	struct RedirectBlock{
+		std::string	dir;
+		std::string	ret;
+		};
+
+	int					startListen();
+	int					acceptConnection();
+	void				newConnection();
+	std::string			findMatchingUri(std::string path);
+
+	void				setLocBlockCount(unsigned int i);
+	void				setRedirectBlockCount(unsigned int i);
+
+	void				setPort(unsigned short i);
+	void				setHost(std::string str);
+	void				setMaxClientBodySize(unsigned int i);
+	void				setIndex(std::string index);
+	void				setAllowedMethod(std::set<std::string> m);
+
+	void				setCgiPath(std::string path);
+	void				setCgiExt(std::set<std::string> extension);
+
+	unsigned int		getLocBlockCount();
+	unsigned int		getRedirectBlockCount();
+	void				addLocBlock(std::string dir, std::string index);
+	void				addRedirectBlock(std::string dir, std::string ret);
+
 	int						port;
 	int						sockfd;
 	bool					autoIndex;
+	bool					hasCgiBlock;
 	int						clientfd;
 	int						maxClientBodySize;
 	std::string				error_page;
 	std::string				host;
 	std::string				root;
-	std::string				serverName;
 	std::string				index;
-	std::set<LocationBlock *>	locationBloc;
 	std::set<std::string>	allowedMethod;
 	void					*manager;
-	std::string				findMatchingUri(std::string path);
-	char					**env;
+	std::set<LocationBlock *>	locationBloc;
+	std::set<RedirectBlock *>	redirectionBloc;
+	CgiBlock				cgiBloc;
 private:
 	Request					request;
-
-	// std::set<Connection *>	activeConnections;
 	struct sockaddr_in		serverAddr;
 	struct sockaddr_in		clientAddr;
-
+	unsigned int			nLoc;
+	unsigned int			nRedirect;
 };
 
 #endif

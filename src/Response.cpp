@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/28 18:08:39 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/29 14:11:37 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ std::string	check_filename_get_str(const char *filename)
 	std::ifstream	ifs;
 	char	c;
 	
-	// if (checkPathRelative())
 	ifs.open(filename);
 	if (!ifs)
 	{
@@ -73,14 +72,6 @@ std::string	check_filename_get_str(const char *filename)
 		return ("");
 	}
 	return (src);
-}
-
-std::string intToString(int a)
-{
-	std::stringstream	ss;
-
-    ss << a;
-    return ss.str();
 }
 
 std::string	Response::generateRawResponse(int code, MessageHeaders msg, std::string body){
@@ -339,18 +330,6 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		return (buildErrorResponse(server.error_page, 400));	
 	}
 	return (data);
-}
-
-void makeArray(char **env)
-{
-	int i = -1;
-	while (env[++i])
-		printf("%s\n",env[i]);
-	printf("total %i\n", i);
-	// std::string newenv1 = "TESTHYUNAH=HYUNAH";
-	// char	*newEnv[] = {strdup(newenv1.c_str()), NULL};
-
-	return ;
 }
 
 void	addEnv(std::vector<std::string> &env, std::string key, std::string value)

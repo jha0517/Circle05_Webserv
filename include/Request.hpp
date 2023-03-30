@@ -4,6 +4,7 @@
 # include <string.h>
 # include "Uri.hpp"
 # include "MessageHeaders.hpp"
+# include "utils.hpp"
 
 class Request
 {

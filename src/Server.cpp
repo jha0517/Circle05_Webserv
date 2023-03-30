@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/27 11:34:38 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 09:55:23 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,88 @@
 #include "../include/ServerManager.hpp"
 #include "../include/Connection.hpp"
 
-Server::Server() : sockfd(-1)
-{
+Server::Server() : sockfd(-1){
+	std::set<std::string> extension;
+
+	extension.insert(".php");
+	this->cgiBloc.cgiPath = "./data/cgi-bin";
+	this->cgiBloc.cgiExt = extension;
 }
 
-Server::~Server()
+Server::~Server(){}
+
+Server::Server(Server const &src){*this = src;}
+
+Server &Server::operator=(Server const &rhs){
+	if(this != &rhs)
+	{
+		this->port = rhs.port;
+		this->sockfd = rhs.sockfd;
+		this->autoIndex = rhs.autoIndex;
+		this->clientfd = rhs.clientfd;
+		this->maxClientBodySize = rhs.maxClientBodySize;
+		this->error_page = rhs.error_page;
+		this->host = rhs.host;
+		this->root = rhs.root;
+		this->index = rhs.index;
+		this->allowedMethod = rhs.allowedMethod;
+		this->manager = rhs.manager;
+
+		this->locationBloc = rhs.locationBloc;
+		this->cgiBloc = rhs.cgiBloc;
+		this->redirectionBloc = rhs.redirectionBloc;
+	}
+	return (*this);
+}
+
+void	Server::setLocBlockCount(unsigned int i){this->nLoc = i;}
+void	Server::setRedirectBlockCount(unsigned int i){this->nRedirect = i;}
+void	Server::setPort(unsigned short i){this->port = i;}
+void	Server::setHost(std::string str){this->host = str;}
+void	Server::setMaxClientBodySize(unsigned int i){this->maxClientBodySize = i;}
+void	Server::setIndex(std::string index){this->index = index;}
+void	Server::setAllowedMethod(std::set<std::string> m){this->allowedMethod = m;}
+void	Server::setCgiPath(std::string path){this->cgiBloc.cgiPath = path;}
+void	Server::setCgiExt(std::set<std::string> extension){
+
+	for(std::set<std::string>::iterator it = extension.begin(); it != extension.end(); ++it)
+	{
+		this->cgiBloc.cgiExt.insert(*it);
+	}
+}
+unsigned int	Server::getLocBlockCount(){return (this->nLoc);}
+unsigned int	Server::getRedirectBlockCount(){return (this->nRedirect);}
+
+void	Server::addLocBlock(std::string dir, std::string index)
 {
+	LocationBlock loc;
+	loc.index = "index.html";
+
+	loc.dir = dir;
+	if (!index.empty())
+		loc.index = index;
+	this->locationBloc.insert(&loc);
+}
+
+void	Server::addRedirectBlock(std::string dir, std::string ret)
+{
+	RedirectBlock	rblock;
+
+	rblock.dir = dir;
+	rblock.ret = ret;
+	this->redirectionBloc.insert(&rblock);
 }
 
 int	Server::startListen(){
 
+	ServerManager *servManag;
+
+	servManag = (ServerManager *)manager;
 	this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->sockfd < 0)
 	{
-		std::cout <<"Error in Connection\n" << std::endl;
+		servManag->log.printError("Error in Connection");
+		// std::cout <<"Error in Connection\n" << std::endl;
 		return (-1);
 	}
 	memset(&serverAddr, '\0', sizeof(serverAddr));
@@ -36,54 +104,20 @@ int	Server::startListen(){
 	serverAddr.sin_addr.s_addr = inet_addr(this->host.c_str());
 	if (bind(this->sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
 	{
-		std::cerr <<"Error in binding\n" << std::endl;
+		servManag->log.printError("Error in binding");
+		// std::cerr <<"Error in binding\n" << std::endl;
 		return (-1);
 	}
 	if ((listen(this->sockfd, 10)) != 0)
 	{
-		std::cerr <<"Error in Listening\n" << std::endl;
+		servManag->log.printError("Error in Listening");
+		// std::cerr <<"Error in Listening\n" << std::endl;
 		return (-1);
 	}
 	return (this->sockfd);
 }
 
-// std::vector<char>	fileToBinaryTest(std::string file_name1)
-// {
-// // string create_html_output_for_binary(const string &full_path)
-// // {
-//     std::vector<char> buffer;
-//     const char* file_name = file_name1.c_str();
-
-//     FILE* file_stream = fopen(file_name, "rb");
-
-//     size_t file_size;
-//     //... other code here
-
-//     if(file_stream != NULL)
-//     {
-//         fseek(file_stream, 0, SEEK_END);
-//         long file_length = ftell(file_stream);
-//         rewind(file_stream);
-
-//         buffer.resize(file_length);
-
-//         file_size = fread(&buffer[0], 1, file_length, file_stream);
-// 		printf("file size is %li\n", file_size);
-//     }
-// 	return (buffer);
-//     // .... other code here
-// }
-
-// std::string intToString3(int a)
-// {
-// 	std::stringstream	ss;
-
-//     ss << a;
-//     return ss.str();
-// }
-
 void	Server::newConnection(){
-	// std::string	response;
     std::vector<char> data;
 	int			statusCode;
 	Connection	connect(clientfd);
@@ -93,35 +127,12 @@ void	Server::newConnection(){
 	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
 	data = connect.constructResponse(*this, statusCode);
 
-	// MessageHeaders	msg;
-
-	// msg.addHeader("Content-Type", "application/msword");
-	// msg.addHeader("Content-Transfer-Encoding", "binary");
-	// data = fileToBinaryTest("/home/hyunah/Documents/webserv/data/fruits/sampleDOC.doc");
-	// msg.addHeader("Content-Disposition", "inline; filename=\"myfile.doc\"");
-	// msg.addHeader("Content-Length", intToString3(data.size()));
-	// std::revstring msgTxt;
-	// msgTxt = ("HTTP/1.1 200 OK\r\n");
-	// msgTxt += msg.generateRawMsg();
-
-	//big image? 81mb ok
-	//png? ok
-	//video? avi ok but it is downloading with rubbish filename.
-	// pdf? yes.
-	// 
-
-	// data.insert(data.begin(), msgTxt.c_str(), msgTxt.c_str() + msgTxt.size());
 	size_t	size = data.size();
-	printf("data size is %li\n", size);
 	int	numSent = 0;
 	char	*p = static_cast<char *>(data.data());
-	// while (size != i)
 	while (size > 0)
 	{
-		// numSent = send(clientfd, p + i, 1, 0);
 		numSent = send(clientfd, p, size, 0);
-		// printf("Sending...\n");
-		// printf("numSent: %i\n", numSent);
 		if (numSent < 0)
 		{
 			std::cerr << "Sending message Failed" << std::endl;
@@ -129,12 +140,8 @@ void	Server::newConnection(){
 		}
 		size -= numSent;
 	}
-
-	// if (send(clientfd, response.data(), strlen(response.c_str()), 0) < 0)
-	// 	std::cerr << "Sending message Failed" << std::endl;
 	servManag->log.printResponse(clientfd, statusCode);
 	close(clientfd);
-	// printf("Response:\n%s\n", response.c_str());
 }
 
 int	Server::acceptConnection(){
@@ -161,17 +168,13 @@ std::string	Server::findMatchingUri(std::string path){
 		return (this->root + "/" + indexfilename);
 	}
 
-	std::map<std::string, std::string>::iterator itMap;
 	std::set<LocationBlock *>::iterator it;
 	for (std::set<LocationBlock *>::iterator it = this->locationBloc.begin(); it != this->locationBloc.end(); ++it)
 	{
-		itMap = (*it)->info.find("dir");
-		std::cout << "Looping throuh...: " << itMap->second << " == ? "<< path << std::endl;
-		if (itMap->second == path)
+		std::cout << "Looping throuh...: " << (*it)->dir << " == ? "<< path << std::endl;
+		if ((*it)->dir == path)
 		{
-			itMap = (*it)->info.find("index");
-			if (itMap != (*it)->info.end())
-				indexfilename = itMap->second;
+			indexfilename = (*it)->index;
 			std::cout <<"final path is " << this->root + path  + "/" + indexfilename << std::endl;
 			return (this->root + path  + "/" + indexfilename);
 		}

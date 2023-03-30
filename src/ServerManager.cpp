@@ -6,23 +6,48 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/24 16:00:06 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/30 10:14:14 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ServerManager.hpp"
+bool	g_run = 1;
 
-ServerManager::ServerManager()
-{
+ServerManager::ServerManager() : error(0), servBlockCount(0), commonRoot("./"), commonDefaultErrorPage("./data/error_pages"), commonAutoIndex(false)
+{}
+
+ServerManager::~ServerManager(){}
+
+ServerManager::ServerManager(ServerManager const & src){*this = src;}
+
+ServerManager & ServerManager::operator=(ServerManager const & rhs){
+	if (this != &rhs)
+	{
+		this->currentSockets = rhs.currentSockets;
+		this->readySockets = rhs.readySockets;
+		this->servers = rhs.servers;
+		this->serverFds = rhs.serverFds;
+		this->error = rhs.error;
+		this->servBlockCount = rhs.servBlockCount;
+	}
+	return (*this);
 }
 
+unsigned int	ServerManager::getServerBlockCount(void) const{return (this->servBlockCount);}
+void	ServerManager::setServerBlockCount(int i){this->servBlockCount = i;}
+void	ServerManager::setRoot(std::string root){this->commonRoot = root;}
+void	ServerManager::setAutoIndex(bool autoindex){this->commonAutoIndex = autoindex;}
+void	ServerManager::setDefaultErrorPage(std::string dir){this->commonDefaultErrorPage = dir;}
 
-ServerManager::~ServerManager()
+
+void	signalHandler(int signum)
 {
+	(void) signum;
+	std::cout << "\nLeaving the server...Byeee!" << std::endl;
+	g_run = 0;
 }
 
-bool ServerManager::initiate(Config & config){
-	servers = config.servers;
+bool ServerManager::initiate(){
 	error = false;
 
 	this->log.printInit();
@@ -67,15 +92,6 @@ Server	*findServer(int i, std::vector<Server *> servers, int & isForServer)
 	}
 	return (NULL);
 }
-bool	g_run = 1;
-
-void	signalHandler(int signum)
-{
-	(void) signum;
-	std::cout << "\nLeaving the server...Byeee!" << std::endl;
-	g_run = 0;
-	// exit(EXIT_SUCCESS);
-}
 
 bool	ServerManager::run(){
 	int				isForServer;
@@ -92,12 +108,11 @@ bool	ServerManager::run(){
 			if (!g_run)
 			{
 				for (std::vector<int>::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
-				{
 					close(*it);
-				}
 				return (0);
 			}
-			std::cerr << "Error in Select" << std::endl;
+			log.printError("Error in Select");
+			// std::cerr << "Error in Select" << std::endl;
 			return (EXIT_FAILURE);
 		}
 		for (int i = 0; i < FD_SETSIZE; i++)
@@ -122,9 +137,21 @@ bool	ServerManager::run(){
 	if (!g_run)
 	{
 		for (std::vector<int>::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
-		{
 			close(*it);
-		}
 	}
 	return (0);
+}
+
+void	ServerManager::setCommonParameter(std::string root, bool autoindex, std::string defaultErrorPage){
+	this->commonRoot = root;
+	this->commonAutoIndex = autoindex;
+	this->commonDefaultErrorPage = defaultErrorPage;
+}
+
+Server	ServerManager::addServerBlock(){
+	Server sv;
+
+	sv.manager = this;
+	this->servers.push_back(&sv);
+	return (sv);
 }

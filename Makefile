@@ -20,6 +20,7 @@ SRCS		=	$(addprefix src/,									\
 												Uri.cpp				\
 												Response.cpp		\
 												Request.cpp			\
+												utils.cpp			\
 												Log.cpp			\
 				)
 
