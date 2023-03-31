@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/31 10:52:16 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/31 11:06:17 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,12 +278,12 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 				data.insert(data.end(), buffer, buffer + n);
 				bzero(buffer, sizeof(buffer));
 			}
-			printf("Got from child Process\n");
-			for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
-			{
-				std::cout << *it;
-			}
-			std::cout << std::endl;
+			// printf("Got from child Process\n");
+			// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+			// {
+			// 	std::cout << *it;
+			// }
+			// std::cout << std::endl;
 		}
 		wait(NULL);
 		data = buildResponseForCgi(data, 200);
@@ -306,17 +306,16 @@ void	addEnv(std::vector<std::string> &env, std::string key, std::string value)
 }
 
 std::vector<char>	Response::postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
-	(void) request;
 	(void) messageEnd;
-	(void) request;
 	(void) statusCode;
-	(void) server;
-	std::cout << "In PostMethod\n";
-	// think how we gonna use cgi to post file.
+	std::vector<char>	data;
 
-	// Replace to config path later.
 	Cgi cgi;
 	cgi.analyse(&server, request);
+
+	int pipefd[2];
+	if (pipe(pipefd) == -1)
+		printf("Error in opening pipe\n");
 
 	int id = fork();
 
@@ -324,12 +323,39 @@ std::vector<char>	Response::postMethod(Server &server, Request *request, std::si
 	{
 		cgi.parsingFileBody(request->body, request->headers);
 		cgi.upload();
+
+		close(pipefd[0]);    // close reading end in the child
+		dup2(pipefd[1], 1);  // send stdout to the pipe
+		// dup2(pipefd[1], 2);  // send stderr to the pipe
+		close(pipefd[1]);    // this descriptor is no longer needed
+
 		execve(cgi.getCmd().c_str(), cgi.getPathArray(), cgi.getEnvArray());
 		perror("execve");
 	}
+	else
+	{
+		// parent
+		char buffer[1];
+		int n;
+
+		close(pipefd[1]);  // close the write end of the pipe in the parent
+		while ((n = read(pipefd[0], buffer, 1)) > 0)
+		{
+			if (n < 0)
+				printf("read failed\n");
+			data.insert(data.end(), buffer, buffer + n);
+			bzero(buffer, sizeof(buffer));
+		}
+		printf("Got from child Process\n");
+		for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+		{
+			std::cout << *it;
+		}
+		std::cout << std::endl;
+	}
 	wait(NULL);
-	statusCode = 404;
-	return (buildErrorResponse(server.error_page, 404));
+	data = buildResponseForCgi(data, 200);
+	return (data);
 }
 
 // std::string	Response::deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
