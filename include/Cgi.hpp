@@ -16,9 +16,18 @@
 # include "../include/Server.hpp"
 # include <map>
 # include <vector>
+# include <fstream>
 
 class Cgi
 {
+	struct m_File{
+		std::string			tmpLoc;
+		std::string			name;
+		std::string			var;
+		std::string			type;
+		std::vector<char>	data;
+		MessageHeaders		headers;
+	};
 
 private:
 	std::string							scriptPath;
@@ -32,11 +41,15 @@ public:
 	Cgi &operator=(Cgi & rhs);
 	~Cgi();
 	bool			analyse(Server *server, Request *request);
-	std::string 	getScriptPath();
-	std::string		getCmd();
+	std::string 	getScriptPath() const;
+	std::string		getCmd() const;
 	void			addEnvParam(std::string key, std::string value);
+	void			addEnvParam(std::string str);
 	char			**getPathArray();
 	char			**getEnvArray();
+	m_File			file;
+	bool			parsingFileBody(std::vector<char> data, MessageHeaders headers);
+	bool			upload();
 };
 
 #endif

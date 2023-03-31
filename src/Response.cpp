@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 17:36:48 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/31 10:52:16 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,41 +173,15 @@ std::string	Response::generateDateHeader()
 	std::string months[13] = {"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec"};
 	time_t now = std::time(0);
 	tm *ltm = localtime(&now);
-
-	std::string year = intToString(1900 + ltm->tm_year);
-	std::string month = months[1 + ltm->tm_mon];
-	std::string day = intToString(ltm->tm_mday);
-	std::string hour = intToString(ltm->tm_hour);
-	std::string minute = intToString(ltm->tm_min);
-	std::string sec = intToString(ltm->tm_sec);
-	std::string zone = ltm->tm_zone;
-	std::string wday = weekdays[ltm->tm_wday];
-
-	return(wday + ", " + day + " " + month + " " + year + " " + hour + ":" + minute + ":" + sec + " " + zone);
-}
-
-std::size_t	vecFind2(std::vector<char> rawRequest, std::string str)
-{
-	size_t	i = 0;
-	size_t	v = 0;
-
-	for (std::vector<char>::iterator it = rawRequest.begin(); it != rawRequest.end(); ++it)
-	{
-		i = 0;
-		if (*it == str[i])
-		{
-			while (*(it + i) == str[i])
-			{
-				// printf("Comparing vector char %c with str %c\n", *(it + 1), str[i]);
-				// printf("i is %li, str.length is %li, returning %li\n", i, str.length()-1, v);
-				if (i == str.length() - 1)
-					return (v);
-				i++;
-			}
-		}
-		v++;
-	}
-	return (std::string::npos);
+	
+	return(weekdays[ltm->tm_wday] + ", " + \
+			intToString(ltm->tm_mday) + " " + \
+			months[1 + ltm->tm_mon] + " " + \
+			intToString(1900 + ltm->tm_year) + " " + \
+			intToString(ltm->tm_hour) + ":" + \
+			intToString(ltm->tm_min) + ":" + \
+			intToString(ltm->tm_sec) + " " + \
+			ltm->tm_zone);
 }
 
 std::vector<char>	Response::buildErrorResponse(std::string dir, int code)
@@ -247,7 +221,7 @@ std::vector<char>	Response::buildResponseForCgi(std::vector<char> data, int code
 	std::string str(data.begin(), data.end());
 	msg.addHeader("Date", generateDateHeader());
 	std::string bodyDeliminator = "\r\n\r\n";
-	std::size_t i = vecFind2(data, bodyDeliminator);
+	std::size_t i = vecFind(data, bodyDeliminator);
 	std::string header(data.begin(), data.begin() + i + 2);
 	std::cout << "header : " << header << "\n";
 	std::cout << "Body deliminator :  " << i << "\n";
@@ -274,16 +248,7 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 	{
 		Cgi cgi;
 		cgi.analyse(&server, request);
-		// cgi.getPath();
-		// cgi.getCmd();
-		std::string pathphp = server.cgiBloc.cgiPath + "/" + request->target.getPath().back();
-		std::string	cmd;
-
-		if (request->target.getPath().back().find(".php"))
-			cmd = "php-cgi";
-
-		char	*path[] = {strdup(cmd.c_str()), strdup(pathphp.c_str()), NULL};
-		char	*newEnv[] = {strdup(request->target.getQuery().c_str()), NULL};
+		cgi.addEnvParam(request->target.getQuery());
 		std::vector<char>	data;
 
 		int pipefd[2];
@@ -297,18 +262,15 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 			dup2(pipefd[1], 1);  // send stdout to the pipe
 			// dup2(pipefd[1], 2);  // send stderr to the pipe
 			close(pipefd[1]);    // this descriptor is no longer needed
-			execve("/usr/bin/php-cgi", path, newEnv);
-			// exec(...);
+			execve(cgi.getCmd().c_str(), cgi.getPathArray(), cgi.getEnvArray());
 		}
 		else
 		{
 			// parent
-
 			char buffer[1];
+			int n;
 
 			close(pipefd[1]);  // close the write end of the pipe in the parent
-
-			int n;
 			while ((n = read(pipefd[0], buffer, 1)) > 0)
 			{
 				if (n < 0)
@@ -316,15 +278,14 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 				data.insert(data.end(), buffer, buffer + n);
 				bzero(buffer, sizeof(buffer));
 			}
-			// printf("Got from child Process\n");
-			// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
-			// {
-			// 	std::cout << *it;
-			// }
-			// std::cout << std::endl;
+			printf("Got from child Process\n");
+			for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+			{
+				std::cout << *it;
+			}
+			std::cout << std::endl;
 		}
 		wait(NULL);
-		// printf("End php function\n");
 		data = buildResponseForCgi(data, 200);
 		return (data);
 	}
@@ -356,123 +317,17 @@ std::vector<char>	Response::postMethod(Server &server, Request *request, std::si
 	// Replace to config path later.
 	Cgi cgi;
 	cgi.analyse(&server, request);
-	// cgi.getPathArray();
-	std::string pathphp = "/home/hyunah/Documents/webserv/data/upload.php";
-	std::string arg1 = "php-cgi";
-	char	*path[] = {strdup(arg1.c_str()), strdup(pathphp.c_str()), NULL};
-
 
 	int id = fork();
 
 	if (id == 0)
 	{
-		std::vector<std::string>	env;
-		std::vector<char>			filebody;
-		addEnv(env, "AUTH_TYPE", "Basic");
-		// addEnv(env, "CONTENT_LENGTH", request->headers.getHeaderValue("Content-Length"));
-		addEnv(env, "CONTENT_TYPE", request->headers.getHeaderValue("Content-Type"));
-		addEnv(env, "GATEWAY_INTERFACE", "CGI/1.1");
-		addEnv(env, "SCRIPT_NAME", "upload.php");
-		addEnv(env, "SCRIPT_FILENAME", pathphp);
-		addEnv(env, "REDIRECT_STATUS", "200");
-		addEnv(env, "QUERY_STRING", request->target.getQuery());
-		addEnv(env, "REMOTE_ADDR", server.host + ":" + intToString(server.port));
-		addEnv(env, "SERVER_NAME", server.host);
-		addEnv(env, "SERVER_PORT", intToString(server.port));
-		addEnv(env, "REQUEST_METHOD", request->method);
-		addEnv(env, "REQUEST_URI", request->target.generateString());
-		addEnv(env, "SERVER_PROTOCOL", "HTTP/1.1");
-		
-		// find body deliminator
-		filebody = request->body;
-		std::string deliminator = "boundary=";
-		std::size_t b = request->headers.getHeaderValue("Content-Type").find(deliminator);
-		std::string nextline = "\r\n";
-		std::string bodyDeliminator = request->headers.getHeaderValue("Content-Type").substr(b + deliminator.length());
-		// std::cout << "Body deliminator : <" << bodyDeliminator << ">\n";
-		std::size_t a = vecFind2(request->body, bodyDeliminator);
-
-		// erase start boundary
-		filebody.erase(filebody.begin(), filebody.begin() + a + bodyDeliminator.length() + nextline.length());
-		a = vecFind2(filebody, bodyDeliminator);
-		filebody.erase(filebody.begin(), filebody.begin() + a + bodyDeliminator.length() + nextline.length());
-
-		// erase end boundary		
-		a = vecFind2(filebody, bodyDeliminator);
-		filebody.erase(filebody.begin() + a - (nextline.length() * 2), filebody.end());
-		
-		// split fileinfo and body
-		std::vector<char>	infoFile;
-		a = vecFind2(filebody, "\r\n\r\n");
-		infoFile.insert(infoFile.begin(), filebody.begin(), filebody.begin() + a);
-		filebody.erase(filebody.begin(), filebody.begin() + a + 4);
-
-		// std::cout << std::endl << "InfoFile body" << std::endl;
-		// for	(std::vector<char>::iterator it = infoFile.begin(); it != infoFile.end(); ++it)
-			// std::cout << *it;
-		// std::cout << std::endl << "InfoFile body END" << std::endl;
-
-		std::cout << std::endl << "File body (size "<< filebody.size() << ")" << std::endl;
-		// for	(std::vector<char>::iterator it = filebody.begin(); it != filebody.end(); ++it)
-			// std::cout << *it;
-		// std::cout << "File body END" << std::endl;
-		
-		// Put variable, filename in env.
-		std::string infoFileHeader;
-		MessageHeaders msg;
-
-		infoFileHeader.insert(infoFileHeader.begin(), infoFile.begin(), infoFile.end());
-		msg.parseFromString(infoFileHeader);
-		std::string rest = msg.getHeaderValue("Content-Disposition");
-		std::string type = msg.getHeaderValue("Content-Type");
-		size_t j;
-		size_t k;
-		std::string value;
-		std::string filename;
-		
-		while ((j = rest.find(" ")) != std::string::npos)
-		{
-			value = rest.substr(0, j);
-			if ((k = value.find("=")) != std::string::npos)
-			{
-				size_t l = value.find("\"", k + 2);
-				// std::cout <<value.substr(0, k) << " " << value.substr(k + 2, value.size() - (k + 2) - (value.size() - l)) << std::endl;
-				addEnv(env, value.substr(0, k), value.substr(k + 2, value.size() - (k + 2) - (value.size() - l)));
-			}
-			rest.erase(rest.begin(), rest.begin() + j + 1);
-		}
-		if ((k = rest.find("=")) != std::string::npos)
-		{
-			size_t l = rest.find("\"", k + 2);
-			filename = rest.substr(k + 2, value.size() - (k + 2) - (value.size() - l));
-			addEnv(env, rest.substr(0, k), filename);
-		}
-		std::string pathTmpFile = "/home/hyunah/Documents/webserv/data/upload";
-		addEnv(env, "FILE_TEMPLOC", pathTmpFile);
-
-		//upload in server
-		std::string patch = pathTmpFile + "/" + filename;
-		std::ofstream myFile(patch.c_str());
-		for (std::vector<char>::iterator it = filebody.begin(); it != filebody.end(); ++it)
-			myFile << *it;
-		myFile.close();
-		addEnv(env, "UPLOAD_ERROR", intToString(0));
-
-		char	**newEnv = (char **)calloc(sizeof(char *), env.size() + 1);
-		int i = 0;
-		for (std::vector<std::string>::iterator it = env.begin(); it != env.end(); ++it)
-		{
-			newEnv[i] = strdup(it->c_str());
-			std::cout << i << ". " << it->c_str() << std::endl;
-			i++;
-		}
-
-		// execute
-		execve("/usr/bin/php-cgi", path, newEnv);
+		cgi.parsingFileBody(request->body, request->headers);
+		cgi.upload();
+		execve(cgi.getCmd().c_str(), cgi.getPathArray(), cgi.getEnvArray());
 		perror("execve");
 	}
 	wait(NULL);
-	printf("End php function\n");
 	statusCode = 404;
 	return (buildErrorResponse(server.error_page, 404));
 }
