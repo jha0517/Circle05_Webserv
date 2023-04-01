@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 00:07:16 by yhwang            #+#    #+#             */
-/*   Updated: 2023/03/23 02:11:36 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/01 07:43:45 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,36 +36,50 @@ public:
 	int		GetAllowMethodsGet(void) const;
 	int		GetAllowMethodsPost(void) const;
 	int		GetAllowMethodsDelete(void) const;
+	int		GetServerParseDone(void) const;
+	int		GetServerBlockCount(void) const;
+	int		GetTotalLocationBlock(void) const;
+	int		GetHttpBraketClose(void) const;
 
 	void		SetConfigFileName(std::string config_file_name);
+	void		SetLocationBlockEnded(int i);
+	void		SetHttpBraketClose(int i);
 
+	void		IncreaseTotalLocationBlock(void);
+	void		InitServerBlockParseData(void);
 	void		ServerBlockCheck(std::string *line, int i);
-	void		ServerBlockKeywordCheck(std::string *line, int i);
 
-protected:
+private:
+	void		HttpMissedKeywordCheck(std::string *line, std::string temp, int i);
+
+	void		ServerKeywordCheck(std::string *line, std::string temp, int i, std::string keyword);
+	void		ServerKeywordServerCheck(std::string *line, std::string temp, int i);
+	void		ServerBraketOpenCheck(std::string *line, std::string temp, int i);
+	void		ServerKeywordTokenCheck(std::string *line, std::string temp, int i);
+	void		ServerBlockGetInfo(std::string *token, std::string *line, int i);
+
 	int		_server_keyword_check;
 	int		_server_braket_open;
-	int		_server_block;
-
+	int		_server_block_count;
 	int		_listen_flag;
-	int		_listen;
 	int		_host_flag;
-	std::string	_host;
 	int		_client_max_body_size_flag;
-	int		_client_max_body_size;
 	int		_index_flag;
-	std::string	_index;
 	int		_allow_methods_flag;
+	int		_listen;
+	std::string	_host;
+	int		_client_max_body_size;
+	std::string	_index;
 	int		_allow_methods_get;
 	int		_allow_methods_post;
 	int		_allow_methods_delete;
-
 	int		_server_parse_done;
 	std::string	_config_file_name;
 	std::string	_err_msg;
 
-private:
-	void		ServerBlockGetInfo(std::string *token, std::string *line, int i);
+	int		_total_location_block;
+	int		_location_block_ended;
+	int		_http_braket_close;
 };
 
 #endif
