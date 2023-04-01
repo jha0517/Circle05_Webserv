@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/21 01:27:09 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 08:43:32 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/01 20:27:27 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,24 +71,25 @@
 
 # define LOCATION_KWD_LOCATION				54
 
-# define LOCATION_KWD_REDIRECTION_PATH			55
+# define LOCATION_KWD_REDIRECTION_LOCATION		55
 # define LOCATION_KWD_RETURN				56
 # define LOCATION_KWD_RETURN_VALUE			57
-# define LOCATION_KWD_CGI_BIN				58
-# define LOCATION_KWD_CGI_BIN_ROOT			59
-# define LOCATION_KWD_CGI_BIN_CGI_PATH			60
-# define LOCATION_KWD_CGI_BIN_CGI_EXTENTION		61
+# define LOCATION_KWD_INDEX_LOCATION			58
+# define LOCATION_KWD_INDEX				59
+# define LOCATION_KWD_CGI_LOCATION			60
+# define LOCATION_KWD_CGI_PATH				61
+# define LOCATION_KWD_CGI_EXTENTION			62
 
-# define LOCATION_KWD_RETURN_EXISTS			62
-# define LOCATION_KWD_CGI_BIN_EXISTS			63
-# define LOCATION_KWD_CGI_BIN_ROOT_EXISTS		64
-# define LOCATION_KWD_CGI_BIN_CGI_PATH_EXISTS		65	
-# define LOCATION_KWD_CGI_BIN_CGI_EXTENTION_EXISTS	66
+# define LOCATION_KWD_RETURN_EXISTS			63
+# define LOCATION_KWD_INDEX_EXISTS			64
+# define LOCATION_KWD_CGI_LOCATION_EXISTS		65
+# define LOCATION_KWD_CGI_PATH_EXISTS			66	
+# define LOCATION_KWD_CGI_EXTENTION_EXISTS		67
 
-# define LOCATION_KWD_RETURN_MISSED			67
-# define LOCATION_KWD_CGI_BIN_MISSED			68
-# define LOCATION_KWD_CGI_BIN_ROOT_MISSED		69
-# define LOCATION_KWD_CGI_BIN_CGI_PATH_MISSED		70	
-# define LOCATION_KWD_CGI_BIN_CGI_EXTENTION_MISSED	71
+# define LOCATION_KWD_RETURN_MISSED			68
+# define LOCATION_KWD_INDEX_MISSED			69
+# define LOCATION_KWD_CGI_LOCATION_MISSED		70
+# define LOCATION_KWD_CGI_PATH_MISSED			71	
+# define LOCATION_KWD_CGI_EXTENTION_MISSED		72
 
 #endif

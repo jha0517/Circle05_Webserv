@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 23:52:58 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 17:11:07 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/01 22:09:16 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,8 @@ void	HttpBlockParse::HttpKeywordCheck(std::string *line, std::string temp, int i
 	{
 		if (keyword == "http")
 		{
-			if (temp[temp.find(keyword) + strlen(keyword.c_str())] == '{')
+			if (temp[temp.find(keyword) + strlen(keyword.c_str())] == '{'
+				|| temp[temp.find(keyword) + strlen(keyword.c_str())] == '\0')
 				return ;
 			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_HTTP, *line, i);
 		}

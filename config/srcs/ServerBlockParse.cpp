@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 00:07:25 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 17:23:33 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/01 22:17:17 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,18 +168,26 @@ void	ServerBlockParse::ServerBlockCheck(std::string *line, int i)
 		this->_server_parse_done++;
 	if (this->_server_parse_done)
 		return ;
+	if (this->_http_braket_close == 1 && StringCheck(temp))
+	{
+		this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_CLOSE, *line, i);
+		throw (this->_err_msg);
+	}
 	if (this->_location_block_ended == 1 && temp.find("}") != std::string::npos)
 	{
 		this->_http_braket_close++;
 		this->_location_block_ended--;
 		std::cout << "http block closed" << std::endl;///
 		temp = temp.substr(temp.find("}") + strlen("}"), std::string::npos);
-		if (StringCheck(temp, '}'))
+		if (temp == "" || !StringCheck(temp))
+			return ;
+		else
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_INVALID_KWD, *line, i);
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_CLOSE, *line, i);
 			throw (this->_err_msg);
 		}
 	}
+
 	if (temp.find("}") != std::string::npos)
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_CLOSE, *line, i);
@@ -270,7 +278,8 @@ void	ServerBlockParse::ServerKeywordCheck(std::string *line, std::string temp, i
 	{
 		if (keyword == "server")
 		{
-			if (temp[temp.find(keyword) + strlen(keyword.c_str())] == '{')
+			if (temp[temp.find(keyword) + strlen(keyword.c_str())] == '{'
+				|| temp[temp.find(keyword) + strlen(keyword.c_str())] == '\0')
 				return ;
 			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_SERVER, *line, i);
 		}

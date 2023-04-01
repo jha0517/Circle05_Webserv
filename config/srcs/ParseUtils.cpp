@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 04:20:47 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 08:43:50 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/01 20:32:19 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,39 +210,41 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 			msg.append("found invalid character(s)\n");
 		else if (err_number == LOCATION_KWD_LOCATION)
 			msg.append("keyword location is not used properly\n");
-		else if (err_number == LOCATION_KWD_REDIRECTION_PATH)
-			msg.append("redirection path is not used properly next to the keyword location\n");
+		else if (err_number == LOCATION_KWD_REDIRECTION_LOCATION)
+			msg.append("redirection location is not used properly\n");
 		else if (err_number == LOCATION_KWD_RETURN)
 			msg.append("keyword return is not used properly\n");
 		else if (err_number == LOCATION_KWD_RETURN_VALUE)
 			msg.append("return value is not used properly next to the keyword return\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN)
-			msg.append("cgi-bin is not used properly next to the keyword location\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_ROOT)
-			msg.append("keyword root is not used properly\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_CGI_PATH)
+		else if (err_number == LOCATION_KWD_INDEX_LOCATION)
+			msg.append("index location is not used properly\n");
+		else if (err_number == LOCATION_KWD_INDEX)
+			msg.append("keyword index is not used properly\n");
+		else if (err_number == LOCATION_KWD_CGI_LOCATION)
+			msg.append("cgi-bin location is not used properly\n");
+		else if (err_number == LOCATION_KWD_CGI_PATH)
 			msg.append("keyword cgi_path is not used properly\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_CGI_EXTENTION)
+		else if (err_number == LOCATION_KWD_CGI_EXTENTION)
 			msg.append("keyword cgi_extention is not used properly\n");
 		else if (err_number == LOCATION_KWD_RETURN_EXISTS)
 			msg.append("keyword return already exists\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_EXISTS)
+		else if (err_number == LOCATION_KWD_INDEX_EXISTS)
+			msg.append("keyword index already exists\n");
+		else if (err_number == LOCATION_KWD_CGI_LOCATION_EXISTS)
 			msg.append("cgi-bin location block already exists\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_ROOT_EXISTS)
-			msg.append("keyword root already exists\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_CGI_PATH_EXISTS)
+		else if (err_number == LOCATION_KWD_CGI_PATH_EXISTS)
 			msg.append("keyword cgi_path already exists\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_CGI_EXTENTION_EXISTS)
+		else if (err_number == LOCATION_KWD_CGI_EXTENTION_EXISTS)
 			msg.append("keyword cgi_extention already exists\n");
 		else if (err_number == LOCATION_KWD_RETURN_MISSED)
 			msg.append("keyword return is missed\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_MISSED)
+		else if (err_number == LOCATION_KWD_INDEX_MISSED)
+			msg.append("keyword index is missed\n");
+		else if (err_number == LOCATION_KWD_CGI_LOCATION_MISSED)
 			msg.append("cgi-bin location block is missed\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_ROOT_MISSED)
-			msg.append("keyword root is missed\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_CGI_PATH_MISSED)
+		else if (err_number == LOCATION_KWD_CGI_PATH_MISSED)
 			msg.append("keyword cgi_path is missed\n");
-		else if (err_number == LOCATION_KWD_CGI_BIN_CGI_EXTENTION_MISSED)
+		else if (err_number == LOCATION_KWD_CGI_EXTENTION_MISSED)
 			msg.append("keyword cgi_extention is missed\n");
 	}
 	

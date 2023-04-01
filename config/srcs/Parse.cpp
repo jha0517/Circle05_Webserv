@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/18 13:54:27 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 07:47:46 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/01 22:00:27 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,17 +85,6 @@ int	Parse::FileOpen(std::string config_file_name)
 		std::cout << "i: " << i << line << std::endl;
 	}
 
-	if (!LocationBlockParse::GetServerBraketClose())
-	{
-		this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_CLOSE, line, i);
-		throw (this->_err_msg);
-	}
-	if (!ServerBlockParse::GetHttpBraketClose())
-	{
-		this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_CLOSE, line, i);
-		throw (this->_err_msg);
-	}
-	
 	this->_root = HttpBlockParse::GetRoot();
 	this->_autoindex = HttpBlockParse::GetAutoIndex();
 	this->_default_err_page = HttpBlockParse::GetDefaultErrorPage();
@@ -130,8 +119,10 @@ int	Parse::FileOpen(std::string config_file_name)
 		std::cout << "GET POST" << std::endl;
 	else if (this->_allow_methods_get && !this->_allow_methods_post && this->_allow_methods_delete)
 		std::cout << "GET DELETE" << std::endl;
-	else
+	else if (this->_allow_methods_get && this->_allow_methods_post && this->_allow_methods_delete)
 		std::cout << "GET POST DELETE" << std::endl;
+	else
+		std::cout << "none" << std::endl;
 	std::cout << std::endl;
 
 
