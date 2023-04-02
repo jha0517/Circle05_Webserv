@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:05 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 16:35:25 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 20:23:44 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ private:
 
 public:
 	ServerManager();
-	ServerManager(ServerManager const & src);
 	~ServerManager();
+	ServerManager(ServerManager const & src);
 	ServerManager &operator=(ServerManager const & rhs);
 	
 	Log		log;

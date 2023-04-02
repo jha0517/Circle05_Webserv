@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/05 00:19:46 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/17 08:45:04 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 20:26:26 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ private:
 
 public:
 	Uri();
+	Uri(Uri const & src);
+	Uri &operator=(Uri const & rhs);
 	~Uri();
 	bool						parsingFromString(const std::string & uriString);
 	std::string					generateString();

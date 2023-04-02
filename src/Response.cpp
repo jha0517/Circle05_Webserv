@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 18:16:41 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 20:15:03 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -338,7 +338,7 @@ std::vector<char>	Response::buildResponseForCgi(std::vector<char> data, int code
 	std::string bodyDeliminator = "\r\n\r\n";
 	std::size_t i = vecFind(data, bodyDeliminator);
 	std::string header(data.begin(), data.begin() + i + 2);
-	std::cout << "header : " << header << "\n";
+	std::cout << "this header : " << header << "\n";
 	std::cout << "Body deliminator :  " << i << "\n";
 	data.erase(data.begin(), data.begin() + i + 4);
 	msg.addHeader("Content-Length", intToString(data.size()));

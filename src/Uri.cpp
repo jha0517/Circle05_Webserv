@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:10 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 13:35:02 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 20:26:25 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,29 @@
 #include <iostream>
 #include <sstream>
 
-Uri::Uri() : existPath(false), existPort(true), port(0), scheme (""), host(""), splitchar("/")
-{
+Uri::Uri() : existPath(false), existPort(true), port(0), scheme (""), host(""), splitchar("/"){}
+
+Uri::~Uri(){}
+
+Uri::Uri(Uri const & src){
+	*this = src;
 }
 
-Uri::~Uri()
-{
+Uri &Uri::operator=(Uri const & rhs){
+	if (this != &rhs)
+	{
+		this->existPath = rhs.existPath;
+		this->existPort = rhs.existPort;
+		this->port = rhs.port;
+		this->scheme = rhs.scheme;
+		this->host = rhs.host;
+		this->splitchar = rhs.splitchar;
+		this->fragment = rhs.fragment;
+		this->query = rhs.query;
+		this->path = rhs.path;
+	}
 }
+
 std::string		Uri::parseScheme(std::string uriString)
 {
 	std::size_t schemeDelimiter = uriString.find(':');

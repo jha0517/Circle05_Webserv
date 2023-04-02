@@ -14,7 +14,6 @@
 
 Cgi::Cgi(){
     this->cmdMap.insert(std::make_pair(".php", "/usr/bin/php-cgi"));
-    this->cmdMap.insert(std::make_pair(".py", "python"));
 	this->file.tmpLoc = "./data/upload";
 }
 
@@ -41,7 +40,7 @@ void	Cgi::addEnvParam(std::string str){this->env.push_back(str);}
 
 bool	Cgi::analyse(Server *server, Request *request){
 	//scriptPath
-	this->scriptPath = server->cgiBloc.cgiPath + "/" + request->target.getPath().back();
+	this->scriptPath = server->cgiBloc.cgiScriptPath + "/" + request->target.getPath().back();
 	this->file.tmpLoc = server->uploadPath;
 	
 	//cmd
@@ -75,6 +74,7 @@ char	**Cgi::getPathArray(){
 	char	**path = (char **)calloc(sizeof(char *), 2 + 1);
 	path[0] = strdup(this->cmd.c_str());
 	path[1] = strdup(this->scriptPath.c_str());
+	std::cout << "scriptPath" << this->scriptPath << std::endl;
 	path[2] = NULL;
 
 	return (path);	
@@ -199,6 +199,7 @@ std::vector<char>	Cgi::execute(){
 	int id = fork();
 	if (id == 0)
 	{
+		std::cout << "this->getCmd().c_str():"<< this->getCmd().c_str()<<std::endl;
 		close(pipefd[0]);    // close reading end in the child
 		dup2(pipefd[1], 1);  // send stdout to the pipe
 		// dup2(pipefd[1], 2);  // send stderr to the pipe
@@ -219,12 +220,12 @@ std::vector<char>	Cgi::execute(){
 			data.insert(data.end(), buffer, buffer + n);
 			bzero(buffer, sizeof(buffer));
 		}
-		// printf("Got from child Process\n");
-		// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
-		// {
-		// 	std::cout << *it;
-		// }
-		// std::cout << std::endl;
+		printf("Got from child Process\n");
+		for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+		{
+			std::cout << *it;
+		}
+		std::cout << std::endl;
 	}
 	wait(NULL);
 	return (data);
