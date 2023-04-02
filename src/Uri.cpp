@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:10 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 20:26:25 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 20:30:12 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ Uri &Uri::operator=(Uri const & rhs){
 		this->query = rhs.query;
 		this->path = rhs.path;
 	}
+	return (*this);
 }
 
 std::string		Uri::parseScheme(std::string uriString)
@@ -256,19 +257,6 @@ std::string	Uri::generateString(){
 		buffer << "#" << fragment;
 
 	return (buffer.str());
-}
-
-Uri & Uri::operator=(const Uri &rhs){
-	existPath = rhs.existPath;
-	existPort = rhs.existPort;
-	port = rhs.port;
-	scheme = rhs.scheme;
-	fragment = rhs.fragment;
-	query = rhs.query;
-	host = rhs.host;
-	path = rhs.path;
-	splitchar = rhs.splitchar;
-	return (*this);
 }
 
 bool	Uri::operator==(Uri const &rhs) const {

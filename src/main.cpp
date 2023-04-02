@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 18:20:16 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 20:28:06 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ int	main(int ac, char **av)
 		sm.servers[i]->setUploadPath("./data/upload");
 
 		std::set<std::string> method;
-		method.insert("GET");
+		// method.insert("GET");
 		method.insert("POST");
 		sm.servers[i]->setAllowedMethod(method);
 
