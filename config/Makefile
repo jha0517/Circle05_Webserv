@@ -6,7 +6,7 @@
 #    By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/18 13:55:40 by yhwang            #+#    #+#              #
-#    Updated: 2023/03/22 00:43:15 by yhwang           ###   ########.fr        #
+#    Updated: 2023/03/25 01:20:03 by yhwang           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,6 +19,7 @@ FILES = ./srcs/main \
 		./srcs/Parse \
 		./srcs/HttpBlockParse \
 		./srcs/ServerBlockParse \
+		./srcs/LocationBlockParse \
 		./srcs/ParseUtils
 
 SRCS = $(addsuffix .cpp, $(FILES))
