@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 14:19:39 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 11:15:46 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,8 @@ void	ServerManager::addServerBlock(){
 	Server *sv = new Server();
 
 	sv->root = this->commonRoot;
+	sv->error_page = "./data/error_pages";
+	sv->autoIndex = this->commonAutoIndex;
 	sv->manager = this;
 	this->servers.push_back(sv);
 }

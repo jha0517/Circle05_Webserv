@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/31 11:06:17 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 11:23:38 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,30 +50,6 @@ Response::~Response()
 {
 }
 
-std::string	check_filename_get_str(const char *filename)
-{
-	std::string		src;
-	std::string		buffer;
-	std::ifstream	ifs;
-	char	c;
-	
-	ifs.open(filename);
-	if (!ifs)
-	{
-		std::cout << "File non-existance or Right Denied!" << std::endl;
-		return ("404");
-	}
-	while (ifs.get(c))
-		src+= c;
-	ifs.close();
-	if (src.empty())
-	{
-		std::cout << "File is empty!" << std::endl;
-		return ("");
-	}
-	return (src);
-}
-
 std::string	Response::generateRawResponse(int code, MessageHeaders msg, std::string body){
 	if (statusCodeDic[code].empty())
 		std::cout << "There is no status available in Dictionnary for code " << intToString(code) << std::endl;
@@ -108,7 +84,10 @@ std::string	Response::getMimeType(std::string & filepath)
 	for(std::map<std::string, std::string>::iterator it = mimeMap.begin(); it != mimeMap.end(); ++it)
 	{
 		if (it->first == format)
+		{
+			std::cout << "returning :" << it->second<< std::endl;
 			return (it->second);
+		}
 	}
 	return ("text/plain");
 }
@@ -142,13 +121,19 @@ std::vector<char>	Response::buildResponse(std::string dir, int code)
 	std::vector<char> null;
 
 	(void) code;
+	// if (dir is onlypath)
+		// do auto index
 	msg.addHeader("Date", generateDateHeader());
 	msg.addHeader("Content-Type", getMimeType(dir));
 	if (getMimeType(dir) == "text/plain" || getMimeType(dir) == "text/html")
 	{
+		std::cout << "it is text or html" << std::endl;
 		txtBody = check_filename_get_str(dir.c_str());
 		if (txtBody.empty())
+		{
+			std::cout << "Returning Null here" << std::endl;
 			return (null);
+		}
 		data.insert(data.begin(), txtBody.c_str(), txtBody.c_str() + txtBody.size());
 	}
 	else
@@ -159,6 +144,11 @@ std::vector<char>	Response::buildResponse(std::string dir, int code)
 		fileDefaultFileName += "\"" + uri.getPath().back() + "\"";
 		msg.addHeader("Content-Disposition", fileDefaultFileName.c_str());
 		data = fileToBinary(dir);
+	}
+	std::cout << "data.size():"<<data.size()<< std::endl;
+	for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+	{
+		std::cout << *it;
 	}
 	msg.addHeader("Content-Length", intToString(data.size()));
 	ret = ("HTTP/1.1 200 OK\r\n");
@@ -249,48 +239,20 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		Cgi cgi;
 		cgi.analyse(&server, request);
 		cgi.addEnvParam(request->target.getQuery());
-		std::vector<char>	data;
+		data = cgi.execute();
 
-		int pipefd[2];
-		if (pipe(pipefd) == -1)
-			printf("Error in opening pipe\n");
-
-		int id = fork();
-		if (id == 0)
-		{
-			close(pipefd[0]);    // close reading end in the child
-			dup2(pipefd[1], 1);  // send stdout to the pipe
-			// dup2(pipefd[1], 2);  // send stderr to the pipe
-			close(pipefd[1]);    // this descriptor is no longer needed
-			execve(cgi.getCmd().c_str(), cgi.getPathArray(), cgi.getEnvArray());
-		}
-		else
-		{
-			// parent
-			char buffer[1];
-			int n;
-
-			close(pipefd[1]);  // close the write end of the pipe in the parent
-			while ((n = read(pipefd[0], buffer, 1)) > 0)
-			{
-				if (n < 0)
-					printf("read failed\n");
-				data.insert(data.end(), buffer, buffer + n);
-				bzero(buffer, sizeof(buffer));
-			}
-			// printf("Got from child Process\n");
-			// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
-			// {
-			// 	std::cout << *it;
-			// }
-			// std::cout << std::endl;
-		}
-		wait(NULL);
 		data = buildResponseForCgi(data, 200);
 		return (data);
 	}
+
 	clientfd = server.clientfd;
-	data = buildResponse(server.findMatchingUri(request->target.generateString()), 200);
+	std::string path = server.findMatchingUri(request->target.generateString());
+	if (path.empty())
+	{
+		std::cout << server.error_page<< std::endl;
+		return (buildErrorResponse(server.error_page, 404));	
+	}
+	data = buildResponse(path, 200);
 	statusCode = 200;
 	if (data.empty())
 	{
@@ -312,48 +274,9 @@ std::vector<char>	Response::postMethod(Server &server, Request *request, std::si
 
 	Cgi cgi;
 	cgi.analyse(&server, request);
-
-	int pipefd[2];
-	if (pipe(pipefd) == -1)
-		printf("Error in opening pipe\n");
-
-	int id = fork();
-
-	if (id == 0)
-	{
-		cgi.parsingFileBody(request->body, request->headers);
-		cgi.upload();
-
-		close(pipefd[0]);    // close reading end in the child
-		dup2(pipefd[1], 1);  // send stdout to the pipe
-		// dup2(pipefd[1], 2);  // send stderr to the pipe
-		close(pipefd[1]);    // this descriptor is no longer needed
-
-		execve(cgi.getCmd().c_str(), cgi.getPathArray(), cgi.getEnvArray());
-		perror("execve");
-	}
-	else
-	{
-		// parent
-		char buffer[1];
-		int n;
-
-		close(pipefd[1]);  // close the write end of the pipe in the parent
-		while ((n = read(pipefd[0], buffer, 1)) > 0)
-		{
-			if (n < 0)
-				printf("read failed\n");
-			data.insert(data.end(), buffer, buffer + n);
-			bzero(buffer, sizeof(buffer));
-		}
-		printf("Got from child Process\n");
-		for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
-		{
-			std::cout << *it;
-		}
-		std::cout << std::endl;
-	}
-	wait(NULL);
+	cgi.parsingFileBody(request->body, request->headers);
+	cgi.upload();
+	data = cgi.execute();
 	data = buildResponseForCgi(data, 200);
 	return (data);
 }

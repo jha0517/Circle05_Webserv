@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/31 10:41:24 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 11:31:35 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	main(int ac, char **av)
 	//config Start
 	sm.setRoot("./data");
 	sm.setAutoIndex(true);
-	sm.setDefaultErrorPage("/error_pages/404.html");
+	sm.setDefaultErrorPage(".data/error_pages/404.html");
 
 	sm.setServerBlockCount(1);
 	// iterate number of server block
@@ -42,7 +42,7 @@ int	main(int ac, char **av)
 	{
 		// add server and set param
 		sm.addServerBlock();
-		sm.servers[i]->setPort(8000);
+		sm.servers[i]->setPort(8002);
 		sm.servers[i]->setHost("127.0.0.1");
 		sm.servers[i]->setMaxClientBodySize(1024);
 		sm.servers[i]->setIndex("index_1.html");

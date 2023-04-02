@@ -6,13 +6,15 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 14:11:11 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/31 09:43:06 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 10:57:33 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <string>
 #include <sstream>
 #include <vector>
+# include <fstream>
+# include <iostream>
 
 std::string intToString(int a)
 {
@@ -66,4 +68,29 @@ std::string	vecSubstr(std::vector<char> rawRequest, size_t start, size_t end)
 		v++;
 	}
 	return (ret);
+}
+
+std::string	check_filename_get_str(const char *filename)
+{
+	std::string		src;
+	std::string		null;
+	std::string		buffer;
+	std::ifstream	ifs;
+	char	c;
+	
+	ifs.open(filename);
+	if (!ifs)
+	{
+		std::cout << filename <<"File non-existance or Right Denied!" << std::endl;
+		return (null);
+	}
+	while (ifs.get(c))
+		src+= c;
+	ifs.close();
+	if (src.empty())
+	{
+		std::cout << "File is empty!" << std::endl;
+		return (null);
+	}
+	return (src);
 }

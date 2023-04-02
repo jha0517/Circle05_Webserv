@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 15:21:03 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 10:58:44 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,17 +140,21 @@ int	Server::acceptConnection(){
 		return (-1);
 	return (clientfd);
 }
+#include <sys/stat.h>
 
 std::string	Server::findMatchingUri(std::string path){
-	std::string ret;
 	std::string indexfilename = "index.html";
+	std::ifstream	ifs;
 
 	if (path.find(".") != std::string::npos)
+	{
+		std::cout <<"1final path is " << this->root + path << std::endl;
 		return (this->root + path);
+	}
 	if (path == "/")
 	{
 		indexfilename = this->index;
-		std::cout <<"final path is " << this->root + "/" + indexfilename << std::endl;
+		std::cout <<"2final path is " << this->root + "/" + indexfilename << std::endl;
 		return (this->root + "/" + indexfilename);
 	}
 
@@ -161,9 +165,33 @@ std::string	Server::findMatchingUri(std::string path){
 		if ((*it)->dir == path)
 		{
 			indexfilename = (*it)->index;
-			std::cout <<"final path is " << this->root + path  + "/" + indexfilename << std::endl;
+			std::cout <<"3final path is " << this->root + path  + "/" + indexfilename << std::endl;
 			return (this->root + path  + "/" + indexfilename);
 		}
 	}
-	return (ret);
+	std::string tmp;
+	tmp = this->root + path;
+	std::cout << "checking if -"<< tmp <<"- exist" << std::endl;
+	struct stat sb;
+	if (stat(tmp.c_str(), &sb) == 0)
+	{
+		std::string tmp2 = tmp + "/" + indexfilename;
+		std::cout << "The path is valid, index yes? " + tmp2+"\n";
+		if (!check_filename_get_str(tmp2.c_str()).empty())
+		{
+			std::cout << "Index file Yes! Returning "<< tmp2 <<"\n";
+			return (tmp2);
+		}
+		else
+		{
+			std::cout << "Index file No! Returning " << tmp <<"\n";
+			return (tmp);
+		}
+	}
+	else
+		std::cout << "The path is NOT valid\n";
+
+	std::string nul;
+	std::cout << "Returning Null\n";
+	return (nul);
 }

@@ -50,6 +50,7 @@ public:
 	m_File			file;
 	bool			parsingFileBody(std::vector<char> data, MessageHeaders headers);
 	bool			upload();
+	std::vector<char>	execute();
 };
 
 #endif

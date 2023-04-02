@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/31 09:44:10 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/03/31 18:17:22 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,15 @@ private:
 public:
 	Response();
 	~Response();
-	unsigned int	statusCode;
-	std::string		reasonPhrase;
-	Uri				target;
-	MessageHeaders	headers;
+	unsigned int		statusCode;
+	std::string			reasonPhrase;
+	Uri					target;
+	MessageHeaders		headers;
 	std::vector<char>	fileToBinary(std::string filename);
-	std::string		status;
-	// std::string		body;
+	std::string			status;
 	std::vector<char>	data;
-	std::string		generateDateHeader();
-	std::string		generateRawResponse(int code, MessageHeaders msg, std::string body);
+	std::string			generateDateHeader();
+	std::string			generateRawResponse(int code, MessageHeaders msg, std::string body);
 	std::vector<char>	getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
 	std::vector<char>	postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
 	// std::string		deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);

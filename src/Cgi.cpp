@@ -149,9 +149,9 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers)
 	{
 		size_t l = rest.find("\"", k + 2);
 		this->file.name = rest.substr(k + 2, value.size() - (k + 2) - (value.size() - l));
-		this->addEnvParam(rest.substr(0, k), this->file.name);
 	}
 	this->addEnvParam("FILE_TEMPLOC", file.tmpLoc);
+	// Add type and size and time.
 	return (true);
 }
 
@@ -160,12 +160,71 @@ bool	Cgi::upload(){
 	if (this->file.name.empty() || this->file.data.empty())
 		return (this->addEnvParam("UPLOAD_ERROR", intToString(1)), false);
 
+	std::ifstream tmp;
+	std::string	nameTmp;
 	// CHECK IF THERE IS ALREADY THE SAME NAME FILE EXIST
 	std::string patch = this->file.tmpLoc + "/" + this->file.name;
+	tmp.open(patch.c_str());
+	int i = 0;
+	while (tmp)
+	{
+		tmp.close();
+		std::string	inc = "(" + intToString(++i) + ")";
+		std::size_t delim = this->file.name.find(".");
+		nameTmp = this->file.name.substr(0, delim) + inc + this->file.name.substr(delim);
+		patch = this->file.tmpLoc + "/" + nameTmp;
+		tmp.open(patch.c_str());
+	}
+	this->file.name = nameTmp;
+	this->addEnvParam("filename", this->file.name);
+
 	std::ofstream myFile(patch.c_str());
 	for (std::vector<char>::iterator it = this->file.data.begin(); it != this->file.data.end(); ++it)
 		myFile << *it;
 	myFile.close();
 	this->addEnvParam("UPLOAD_ERROR", intToString(0));
 	return (true);
+}
+
+#include <sys/wait.h>
+
+std::vector<char>	Cgi::execute(){
+	std::vector<char>	data;
+
+	int pipefd[2];
+	if (pipe(pipefd) == -1)
+		printf("Error in opening pipe\n");
+
+	int id = fork();
+	if (id == 0)
+	{
+		close(pipefd[0]);    // close reading end in the child
+		dup2(pipefd[1], 1);  // send stdout to the pipe
+		// dup2(pipefd[1], 2);  // send stderr to the pipe
+		close(pipefd[1]);    // this descriptor is no longer needed
+		execve(this->getCmd().c_str(), this->getPathArray(), this->getEnvArray());
+	}
+	else
+	{
+		// parent
+		char buffer[1];
+		int n;
+
+		close(pipefd[1]);  // close the write end of the pipe in the parent
+		while ((n = read(pipefd[0], buffer, 1)) > 0)
+		{
+			if (n < 0)
+				printf("read failed\n");
+			data.insert(data.end(), buffer, buffer + n);
+			bzero(buffer, sizeof(buffer));
+		}
+		// printf("Got from child Process\n");
+		// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+		// {
+		// 	std::cout << *it;
+		// }
+		// std::cout << std::endl;
+	}
+	wait(NULL);
+	return (data);
 }
