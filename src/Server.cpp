@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 10:58:44 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 18:06:33 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ Server::Server() : sockfd(-1){
 
 	extension.insert(".php");
 	this->cgiBloc.cgiPath = "./data/cgi-bin";
+	this->cgiBloc.cgiScriptPath = "/usr/bin/cgi-bin";
 	this->cgiBloc.cgiExt = extension;
 }
 
@@ -48,6 +49,7 @@ Server &Server::operator=(Server const &rhs){
 	return (*this);
 }
 
+void	Server::setUploadPath(std::string path){this->uploadPath = path;}
 void	Server::setLocBlockCount(unsigned int i){this->nLoc = i;}
 void	Server::setRedirectBlockCount(unsigned int i){this->nRedirect = i;}
 void	Server::setPort(unsigned short i){this->port = i;}
@@ -56,6 +58,7 @@ void	Server::setMaxClientBodySize(unsigned int i){this->maxClientBodySize = i;}
 void	Server::setIndex(std::string index){this->index = index;}
 void	Server::setAllowedMethod(std::set<std::string> m){this->allowedMethod = m;}
 void	Server::setCgiPath(std::string path){this->cgiBloc.cgiPath = path;}
+void	Server::setCgiScriptPath(std::string path){this->cgiBloc.cgiScriptPath = path;}
 void	Server::setCgiExt(std::set<std::string> extension){
 
 	for(std::set<std::string>::iterator it = extension.begin(); it != extension.end(); ++it)
@@ -157,7 +160,7 @@ std::string	Server::findMatchingUri(std::string path){
 		std::cout <<"2final path is " << this->root + "/" + indexfilename << std::endl;
 		return (this->root + "/" + indexfilename);
 	}
-
+	//check in LocationBlock
 	std::set<LocationBlock *>::iterator it;
 	for (std::set<LocationBlock *>::iterator it = this->locationBloc.begin(); it != this->locationBloc.end(); ++it)
 	{
@@ -169,6 +172,26 @@ std::string	Server::findMatchingUri(std::string path){
 			return (this->root + path  + "/" + indexfilename);
 		}
 	}
+
+	//check in RedirectionBlock
+	std::set<RedirectBlock *>::iterator ir;
+	for (std::set<RedirectBlock *>::iterator ir = this->redirectionBloc.begin(); ir != this->redirectionBloc.end(); ++ir)
+	{
+		if (*((*ir)->dir).rbegin() == '/')
+			(*ir)->dir.erase((*ir)->dir.size() - 1, 1);
+
+		std::cout << "Looping throuh...: " << (*ir)->dir << " == ? "<< path << std::endl;
+		std::cout << "Comparing :" << (*ir)->dir << " and " << path << std::endl;
+		if ((*ir)->dir == path)
+		{
+			std::cout << "Match :" << (*ir)->dir << " and " << path << std::endl;
+			return ((*ir)->ret);
+			// std::cout <<"3final path is " << this->root + path  + "/" + indexfilename << std::endl;
+			// return (this->root + path  + "/" + indexfilename);
+		}
+	}
+
+	//check autoIndex for Directory .
 	std::string tmp;
 	tmp = this->root + path;
 	std::cout << "checking if -"<< tmp <<"- exist" << std::endl;

@@ -40,6 +40,7 @@ public:
 	Cgi(Cgi & src);
 	Cgi &operator=(Cgi & rhs);
 	~Cgi();
+
 	bool			analyse(Server *server, Request *request);
 	std::string 	getScriptPath() const;
 	std::string		getCmd() const;

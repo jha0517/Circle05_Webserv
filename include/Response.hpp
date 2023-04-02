@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/31 18:17:22 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 18:08:08 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,12 @@ public:
 	std::vector<char>	getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
 	std::vector<char>	postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
 	// std::string		deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
-	std::vector<char>	buildResponse(std::string dir, int errorCode);
+	std::vector<char>	buildResponse(Server & server, Request * request, std::string dir, int errorCode);
 	std::vector<char>	buildErrorResponse(std::string dir, int errorCode);
 	std::vector<char>	buildResponseForCgi(std::vector<char> data, int code);
+	std::vector<char>	buildResponseforAutoIndex(Request * request, std::string dir, int code);
+	std::vector<char>	buildResponseForRedirection(Server &server, Request * request, std::string dir, int code);
+	std::string			getFileDateTime(time_t sec);
 };
 
 #endif

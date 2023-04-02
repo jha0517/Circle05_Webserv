@@ -6,18 +6,30 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 16:35:23 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 10:11:31 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 16:44:19 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Request.hpp"
 
-Request::Request()
-{
+Request::Request(){}
+
+Request::~Request(){}
+
+Request::Request(Request const &src){
+	*this = src;
 }
 
-Request::~Request()
-{
+Request &Request::operator=(Request const &rhs){
+	if (this != &rhs)
+	{
+		this->body = rhs.body;
+		this->protocol = rhs.protocol;
+		this->method = rhs.method;
+		this->target = rhs.target;
+		this->headers = rhs.headers;
+	}
+	return (*this);
 }
 
 

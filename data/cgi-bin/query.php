@@ -17,7 +17,7 @@
               <input type="submit" value="Submit">
 			<?php
 				echo "Welcome, ";
-				echo getenv('fname');
+				echo $_GET["fname"];
 				echo "!";
 				?>
 			</form><br><br>

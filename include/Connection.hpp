@@ -37,6 +37,8 @@ public:
 
 	Connection(int socketfd);
 	~Connection();
+	Connection(Connection const &src);
+	Connection &operator=(Connection const &rhs);
 
 	std::vector<char>	constructResponse(Server & server, int & statusCode);
 

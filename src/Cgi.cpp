@@ -42,6 +42,7 @@ void	Cgi::addEnvParam(std::string str){this->env.push_back(str);}
 bool	Cgi::analyse(Server *server, Request *request){
 	//scriptPath
 	this->scriptPath = server->cgiBloc.cgiPath + "/" + request->target.getPath().back();
+	this->file.tmpLoc = server->uploadPath;
 	
 	//cmd
 	for (std::map<std::string, std::string>::iterator it = this->cmdMap.begin();\

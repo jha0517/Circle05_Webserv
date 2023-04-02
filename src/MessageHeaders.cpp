@@ -12,12 +12,20 @@
 
 #include "../include/MessageHeaders.hpp"
 
-MessageHeaders::MessageHeaders()
-{
-}
+MessageHeaders::MessageHeaders(){}
 
-MessageHeaders::~MessageHeaders()
-{
+MessageHeaders::~MessageHeaders(){}
+
+MessageHeaders::MessageHeaders(MessageHeaders const &src){
+	*this = src;
+}
+MessageHeaders &MessageHeaders::operator=(MessageHeaders const &rhs){
+	if (this != &rhs)
+	{
+		this->headers = rhs.headers;
+		this->body = rhs.body;
+	}
+	return (*this);
 }
 
 std::string	stripMarginWhitespace(const std::string &s)

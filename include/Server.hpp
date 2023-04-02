@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 09:13:58 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 16:13:15 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ public:
 
 	struct CgiBlock{
 		std::string	cgiPath;
+		std::string	cgiScriptPath;
 		std::set<std::string>	cgiExt;};
 
 	struct RedirectBlock{
@@ -56,6 +57,7 @@ public:
 	void				setRedirectBlockCount(unsigned int i);
 
 	void				setPort(unsigned short i);
+	void				setUploadPath(std::string path);
 	void				setHost(std::string str);
 	void				setMaxClientBodySize(unsigned int i);
 	void				setIndex(std::string index);
@@ -63,6 +65,7 @@ public:
 
 	void				setCgiPath(std::string path);
 	void				setCgiExt(std::set<std::string> extension);
+	void				setCgiScriptPath(std::string path);
 
 	unsigned int		getLocBlockCount();
 	unsigned int		getRedirectBlockCount();
@@ -75,6 +78,7 @@ public:
 	bool					hasCgiBlock;
 	int						clientfd;
 	int						maxClientBodySize;
+	std::string				uploadPath;
 	std::string				error_page;
 	std::string				host;
 	std::string				root;

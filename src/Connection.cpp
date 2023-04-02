@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 15:22:15 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 16:45:23 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,17 @@ Connection::Connection(int new_socketfd) : socketfd(new_socketfd){}
 
 Connection::~Connection(){}
 
+Connection::Connection(Connection const &src){
+	*this = src;
+}
+Connection &Connection::operator=(Connection const &rhs){
+	if (this != &rhs)
+	{
+		this->dataReceived = rhs.dataReceived;
+		this->socketfd = rhs.socketfd;
+	}
+	return (*this);
+}
 #define BUFFSIZE 3000
 
 bool	checkURIexist(std::string path)

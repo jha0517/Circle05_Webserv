@@ -6,13 +6,14 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 11:23:38 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 18:16:41 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Response.hpp"
 #include <sys/wait.h>
 #include <algorithm>
+#include <sys/stat.h>
 
 Response::Response()
 {
@@ -46,9 +47,7 @@ Response::Response()
     this->mimeMap.insert(std::make_pair("txt", "text/plain"));
 }
 
-Response::~Response()
-{
-}
+Response::~Response(){}
 
 std::string	Response::generateRawResponse(int code, MessageHeaders msg, std::string body){
 	if (statusCodeDic[code].empty())
@@ -113,7 +112,120 @@ std::vector<char> Response::fileToBinary(std::string file_name1)
 	return (buffer);
 }
 
-std::vector<char>	Response::buildResponse(std::string dir, int code)
+#include <sys/types.h>
+#include <dirent.h>
+
+std::string	Response::getFileDateTime(time_t sec) {
+	std::string	ret;
+	char		buf[18];
+
+	strftime(buf, sizeof(buf), "%d-%b-%Y %H:%M", localtime(&sec));
+	ret += buf;
+
+	return (ret);
+}
+
+std::vector<char>	Response::buildResponseforAutoIndex(Request* request, std::string filepath, int code){
+	(void)data,
+	(void)code;
+	std::string 	ret;
+	std::string 	uri_;
+	DIR				*dir_ptr;
+	struct dirent  	*dir_entry;
+	struct stat		fileinfo;
+	std::stringstream	ss;
+	MessageHeaders	msg;
+
+	uri_ = request->target.constructPath();
+	if (!(*(uri_.rbegin()) == '/'))
+		uri_.append("/");
+	if ((*(uri_.begin()) == '/'))
+		uri_.erase(0, 1);
+
+	ret += "<!DOCTYPE html>\r\n";
+	ret += "<html lang=\"en\">\r\n";
+	ret += "<head>\r\n";
+    ret += "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">";
+	ret += "<title>\r\n";
+	ret += "Index of " + uri_ + "\r\n";
+	ret += "</title>\r\n";
+	ret += "</head>\r\n";
+	ret += "<body>\r\n";
+  	ret += "<h1>Index of " + uri_ + "</h1><hr><pre>\r\n";
+  	ret += "<a href=\"../\">../</a>\r\n";// fix here
+
+	dir_ptr = opendir(filepath.c_str()); //filepath to open directory
+	if (dir_ptr != NULL)
+	{
+		while ((dir_entry = readdir(dir_ptr))) //get every file and directory info after opendir
+		{
+			if (strcmp(dir_entry->d_name, ".") == 0 || strcmp(dir_entry->d_name, "..") == 0)
+				continue;
+			std::string filename = std::string(dir_entry->d_name);
+			std::cout << "fileNAME IS :" << filepath + "/"+filename << std::endl;
+			if (stat((filepath + "/"+filename).c_str(), &fileinfo) == 0)
+			{
+				if (S_ISDIR(fileinfo.st_mode))
+				{
+					filename += "/";
+					ret += "\t\t<a href=\"" + uri_ + filename + "\">" + filename + "</a>";
+				}
+				else
+					ret += "\t\t<a href=\"" + uri_ + filename + "\">" + filename + "</a>";
+			}
+			ret += std::string(30 - filename.size(), ' ');
+			ret += getFileDateTime(fileinfo.st_mtime);
+			std::string filesize;
+			if (S_ISDIR(fileinfo.st_mode))
+				filesize = "-";
+			else
+			{
+				ss << fileinfo.st_size;
+				filesize = ss.str();
+				ss.str("");
+			}
+			ret += std::string(10, ' ');
+			ret += filesize;
+			ret += "\r\n";
+		}
+	}
+	ret += "<hr></pre>\r\n";
+	ret += "</body>\r\n";
+	ret += "</html>\r\n";
+	closedir(dir_ptr);
+	std::cout << "Auto Index :\n" <<ret << std::endl;
+	msg.addHeader("Content-Length", intToString(ret.size()));
+	std::string go;
+	go = ("HTTP/1.1 200 OK\r\n");
+	go += msg.generateRawMsg();
+	go += ret;
+	data.insert(data.begin(), go.c_str(), go.c_str()+ go.size());
+	return (data);
+}
+
+int isDirectory(const char *path) {
+   struct stat statbuf;
+   if (stat(path, &statbuf) != 0)
+       return 0;
+   return S_ISDIR(statbuf.st_mode);
+}
+
+std::vector<char>	Response::buildResponseForRedirection(Server &server, Request * request, std::string dir, int code)
+{
+	std::string ret;
+	MessageHeaders	msg;
+
+	(void) dir;
+	(void) code;
+	ret = ("HTTP/1.1 301 Moved Permanently\r\n");
+	msg.addHeader("Location", server.findMatchingUri(request->target.generateString()));
+	ret += msg.generateRawMsg();
+	data.insert(data.begin(), ret.c_str(), ret.c_str()+ ret.size());
+
+	return (this->data);
+}
+
+std::vector<char>	Response::buildResponse(Server &server, Request * request, std::string dir, int code)
 {
 	MessageHeaders	msg;
 	std::string		ret;
@@ -121,8 +233,20 @@ std::vector<char>	Response::buildResponse(std::string dir, int code)
 	std::vector<char> null;
 
 	(void) code;
-	// if (dir is onlypath)
+	(void) server;
+	
+	//autoindex
+	if (isDirectory(dir.c_str()))
+	{
+	std::cout << "Is Directory" << std::endl;
 		// do auto index
+		if (server.autoIndex)
+			return (buildResponseforAutoIndex(request, dir, 200));
+		else
+			return (buildErrorResponse(server.error_page, 403));
+	}
+	std::cout << "Is NOT Directory" << std::endl;
+	
 	msg.addHeader("Date", generateDateHeader());
 	msg.addHeader("Content-Type", getMimeType(dir));
 	if (getMimeType(dir) == "text/plain" || getMimeType(dir) == "text/html")
@@ -208,6 +332,7 @@ std::vector<char>	Response::buildResponseForCgi(std::vector<char> data, int code
 	std::vector<char> null;
 
 	(void) code;
+	std::cout << "In here : buildResponseForCgi\n";
 	std::string str(data.begin(), data.end());
 	msg.addHeader("Date", generateDateHeader());
 	std::string bodyDeliminator = "\r\n\r\n";
@@ -252,7 +377,12 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		std::cout << server.error_page<< std::endl;
 		return (buildErrorResponse(server.error_page, 404));	
 	}
-	data = buildResponse(path, 200);
+	if (path.find("http") != std::string::npos)
+	{
+		data = buildResponseForRedirection(server, request, path, 200);
+		return (data);
+	}
+	data = buildResponse(server, request, path, 200);
 	statusCode = 200;
 	if (data.empty())
 	{

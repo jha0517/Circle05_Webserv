@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 08:03:47 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/16 08:34:20 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 16:39:42 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ public:
 
 	MessageHeaders();
 	~MessageHeaders();
+	MessageHeaders(MessageHeaders const &src);
+	MessageHeaders &operator=(MessageHeaders const &rhs);
 
 private:
 	Headers		headers;

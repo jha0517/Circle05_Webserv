@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:05 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 12:31:22 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 16:35:25 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define SERVERMANAGER_H
 # include <vector>
 # include <sys/select.h>
-# include "Config.hpp"
 # include "Server.hpp"
 # include "Log.hpp"
 

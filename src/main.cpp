@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 11:31:35 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/02 17:31:59 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ int	main(int ac, char **av)
 		sm.servers[i]->setHost("127.0.0.1");
 		sm.servers[i]->setMaxClientBodySize(1024);
 		sm.servers[i]->setIndex("index_1.html");
+		sm.servers[i]->setUploadPath("./data/upload");
 
 		std::set<std::string> method;
 		method.insert("GET");
@@ -56,7 +57,8 @@ int	main(int ac, char **av)
 		// if there is add cgiBlock and set param
 		if (sm.servers.at(i)->hasCgiBlock)
 		{
-			sm.servers.at(i)->setCgiPath("./data/cgi-bin");
+			sm.servers.at(i)->setCgiPath("/usr/bin/cgi-bin");
+			sm.servers.at(i)->setCgiScriptPath("./data/cgi-bin");
 			std::set<std::string> ex;
 			ex.insert(".php");
 			sm.servers.at(i)->setCgiExt(ex);
@@ -69,7 +71,7 @@ int	main(int ac, char **av)
 
 		sm.servers.at(i)->setRedirectBlockCount(1);
 		for (unsigned int k = 0; k < sm.servers.at(i)->getRedirectBlockCount(); k++)
-			sm.servers.at(i)->addRedirectBlock("/redirection_intra/", "http://http://intra.42.fr/");
+			sm.servers.at(i)->addRedirectBlock("/redirection_intra/", "https://www.google.com/");
 	}
 
 //config End

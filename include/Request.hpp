@@ -12,6 +12,9 @@ private:
 public:
 	Request();
 	~Request();
+	Request(Request const &src);
+	Request &operator=(Request const &rhs);
+
 	std::string			method;
 	std::string			protocol;
 	std::vector<char>	body;
