@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   DefineErrMsg.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/21 01:27:09 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 20:27:27 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/03 02:06:02 by acostin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DEFINE_MSG_H
 # define DEFINE_MSG_H
 
+/* file open error */
+# define FILE_OPEN_ERROR				99
 
 /* http block error: 1 ~ 19 */
 
@@ -49,20 +51,23 @@
 # define SERVER_KWD_CLIENT_MAX_BODY_SIZE		27
 # define SERVER_KWD_INDEX				28
 # define SERVER_KWD_ALLOW_METHODS			29
+# define SERVER_KWD_SAVE_PATH				30
 
-# define SERVER_KWD_LISTEN_EXISTS			25
-# define SERVER_KWD_HOST_EXISTS				26
-# define SERVER_KWD_CLIENT_MAX_BODY_SIZE_EXISTS		27
-# define SERVER_KWD_INDEX_EXISTS			28
-# define SERVER_KWD_ALLOW_METHODS_EXISTS		29
+# define SERVER_KWD_LISTEN_EXISTS			31
+# define SERVER_KWD_HOST_EXISTS				32
+# define SERVER_KWD_CLIENT_MAX_BODY_SIZE_EXISTS		33
+# define SERVER_KWD_INDEX_EXISTS			34
+# define SERVER_KWD_ALLOW_METHODS_EXISTS		35
+# define SERVER_KWD_SAVE_PATH_EXISTS			36
 
-# define SERVER_KWD_LISTEN_MISSED			30
-# define SERVER_KWD_HOST_MISSED				31
-# define SERVER_KWD_CLIENT_MAX_BODY_SIZE_MISSED		32
-# define SERVER_KWD_INDEX_MISSED			33
-# define SERVER_KWD_ALLOW_METHODS_MISSED		34
+# define SERVER_KWD_LISTEN_MISSED			37
+# define SERVER_KWD_HOST_MISSED				38
+# define SERVER_KWD_CLIENT_MAX_BODY_SIZE_MISSED		39
+# define SERVER_KWD_INDEX_MISSED			40
+# define SERVER_KWD_ALLOW_METHODS_MISSED		41
+# define SERVER_KWD_SAVE_PATH_MISSED			42
 
-/* location block error: 50 ~ 80 */
+/* location block error: 50 ~ 79 */
 
 # define LOCATION_BRAKET_OPEN				50
 # define LOCATION_BRAKET_CLOSE				51

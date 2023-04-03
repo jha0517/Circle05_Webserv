@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationBlockParse.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/25 01:19:53 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 22:14:43 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/03 01:57:51 by acostin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,8 +124,7 @@ void	LocationBlockParse::LocationBlockCheck(std::string *line, int i)
 {
 	std::string	temp = *line;
 
-	std::cout << "LOCATION_BLOCK: ";//
-	ServerMissedKeywordCheck(line, i);
+	ServerMissedKeywordCheck(line, temp, i);
 
 	if (temp.find("location") != std::string::npos)
 		LocationKeywordLocationCheck(line, temp, i);
@@ -146,21 +145,57 @@ void	LocationBlockParse::LocationBlockCheck(std::string *line, int i)
 			LocationKeywordCheck(line, temp, i, "cgi_extention");
 		LocationKeywordTokenCheck(line, temp, i);
 	}
-	// else
-	// {
-	// 	if (StringCheck(temp))
-	// 	{
-	// 		this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_INVALID_KWD, *line, i);
-	// 		throw (this->_err_msg);
-	// 	}
-	// }
-
-	LocationBraketCloseCheck(line, temp, i);
+	else if (temp.find("}") != std::string::npos)
+		LocationBraketCloseCheck(line, temp, i);
+	else
+	{
+		if (StringCheck(temp))
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_INVALID_KWD, *line, i);
+			throw (this->_err_msg);
+		}
+	}
+	
 }
 
-void	LocationBlockParse::ServerMissedKeywordCheck(std::string *line, int i)
+void	LocationBlockParse::ServerMissedKeywordCheck(std::string *line, std::string temp, int i)
 {
-	
+	if (_location_braket_open)
+		return ;
+
+	if (ServerBlockParse::GetServerParseDone() && temp.find("location") == std::string::npos)
+	{
+		if (temp.find("listen") != std::string::npos)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_LISTEN_EXISTS, *line, i);
+			throw (this->_err_msg);
+		}
+		if (temp.find("host") != std::string::npos)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_HOST_EXISTS, *line, i);
+			throw (this->_err_msg);
+		}
+		if (temp.find("client_max_body_size") != std::string::npos)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_CLIENT_MAX_BODY_SIZE_EXISTS, *line, i);
+			throw (this->_err_msg);
+		}
+		if (temp.find("index") != std::string::npos)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_INDEX_EXISTS, *line, i);
+			throw (this->_err_msg);
+		}
+		if (temp.find("allow_methods") != std::string::npos)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_ALLOW_METHODS_EXISTS, *line, i);
+			throw (this->_err_msg);
+		}
+		if (temp.find("save_path") != std::string::npos)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_SAVE_PATH_EXISTS, *line, i);
+			throw (this->_err_msg);
+		}
+	}
 	if (ServerBlockParse::GetListen() == 0)
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_LISTEN_MISSED, *line, i);
@@ -181,9 +216,14 @@ void	LocationBlockParse::ServerMissedKeywordCheck(std::string *line, int i)
 		this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_INDEX_MISSED, *line, i);
 		throw (this->_err_msg);
 	}
-	if (ServerBlockParse::GetAllowMethodsGet() == 0)
+	if (ServerBlockParse::GetAllowMethodsFlag() == 0)
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_ALLOW_METHODS_MISSED, *line, i);
+		throw (this->_err_msg);
+	}
+	if (ServerBlockParse::GetSavePath() == "")
+	{
+		this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_SAVE_PATH_MISSED, *line, i);
 		throw (this->_err_msg);
 	}
 }
@@ -208,7 +248,9 @@ void	LocationBlockParse::LocationKeywordCheck(std::string *line, std::string tem
 			if (temp[temp.find(keyword) + strlen(keyword.c_str())] == '\0')
 				return ;
 			if (temp[temp.find(keyword) + strlen(keyword.c_str())] == '/')
+			{
 				return ;
+			}
 			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_LOCATION, *line, i);
 		}
 		else if (keyword == "return")
@@ -228,6 +270,7 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 {
 	std::string	token[100] = {"", };
 
+	/* if there was location block before the new block, each block should be closed properly */
 	if ((this->_location_keyword_check && this->_redirection_location_flag && this->_return_flag)
 		|| (this->_location_keyword_check && this->_index_location_flag && this->_index_flag)
 		|| (this->_location_keyword_check && this->_cgi_location_flag
@@ -235,19 +278,23 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 	{
 		if (!this->_location_braket_close)
 		{
-			std::cout << "missed closing braket" << std::endl;//
 			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_CLOSE, *line, i);
 			throw (this->_err_msg);
 		}
 	}
+
+	/* keyword "location" exists only once in the each location block */
 	LocationKeywordCheck(line, temp, i, "location");
 	this->_location_keyword_check++;
+
+	/* opening curved braket should be exists after the keyword "location" */
 	if (this->_location_keyword_check == 0 && StringCheck(temp.substr(temp.find("location") + strlen("location"), std::string::npos), '{'))
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_OPEN, *line, i);
 		throw (this->_err_msg);
 	}
 	temp = temp.substr(temp.find("location") + strlen("location"), std::string::npos);
+
 	if (temp.find("/") != std::string::npos)
 	{
 		TokenCount(temp, token);
@@ -255,6 +302,16 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 			token[0] = token[0].substr(0, token[0].find("{"));
 		if (token[0].find("/redirection") != std::string::npos)
 		{
+			/* checking the number of slash at the end of redirection location path */
+			if (token[0].substr(token[0].find("/redirection") + strlen("/redirection"), std::string::npos).find("/") != std::string::npos)
+			{
+				if (token[0].substr(token[0].find("/redirection") + strlen("/redirection"), std::string::npos).substr(token[0].substr(token[0].find("/redirection") + strlen("/redirection"), std::string::npos).find("/") + strlen("/"), std::string::npos).find("/") != std::string::npos)
+				{
+					this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_REDIRECTION_LOCATION, *line, i);
+					throw (this->_err_msg);
+				}
+			}
+			//check if path is valid
 			this->_redirection_location_flag++;
 			this->_redirection_location_path = token[0];
 		}
@@ -265,11 +322,32 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_LOCATION_EXISTS, *line, i);
 				throw (this->_err_msg);
 			}
+
+			/* checking the number of slash at the end of cgi-bin location path */
+			if (token[0].substr(token[0].find("/cgi-bin") + strlen("/cgi-bin"), std::string::npos).find("/") != std::string::npos)
+			{
+				if (token[0].substr(token[0].find("/cgi-bin") + strlen("/cgi-bin"), std::string::npos).substr(token[0].substr(token[0].find("/cgi-bin") + strlen("/cgi-bin"), std::string::npos).find("/") + strlen("/"), std::string::npos).find("/") != std::string::npos)
+				{
+					this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_REDIRECTION_LOCATION, *line, i);
+					throw (this->_err_msg);
+				}
+			}
+			//check if path is valid
 			this->_cgi_location_flag++;
 			this->_redirection_location_path = token[0];
 		}
-		else if (token[0].length() > 1)
+		else if (token[0].length() > 1 && token[0][0] == '/')
 		{
+			/* checking the number of slash at the end of index location path */
+			if (token[0].substr(token[0].find("/") + strlen("/"), std::string::npos).find("/") != std::string::npos)
+			{
+				if (token[0].substr(token[0].find("/") + strlen("/"), std::string::npos).substr(token[0].substr(token[0].find("/") + strlen("/"), std::string::npos).find("/") + strlen("/"), std::string::npos).find("/") != std::string::npos)
+				{
+					this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_INDEX_LOCATION, *line, i);
+					throw (this->_err_msg);
+				}
+			}
+			//check if path is valid
 			this->_index_location_flag++;
 			this->_redirection_location_path = token[0];
 		}
@@ -279,6 +357,8 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 			throw (this->_err_msg);
 		}
 	}
+
+	/* keyword "location" always needs a path after */
 	if (!(this->_redirection_location_flag || this->_index_location_flag || this->_cgi_location_flag))
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_LOCATION, *line, i);
@@ -287,9 +367,7 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 	if (temp.find("{") != std::string::npos)
 	{
 		if (this->_redirection_location_flag || this->_index_location_flag || this->_cgi_location_flag)
-		{
 			temp = temp.substr(temp.find(token[0]) + strlen(token[0].c_str()), std::string::npos);
-		}
 		if (StringCheck(temp.substr(0, temp.find("{"))))
 		{
 			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_INVALID_KWD, *line, i);
@@ -297,14 +375,6 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 		}
 		LocationBraketOpenCheck(line, temp, i);
 	}
-	// else
-	// {
-	// 	if (StringCheck(temp))
-	// 	{
-	// 		this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_INVALID_KWD, *line, i);
-	// 		throw (this->_err_msg);
-	// 	}
-	// }
 }
 
 void	LocationBlockParse::LocationBraketOpenCheck(std::string *line, std::string temp, int i)
@@ -312,6 +382,8 @@ void	LocationBlockParse::LocationBraketOpenCheck(std::string *line, std::string 
 	this->_location_braket_open++;
 	if (temp.find("{") != 0 && !StringCheck(temp.substr(0, temp.find("{"))))
 		temp = temp.substr(temp.find("{"), std::string::npos);
+
+	/* opening curved braket exists only once in the each location block */
 	if (temp.substr(temp.find("{") + strlen("{"), std::string::npos).find("{") != std::string::npos)
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_OPEN, *line, i);
@@ -334,8 +406,15 @@ void	LocationBlockParse::LocationBraketOpenCheck(std::string *line, std::string 
 			LocationKeywordCheck(line, temp, i, "cgi_extention");
 		LocationKeywordTokenCheck(line, temp, i);
 	}
+
+	/* in case of redirection location block or index location block have finished in one line
+		: already have done parseing and initing the location block */
+	if ((this->_location_keyword_check == 0 && (temp.find("return") != std::string::npos || temp.find("index") != std::string::npos)))
+		return ;
+
 	if (temp.substr(temp.find("{") + strlen("{"), std::string::npos).find("}") != std::string::npos)
 	{
+		/* redirection location block and index location block can be finished in one line */
 		if (!((this->_redirection_location_flag && this->_return_flag)
 			|| (this->_index_location_flag && this->_index_flag)))
 		{
@@ -353,147 +432,192 @@ void	LocationBlockParse::LocationKeywordTokenCheck(std::string *line, std::strin
 	{
 		if (!this->_redirection_location_flag)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_RETURN);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_RETURN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (!this->_location_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_return_flag)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_RETURN_EXISTS);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_RETURN_EXISTS, *line, i);
 			throw (this->_err_msg);
 		}
 		if (TokenCount(2, temp, token) && !this->_location_parse_done)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_RETURN, *line, i);
-			throw (this->_err_msg);
+			if (!((TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos && token[2].find(";") != std::string::npos)
+				|| (TokenCount(temp, token) == 3 && token[1].find(";") != std::string::npos && token[2].find(";") == std::string::npos)
+				|| (TokenCount(temp, token) == 4 && token[1].find(";") == std::string::npos && token[2].find(";") != std::string::npos)))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_RETURN, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 	}
 	else if (temp.find("index") != std::string::npos)
 	{
 		if (!this->_index_location_flag)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_INDEX);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_INDEX, *line, i);
 			throw (this->_err_msg);
 		}
 		if (!this->_location_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_index_flag)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_INDEX_EXISTS);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_INDEX_EXISTS, *line, i);
 			throw (this->_err_msg);
 		}
 		if (TokenCount(2, temp, token) && !this->_location_parse_done)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_INDEX, *line, i);
-			throw (this->_err_msg);
+			if (!((TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos && token[2].find(";") != std::string::npos)
+				|| (TokenCount(temp, token) == 3 && token[1].find(";") != std::string::npos && token[2].find(";") == std::string::npos)
+				|| (TokenCount(temp, token) == 4 && token[1].find(";") == std::string::npos && token[2].find(";") != std::string::npos)))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_INDEX, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 	}
 	else if (temp.find("cgi_path") != std::string::npos)
 	{
 		if (!this->_cgi_location_flag)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_PATH);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_PATH, *line, i);
 			throw (this->_err_msg);
 		}
 		if (!this->_location_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_cgi_path_flag)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_PATH_EXISTS);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_PATH_EXISTS, *line, i);
 			throw (this->_err_msg);
 		}
 		if (TokenCount(2, temp, token) && !this->_location_parse_done)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_PATH, *line, i);
-			throw (this->_err_msg);
+			if (!(TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_PATH, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 	}
 	else if (temp.find("cgi_extention") != std::string::npos)
 	{
 		if (!this->_cgi_location_flag)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_EXTENTION);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_EXTENTION, *line, i);
 			throw (this->_err_msg);
 		}
 		if (!this->_location_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_cgi_extention_flag)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_EXTENTION);
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_EXTENTION_EXISTS, *line, i);
 			throw (this->_err_msg);
 		}
 		if (TokenCount(2, temp, token) && !this->_location_parse_done)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_EXTENTION, *line, i);
-			throw (this->_err_msg);
+			if (!(TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_EXTENTION, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 	}
-	LocationBlockGetInfo(token, line, i);
+	LocationBlockGetInfo(token, line, temp, i);
 }
 
-void	LocationBlockParse::LocationBlockGetInfo(std::string *token, std::string *line, int i)
+void	LocationBlockParse::LocationBlockGetInfo(std::string *token, std::string *line, std::string temp, int i)
 {
 	if (token[0] == "return" && !this->_location_parse_done)
 	{
 		//return value check
 		if (SemicolonCheck(token[1]))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_SEMICOLON, *line, i);
-			throw (this->_err_msg);
+			if (!((token[2] != "" && token[1].find(";") == std::string::npos && token[2].find(";") != std::string::npos && !SemicolonCheck(token[2]))
+				|| (token[2] == "}" && !SemicolonCheck(token[1]))
+				|| (token[1].find(";") == std::string::npos && (token[2] == ";" || token[2] == ";}"))))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
 		}
+		if (token[1].find(";") != std::string::npos)
+			token[1] = token[1].substr(0, token[1].find(";"));
 		this->_return_flag++;
-		this->_return = token[1].substr(0, token[1].length() - 1);
+		this->_return = token[1];
 	}
 	if (token[0] == "index" && !this->_location_parse_done)
 	{
 		//check index
 		if (SemicolonCheck(token[1]))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_SEMICOLON, *line, i);
-			throw (this->_err_msg);
+			if (!((token[2] != "" && token[1].find(";") == std::string::npos && token[2].find(";") != std::string::npos && !SemicolonCheck(token[2]))
+				|| (token[2] == "}" && !SemicolonCheck(token[1]))
+				|| (token[1].find(";") == std::string::npos && (token[2] == ";" || token[2] == ";}"))))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
 		}
+		if (token[1].find(";") != std::string::npos)
+			token[1] = token[1].substr(0, token[1].find(";"));
 		this->_index_flag++;
-		this->_index = token[1].substr(0, token[1].length() - 1);
+		this->_index = token[1];
 	}
 	if (token[0] == "cgi_path" && !this->_location_parse_done)
 	{
 		//edit later
 		if (SemicolonCheck(token[1]))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_SEMICOLON, *line, i);
-			throw (this->_err_msg);
+			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
 		}
-		if (!(token[1] == "/usr/bin/php-cgi;"))
+		if (token[2] == "")
+		{
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
+		}
+		if (!(token[1] == "/usr/bin/php-cgi"))
 		{
 			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_PATH, *line, i);
 			throw (this->_err_msg);
 		}
-		this->_cgi_location_path = token[1].substr(0, token[1].length() - 1);
+		this->_cgi_location_path = token[1];
 		this->_cgi_extention_php = 1;
 		this->_cgi_path_flag++;
 	}
 	if (token[0] == "cgi_extention" && !this->_location_parse_done)
 	{
-		//edit later
 		if (SemicolonCheck(token[1]))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_SEMICOLON, *line, i);
-			throw (this->_err_msg);
+			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
 		}
-		if (!(token[1] == ".php;"))
+		if (token[2] == "")
+		{
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
+		}
+		if (!(token[1] == ".php"))
 		{
 			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_EXTENTION, *line, i);
 			throw (this->_err_msg);
@@ -501,27 +625,69 @@ void	LocationBlockParse::LocationBlockGetInfo(std::string *token, std::string *l
 		this->_cgi_extention_php = 1;
 		this->_cgi_extention_flag++;
 	}
+	
+	/* when redirection location block or index location block finishes in one line */
+	if ((temp.find("return") != std::string::npos && temp.find("}") != std::string::npos)
+		|| (temp.find("index") != std::string::npos && temp.find("}") != std::string::npos))
+	{
+		temp = temp.substr(temp.find(";") + strlen(";"), std::string::npos);
+		LocationBraketCloseCheck(line, temp, i);
+	}
+}
+
+void	LocationBlockParse::LocationMissedKeywordCheck(std::string *line, int i)
+{
+	if (this->_redirection_location_flag && !this->_return_flag)
+	{
+		this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_RETURN_MISSED, *line, i);
+		throw (this->_err_msg);
+	}
+	if (this->_index_location_flag && !this->_index_flag)
+	{
+		this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_INDEX_MISSED, *line, i);
+		throw (this->_err_msg);
+	}
+	if (this->_cgi_location_flag)
+	{
+		if (!this->_cgi_path_flag)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_PATH_MISSED, *line, i);
+			throw (this->_err_msg);
+		}
+		else if (!this->_cgi_extention_flag)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_EXTENTION_MISSED, *line, i);
+			throw (this->_err_msg);
+		}
+	}
 }
 
 void	LocationBlockParse::LocationBraketCloseCheck(std::string *line, std::string temp, int i)
 {
-	//check element missing
+	/* for location block closing */
 	if (_location_braket_open == _location_braket_close + 1 && temp.find("}") != std::string::npos)
 	{
+		if (StringCheck(temp, '}'))
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_INVALID_KWD, *line, i);
+			throw (this->_err_msg);
+		}
+		
+		/* check missed keyword in the location block */
 		if (!((this->_redirection_location_flag && this->_return_flag)
 			|| (this->_index_location_flag && this->_index_flag)
 			|| (this->_cgi_location_flag && this->_cgi_path_flag && this->_cgi_extention_flag)))
 		{
-			std::cout << "error here" << std::endl;//
-			std::cout << "\t\t" << temp << "_" << std::endl;
+			LocationMissedKeywordCheck(line, i);
 			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_CLOSE, *line, i);
 			throw (this->_err_msg);
 		}
-		std::cout << "location block closed" << std::endl;//
+
 		_location_braket_close++;
 		_location_block_count++;
 		ServerBlockParse::IncreaseTotalLocationBlock();
-		std::cout << "location block: " << ServerBlockParse::GetTotalLocationBlock() << std::endl;//
+
+		/* location block init: only redirection location block and index location block element */
 		if ((this->_redirection_location_flag && this->_return_flag)
 			|| (this->_index_location_flag && this->_index_flag)
 			|| (this->_cgi_location_flag && this->_cgi_path_flag && this->_cgi_extention_flag))
@@ -543,12 +709,18 @@ void	LocationBlockParse::LocationBraketCloseCheck(std::string *line, std::string
 			throw (this->_err_msg);
 		}
 	}
+
+	/* for server block closing */
 	if (_location_braket_open == _location_braket_close && !_location_parse_done && temp.find("}") != std::string::npos)
 	{
+		if (StringCheck(temp, '}'))
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_INVALID_KWD, *line, i);
+			throw (this->_err_msg);
+		}
 		if (this->_location_keyword_check)
 		{
-			std::cout << "here" << std::endl;//
-			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_BRAKET_CLOSE, *line, i);
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_CLOSE, *line, i);
 			throw (this->_err_msg);
 		}
 		_server_braket_close++;
@@ -558,7 +730,6 @@ void	LocationBlockParse::LocationBraketCloseCheck(std::string *line, std::string
 			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_LOCATION_MISSED, *line, i);
 			throw (this->_err_msg);
 		}
-		std::cout << "server block closed" << std::endl;//
 		temp = temp.substr(temp.find("}") + strlen("}"), std::string::npos);
 		if (StringCheck(temp, '}'))
 		{
@@ -566,10 +737,16 @@ void	LocationBlockParse::LocationBraketCloseCheck(std::string *line, std::string
 			throw (this->_err_msg);
 		}
 	}
+
+	/* for http block closing */
 	if (_server_braket_close && _location_parse_done && temp.find("}") != std::string::npos)
 	{
+		if (StringCheck(temp, '}'))
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_INVALID_KWD, *line, i);
+			throw (this->_err_msg);
+		}
 		ServerBlockParse::SetHttpBraketClose(1);
-		std::cout << "http block closed" << std::endl;//
 		temp = temp.substr(temp.find("}") + strlen("}"), std::string::npos);
 		if (StringCheck(temp))
 		{
@@ -577,9 +754,10 @@ void	LocationBlockParse::LocationBraketCloseCheck(std::string *line, std::string
 			throw (this->_err_msg);
 		}
 	}
+
+	/* server block init, location block init */
 	if (_location_braket_close && _server_braket_close)
 	{
-		std::cout << "server block init" << std::endl;
 		ServerBlockParse::InitServerBlockParseData();
 		InitLocationBlockParseData();
 		ServerBlockParse::SetLocationBlockEnded(1);

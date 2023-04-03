@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/18 13:56:00 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/03 14:18:04 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/03 14:22:12 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@ int	main(int argc, char **argv)
 	/* error check: argument */
 	if (!(argc == 1 || argc == 2))
 	{
-		std::cerr << "Error: Argument error" << std::endl;
+		std::cerr << RED << "Error: Argument error" << BLACK << std::endl
+			<< "(command: " << CYAN << "./parse" << BLACK << " or "
+			<< CYAN << "./parse config_file_name" << BLACK ")" << std::endl;
 		return (1);
 	}
 
@@ -32,9 +34,7 @@ int	main(int argc, char **argv)
 	{
 		std::cerr << err_msg << std::endl;
 	}
-	
-	
-	
+
 	std::cout << "\nparsing done" << std::endl;
 	
 	return (0);

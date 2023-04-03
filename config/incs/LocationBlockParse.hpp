@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationBlockParse.hpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/25 01:19:40 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 21:40:25 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/03 01:05:55 by acostin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,13 +43,14 @@ public:
 	void		LocationBlockCheck(std::string *line, int i);
 
 private:
-	void		ServerMissedKeywordCheck(std::string *line, int i);
+	void		ServerMissedKeywordCheck(std::string *line, std::string temp, int i);
+	void		LocationMissedKeywordCheck(std::string *line, int i);
 
 	void		LocationKeywordCheck(std::string *line, std::string temp, int i, std::string keyword);
 	void		LocationKeywordLocationCheck(std::string *line, std::string temp, int i);
 	void		LocationBraketOpenCheck(std::string *line, std::string temp, int i);
 	void		LocationKeywordTokenCheck(std::string *line, std::string temp, int i);
-	void		LocationBlockGetInfo(std::string *token, std::string *line, int i);
+	void		LocationBlockGetInfo(std::string *token, std::string *line, std::string temp, int i);
 	void		LocationBraketCloseCheck(std::string *line, std::string temp, int i);
 
 	void		InitLocationBlockParseData(void);
@@ -59,6 +60,7 @@ private:
 	int		_location_braket_close;
 	int		_server_braket_close;
 	int		_location_block_count;
+
 	int		_redirection_location_flag;
 	int		_return_flag;
 	int		_index_location_flag;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseUtils.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 04:20:47 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 20:32:19 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/03 02:18:00 by acostin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,6 @@ int	StringCheck(std::string str)
 	{
 		if (!(str[i] == ' ' || str[i] == '\t'))
 			return (1);
-		// if (!(str[i] == ' ' || str[i] == '\t'))
-		// {
-		// 	std::cout << str[i] << std::endl;
-		// 	return (1);
-		// }
 	}
 	return (0);
 }
@@ -49,6 +44,24 @@ int	SemicolonCheck(std::string str)
 	if (!(str[str.length() - 1] == ';'))
 		return (1);
 	return (0);
+}
+
+std::string	RemoveSpaceTab(std::string str)
+{
+	int	start = 0;
+	int	end = (int)str.length();
+
+	for (int i = 0; i < (int)str.length(); i++)
+	{
+		if (str[i] == ' ' || str[i] == '\t')
+			start++;
+	}
+	for (int i = (int)str.length(); 0 < i; i--)
+	{
+		if (str[i] == ' ' || str[i] == '\t')
+			end--;
+	}
+	return (str.substr(start, end));
 }
 
 static std::string	ReplaceLine(std::string line, std::string s1, std::string s2)
@@ -121,7 +134,16 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 	msg.append("error: ");
 	msg.append(BLACK);
 
-	if (1 <= err_number && err_number <= 19)
+	if (err_number == 99)
+	{
+		msg = "";
+		msg.append(RED);
+		msg.append("error: ");
+		msg.append(BLACK);
+		msg.append("file open error");
+		return (msg);
+	}
+	else if (1 <= err_number && err_number <= 19)
 	{
 		msg.append("http block: ");
 		if (err_number == HTTP_BRAKET_OPEN)
@@ -176,6 +198,8 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 			msg.append("keyword index is not used properly\n");
 		else if (err_number == SERVER_KWD_ALLOW_METHODS)
 			msg.append("keyword allow_methods is not used properly\n");
+		else if (err_number == SERVER_KWD_SAVE_PATH)
+			msg.append("keyword save_path is not used properly\n");
 		else if (err_number == SERVER_KWD_LISTEN_EXISTS)
 			msg.append("keyword listen already exists\n");
 		else if (err_number == SERVER_KWD_HOST_EXISTS)
@@ -186,6 +210,8 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 			msg.append("keyword index already exists\n");
 		else if (err_number == SERVER_KWD_ALLOW_METHODS_EXISTS)
 			msg.append("keyword allow_methods already exists\n");
+		else if (err_number == SERVER_KWD_SAVE_PATH_EXISTS)
+			msg.append("keyword save_path already exists\n");
 		else if (err_number == SERVER_KWD_LISTEN_MISSED)
 			msg.append("keyword listen is missed\n");
 		else if (err_number == SERVER_KWD_HOST_MISSED)
@@ -196,6 +222,8 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 			msg.append("keyword index is missed\n");
 		else if (err_number == SERVER_KWD_ALLOW_METHODS_MISSED)
 			msg.append("keyword allow_methods is missed\n");
+		else if (err_number == SERVER_KWD_SAVE_PATH_MISSED)
+			msg.append("keyword save_path is missed\n");
 	}
 	else if (50 <= err_number && err_number <= 79)
 	{
@@ -247,6 +275,14 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 		else if (err_number == LOCATION_KWD_CGI_EXTENTION_MISSED)
 			msg.append("keyword cgi_extention is missed\n");
 	}
+	else
+	{
+		msg = "";
+		msg.append(RED);
+		msg.append("error");
+		msg.append(BLACK);
+		return (msg);
+	}
 	
 	if (i < 10)
 		msg.append("   ");
@@ -259,45 +295,5 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 	msg.append(" | ");
 	
 	msg.append(line);
-	return (msg);
-}
-
-std::string	ErrMsg(std::string file_name, int err_number)
-{
-	std::string	msg = file_name;
-
-	msg.append(": ");
-	msg.append(RED);
-	msg.append("error: ");
-	msg.append(BLACK);
-
-	if (1 <= err_number && err_number <= 19)
-	{
-		msg.append("http block: ");
-		if (err_number == HTTP_BRAKET_OPEN)
-			msg.append("'{' is missed or not opened properly\n");
-		else if (err_number == HTTP_KWD_ROOT_MISSED)
-			msg.append("keyword root is missed\n");
-		else if (err_number == HTTP_KWD_AUTOINDEX_MISSED)
-			msg.append("keyword autoindex is missed\n");
-		else if (err_number == HTTP_KWD_DEFAULT_ERROR_PAGE_MISSED)
-			msg.append("keyword default_error_page is missed\n");
-	}
-	else if (20 <= err_number && err_number <= 49)
-	{
-		msg.append("server block: ");
-		if (err_number == SERVER_BRAKET_OPEN)
-			msg.append("'{' is missed or not opened properly\n");
-		else if (err_number == SERVER_KWD_LISTEN_MISSED)
-			msg.append("keyword listen is missed\n");
-		else if (err_number == SERVER_KWD_HOST_MISSED)
-			msg.append("keyword host is missed\n");
-		else if (err_number == SERVER_KWD_CLIENT_MAX_BODY_SIZE_MISSED)
-			msg.append("keyword client_max_body_size is missed\n");
-		else if (err_number == SERVER_KWD_INDEX_MISSED)
-			msg.append("keyword index is missed\n");
-		else if (err_number == SERVER_KWD_ALLOW_METHODS_MISSED)
-			msg.append("keyword allow_methods is missed\n");
-	}
 	return (msg);
 }

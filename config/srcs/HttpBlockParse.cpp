@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpBlockParse.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 23:52:58 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 22:09:16 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/03 01:55:39 by acostin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,18 +81,22 @@ void	HttpBlockParse::SetConfigFileName(std::string config_file_name)
 
 void	HttpBlockParse::HttpBlockCheck(std::string *line, int i)
 {
-	std::cout << "HTTP_BLOCK: ";//
 	std::string	temp = *line;
 	
+	/* when the line includes keyword "server", regard as http block parsing is done */
 	if (temp.find("server") != std::string::npos)
 		this->_http_parse_done++;
+	/* if http block parsing is done, it will not be handled on this function */
 	if (this->_http_parse_done)
 		return ;
+	
+	/* handled every closing curved braket in the location block parsing function */
 	if (temp.find("}") != std::string::npos)
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_CLOSE, *line, i);
 		throw (this->_err_msg);
 	}
+	/* opening curved braket exists only once in the http block */
 	if (this->_http_braket_open && temp.find("{") != std::string::npos)
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_OPEN, *line, i);
@@ -149,13 +153,17 @@ void	HttpBlockParse::HttpKeywordCheck(std::string *line, std::string temp, int i
 
 void	HttpBlockParse::HttpKeywordHttpCheck(std::string *line, std::string temp, int i)
 {
+	/* keyword "http" exists only once in the http block */
 	HttpKeywordCheck(line, temp, i, "http");
 	this->_http_keyword_check++;
+
+	/* opening curved braket should be exists after the keyword "http" */
 	if (this->_http_keyword_check == 0 && StringCheck(temp.substr(temp.find("http") + strlen("http"), std::string::npos), '{'))
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_OPEN, *line, i);
 		throw (this->_err_msg);
 	}
+
 	if (temp.find("{") != std::string::npos)
 	{
 		temp = temp.substr(temp.find("http") + strlen("http"), std::string::npos);
@@ -168,6 +176,8 @@ void	HttpBlockParse::HttpBraketOpenCheck(std::string *line, std::string temp, in
 	this->_http_braket_open++;
 	if (temp.find("{") != 0 && !StringCheck(temp.substr(0, temp.find("{"))))
 		temp = temp.substr(temp.find("{"), std::string::npos);
+
+	/* opening curved braket exists only once in the http block */
 	if (temp.substr(temp.find("{") + strlen("{"), std::string::npos).find("{") != std::string::npos)
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_OPEN, *line, i);
@@ -187,12 +197,10 @@ void	HttpBlockParse::HttpBraketOpenCheck(std::string *line, std::string temp, in
 			HttpKeywordCheck(line, temp, i, "default_error_page");
 		HttpKeywordTokenCheck(line, temp, i);
 	}
+
+	/* after finding opening braket, there should be keyword "http" too */
 	if (this->_http_keyword_check == 1 && this->_http_braket_open == 1)
-	{
 		this->_http_block_count++;
-		this->_http_keyword_check--;
-		this->_http_braket_open++;
-	}
 	else
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_OPEN, *line, i);
@@ -208,7 +216,7 @@ void	HttpBlockParse::HttpKeywordTokenCheck(std::string *line, std::string temp, 
 	{
 		if (!this->_http_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_root_flag == 1)
@@ -229,7 +237,7 @@ void	HttpBlockParse::HttpKeywordTokenCheck(std::string *line, std::string temp, 
 	{
 		if (!this->_http_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_autoindex_flag == 1)
@@ -239,15 +247,18 @@ void	HttpBlockParse::HttpKeywordTokenCheck(std::string *line, std::string temp, 
 		}
 		if (TokenCount(2, temp, token) && !this->_http_parse_done)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_AUTOINDEX, *line, i);
-			throw (this->_err_msg);
+			if (!(TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_AUTOINDEX, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 	}
 	else if (temp.find("default_error_page") != std::string::npos)
 	{
 		if (!this->_http_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_default_err_page_flag == 1)
@@ -257,8 +268,11 @@ void	HttpBlockParse::HttpKeywordTokenCheck(std::string *line, std::string temp, 
 		}
 		if (TokenCount(2, temp, token) && !this->_http_parse_done)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_DEFAULT_ERROR_PAGE, *line, i);
-			throw (this->_err_msg);
+			if (!(TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_DEFAULT_ERROR_PAGE, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 	}
 	HttpBlockGetInfo(token, line, i);
@@ -270,8 +284,6 @@ void	HttpBlockParse::HttpBlockGetInfo(std::string *token, std::string *line, int
 {
 	if (token[0] == "root" && !this->_http_parse_done)
 	{
-		//if (CheckValidPath(token[1]))
-		//	return (1);
 		//check if the path is valid
 		if (SemicolonCheck(token[1]))
 		{
@@ -281,36 +293,55 @@ void	HttpBlockParse::HttpBlockGetInfo(std::string *token, std::string *line, int
 				throw (this->_err_msg);
 			}
 		}
+		if (token[2] == "")
+		{
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
+		}
 		this->_root_flag++;
-		this->_root = token[1].substr(0, token[1].length() - 1);
+		this->_root = token[1];
 	}
 	if (token[0] == "autoindex" && !this->_http_parse_done)
 	{
 		if (SemicolonCheck(token[1]))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_SEMICOLON, *line, i);
-			throw (this->_err_msg);
+			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, HTTP_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
 		}
-		if (!(token[1] == "on;" || token[1] == "off;"))
+		if (token[2] == "")
+		{
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
+		}
+		if (!(token[1] == "on" || token[1] == "off"))
 		{
 			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_AUTOINDEX, *line, i);
 			throw (this->_err_msg);
 		}
 		this->_autoindex_flag++;
-		this->_autoindex = token[1].substr(0, token[1].length() - 1);
+		this->_autoindex = token[1];
 	}
 	if (token[0] == "default_error_page" && !this->_http_parse_done)
 	{
-		//if (CheckValidErrorPage(token[1]))
-		//	return (1);
 		//check if the path is valid
 		if (SemicolonCheck(token[1]))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_SEMICOLON, *line, i);
-			throw (this->_err_msg);
+			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, HTTP_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
+		}
+		if (token[2] == "")
+		{
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
 		}
 		this->_default_err_page_flag++;
-		this->_default_err_page = this->_root + token[1].substr(0, token[1].length() - 1);
+		this->_default_err_page = this->_root + token[1];
 
 		std::stringstream	ss(this->_default_err_page);
 		std::string		word[100];

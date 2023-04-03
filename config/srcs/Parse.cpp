@@ -3,27 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/18 13:54:27 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 22:00:27 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/03 02:17:17 by acostin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../incs/Parse.hpp"
 
-Parse::Parse(): _root(""), _autoindex(""), _default_err_page(""),
-			_server_block_count(0), _location_block_count(0),
-			_config_file_name(""), _err_msg("")
+Parse::Parse(): _total_server_block(0)
 {
 }
 
-Parse::Parse(std::string config_file_name)
-			: _root(""), _autoindex(""), _default_err_page(""),
-			_server_block_count(0), _location_block_count(0),
-			_config_file_name(""), _err_msg("")
+Parse::Parse(std::string config_file_name): _total_server_block(0)
 {
-	this->_config_file_name = config_file_name;
 	FileOpen(config_file_name);
 }
 
@@ -45,11 +39,6 @@ Parse::~Parse()
 {
 }
 
-const char*	Parse::FileOpenFailedException::what(void) const throw()
-{
-	return ("File open error");
-}
-
 int	Parse::FileOpen(std::string config_file_name)
 {
 	std::fstream	f_read;
@@ -57,12 +46,14 @@ int	Parse::FileOpen(std::string config_file_name)
 	f_read.open(config_file_name.c_str(), std::ios::in);
 	if (f_read.fail())
 	{
-		throw (FileOpenFailedException());
+		std::string	err_msg = ErrMsg("", FILE_OPEN_ERROR, "", -1);
+		throw (err_msg);
 		return (1);
 	}
 
 	HttpBlockParse::SetConfigFileName(config_file_name);
 	ServerBlockParse::SetConfigFileName(config_file_name);
+	LocationBlockParse::SetConfigFileName(config_file_name);
 
 	std::string	line;
 	int		i = 0;
@@ -82,52 +73,12 @@ int	Parse::FileOpen(std::string config_file_name)
 			LocationBlockParse::LocationBlockCheck(&line, i);
 			
 		
-		std::cout << "i: " << i << line << std::endl;
+		std::cout << line << std::endl;
 	}
 
-	this->_root = HttpBlockParse::GetRoot();
-	this->_autoindex = HttpBlockParse::GetAutoIndex();
-	this->_default_err_page = HttpBlockParse::GetDefaultErrorPage();
-	this->_err_page_directory = HttpBlockParse::GetErrPageDirectory();
-
-	this->_listen = ServerBlockParse::GetListen();
-	this->_host = ServerBlockParse::GetHost();
-	this->_client_max_body_size = ServerBlockParse::GetClientMaxBodySize();
-	this->_index = ServerBlockParse::GetIndex();
-	this->_allow_methods_get = ServerBlockParse::GetAllowMethodsGet();
-	this->_allow_methods_post = ServerBlockParse::GetAllowMethodsPost();
-	this->_allow_methods_delete = ServerBlockParse::GetAllowMethodsDelete();
-	this->_server_block_count = ServerBlockParse::GetServerBlockCount();
-
-	
-	std::cout << std::endl;
-	std::cout << "root: " << this->_root << std::endl;
-	std::cout << "autoindex: " << this->_autoindex << std::endl;
-	std::cout << "default_err_page: " << this->_default_err_page << std::endl;
-	std::cout << "err_page_directory: " << this->_err_page_directory << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "server_block: " << this->_server_block_count << std::endl;
-	std::cout << "listen: " << this->_listen << std::endl;
-	std::cout << "host: " << this->_host << std::endl;
-	std::cout << "client_max_body_size: " << this->_client_max_body_size << std::endl;
-	std::cout << "index: " << this->_index << std::endl;
-	std::cout << "allow_methods: ";
-	if (this->_allow_methods_get && !this->_allow_methods_post && !this->_allow_methods_delete)
-		std::cout << "GET" << std::endl;
-	else if (this->_allow_methods_get && this->_allow_methods_post && !this->_allow_methods_delete)
-		std::cout << "GET POST" << std::endl;
-	else if (this->_allow_methods_get && !this->_allow_methods_post && this->_allow_methods_delete)
-		std::cout << "GET DELETE" << std::endl;
-	else if (this->_allow_methods_get && this->_allow_methods_post && this->_allow_methods_delete)
-		std::cout << "GET POST DELETE" << std::endl;
-	else
-		std::cout << "none" << std::endl;
-	std::cout << std::endl;
-
-
-	std::cout << "location_block: " << LocationBlockParse::GetLocationBlockCount() << std::endl;
-	(void)_location_block_count;
+	this->_total_server_block = ServerBlockParse::GetServerBlockCount();
+	std::cout << std::endl << CYAN
+		<< "total server block: " << this->_total_server_block << BLACK << std::endl;
 	
 	f_read.close();
 	return (0);

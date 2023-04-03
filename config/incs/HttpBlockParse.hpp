@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpBlockParse.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 23:52:51 by yhwang            #+#    #+#             */
-/*   Updated: 2023/03/24 21:36:57 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/03 01:06:19 by acostin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,13 +48,16 @@ private:
 	int		_http_keyword_check;
 	int		_http_braket_open;
 	int		_http_block_count;
+
 	int		_root_flag;
 	int		_autoindex_flag;
 	int		_default_err_page_flag;
+
 	std::string	_root;
 	std::string	_autoindex;
 	std::string	_default_err_page;
 	std::string	_err_page_directory;
+
 	int		_http_parse_done;
 	std::string	_config_file_name;
 	std::string	_err_msg;

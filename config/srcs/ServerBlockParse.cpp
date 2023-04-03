@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerBlockParse.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 00:07:25 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 22:17:17 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/03 01:56:01 by acostin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,10 @@
 ServerBlockParse::ServerBlockParse()
 			: _server_keyword_check(0), _server_braket_open(0), _server_block_count(0),
 			_listen_flag(0), _host_flag(0), _client_max_body_size_flag(0),
-			_index_flag(0), _allow_methods_flag(0),
+			_index_flag(0), _allow_methods_flag(0), _save_path_flag(0),
 			_listen(0), _host(""), _client_max_body_size(0), _index(""),
 			_allow_methods_get(0), _allow_methods_post(0), _allow_methods_delete(0),
-			_server_parse_done(0), _config_file_name(""), _err_msg(""),
+			_save_path(""), _server_parse_done(0), _config_file_name(""), _err_msg(""),
 			_total_location_block(0), _location_block_ended(0), _http_braket_close(0)
 {
 }
@@ -41,6 +41,7 @@ ServerBlockParse& ServerBlockParse::operator=(const ServerBlockParse& serverbloc
 	this->_client_max_body_size_flag = serverblockparse._client_max_body_size_flag;
 	this->_index_flag = serverblockparse._index_flag;
 	this->_allow_methods_flag = serverblockparse._allow_methods_flag;
+	this->_save_path_flag = serverblockparse._save_path_flag;
 	this->_listen = serverblockparse._listen;
 	this->_host = serverblockparse._host;
 	this->_client_max_body_size = serverblockparse._client_max_body_size;
@@ -48,12 +49,13 @@ ServerBlockParse& ServerBlockParse::operator=(const ServerBlockParse& serverbloc
 	this->_allow_methods_get = serverblockparse._allow_methods_get;
 	this->_allow_methods_post = serverblockparse._allow_methods_post;
 	this->_allow_methods_delete = serverblockparse._allow_methods_delete;
+	this->_save_path = serverblockparse._save_path;
 	this->_server_parse_done = serverblockparse._server_parse_done;
 	this->_config_file_name = serverblockparse._config_file_name;
 	this->_err_msg = serverblockparse._err_msg;
 	this->_total_location_block = serverblockparse._total_location_block;
 	this->_location_block_ended = serverblockparse._location_block_ended;
-	//this->_http_braket_close = serverblockparse._http_braket_close;
+	this->_http_braket_close = serverblockparse._http_braket_close;
 	return (*this);
 }
 
@@ -94,6 +96,16 @@ int	ServerBlockParse::GetAllowMethodsPost(void) const
 int	ServerBlockParse::GetAllowMethodsDelete(void) const
 {
 	return (this->_allow_methods_delete);
+}
+
+int	ServerBlockParse::GetAllowMethodsFlag(void) const
+{
+	return (this->_allow_methods_flag);
+}
+
+std::string	ServerBlockParse::GetSavePath(void) const
+{
+	return (this->_save_path);
 }
 
 int	ServerBlockParse::GetServerParseDone(void) const
@@ -145,6 +157,7 @@ void	ServerBlockParse::InitServerBlockParseData(void)
 	this->_client_max_body_size_flag = 0;
 	this->_index_flag = 0;
 	this->_allow_methods_flag = 0;
+	this->_save_path_flag = 0;
 	this->_listen = 0;
 	this->_host = "";
 	this->_client_max_body_size = 0;
@@ -152,9 +165,10 @@ void	ServerBlockParse::InitServerBlockParseData(void)
 	this->_allow_methods_get = 0;
 	this->_allow_methods_post = 0;
 	this->_allow_methods_delete = 0;
+	this->_save_path = "";
 	this->_server_parse_done = 0;
 	this->_err_msg = "";
-
+	this->_total_location_block = 0;
 	this->_location_block_ended = 0;
 }
 
@@ -162,22 +176,33 @@ void	ServerBlockParse::ServerBlockCheck(std::string *line, int i)
 {
 	std::string	temp = *line;
 
-	std::cout << "SERVER_BLOCK: ";//
 	HttpMissedKeywordCheck(line, temp, i);
+	
+	/* when the line includes keyword "location", regard as server block parsing is done */
 	if (temp.find("location") != std::string::npos)
 		this->_server_parse_done++;
+
+	/* if server block parsing is done, it will not be handled on this function */
 	if (this->_server_parse_done)
 		return ;
+
+	/* check if there is invalid character(s) after closing http block curved braket */
 	if (this->_http_braket_close == 1 && StringCheck(temp))
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, HTTP_BRAKET_CLOSE, *line, i);
 		throw (this->_err_msg);
 	}
+
+	/* for http block closing */
 	if (this->_location_block_ended == 1 && temp.find("}") != std::string::npos)
 	{
+		if (StringCheck(temp, '}'))
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_INVALID_KWD, *line, i);
+			throw (this->_err_msg);
+		}
 		this->_http_braket_close++;
 		this->_location_block_ended--;
-		std::cout << "http block closed" << std::endl;///
 		temp = temp.substr(temp.find("}") + strlen("}"), std::string::npos);
 		if (temp == "" || !StringCheck(temp))
 			return ;
@@ -207,7 +232,8 @@ void	ServerBlockParse::ServerBlockCheck(std::string *line, int i)
 		|| temp.find("host") != std::string::npos
 		|| temp.find("client_max_body_size") != std::string::npos
 		|| temp.find("index") != std::string::npos
-		|| temp.find("allow_methods") != std::string::npos)
+		|| temp.find("allow_methods") != std::string::npos
+		|| temp.find("save_path") != std::string::npos)
 	{
 		if (temp.find("listen") != std::string::npos)
 			ServerKeywordCheck(line, temp, i, "listen");
@@ -219,6 +245,8 @@ void	ServerBlockParse::ServerBlockCheck(std::string *line, int i)
 			ServerKeywordCheck(line, temp, i, "index");
 		if (temp.find("allow_methods") != std::string::npos)
 			ServerKeywordCheck(line, temp, i, "allow_methods");
+		if (temp.find("save_path") != std::string::npos)
+			ServerKeywordCheck(line, temp, i, "save_path");
 		ServerKeywordTokenCheck(line, temp, i);
 	}
 	else
@@ -236,21 +264,24 @@ void	ServerBlockParse::ServerBlockCheck(std::string *line, int i)
 
 void	ServerBlockParse::HttpMissedKeywordCheck(std::string *line, std::string temp, int i)
 {
+	if (_server_braket_open)
+		return ;
+
 	if (HttpBlockParse::GetHttpParseDone() && temp.find("server") == std::string::npos)
 	{
 		if (temp.find("root") != std::string::npos)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_ROOT_MISSED, *line, i);
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_ROOT_EXISTS, *line, i);
 			throw (this->_err_msg);
 		}
 		if (temp.find("autoindex") != std::string::npos)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_AUTOINDEX_MISSED, *line, i);
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_AUTOINDEX_EXISTS, *line, i);
 			throw (this->_err_msg);
 		}
 		if (temp.find("default_error_page") != std::string::npos)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_DEFAULT_ERROR_PAGE_MISSED, *line, i);
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_DEFAULT_ERROR_PAGE_EXISTS, *line, i);
 			throw (this->_err_msg);
 		}
 	}
@@ -293,19 +324,25 @@ void	ServerBlockParse::ServerKeywordCheck(std::string *line, std::string temp, i
 			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_INDEX, *line, i);
 		else if (keyword == "allow_methods")
 			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_ALLOW_METHODS, *line, i);
+		else if (keyword == "save_keyword")
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_SAVE_PATH, *line, i);
 		throw (this->_err_msg);
 	}
 }
 
 void	ServerBlockParse::ServerKeywordServerCheck(std::string *line, std::string temp, int i)
 {
+	/* keyword "server" exists only once in the each server block */
 	ServerKeywordCheck(line, temp, i, "server");
 	this->_server_keyword_check++;
+
+	/* opening curved braket should be exists after the keyword "server" */
 	if (this->_server_keyword_check == 0 && StringCheck(temp.substr(temp.find("server") + strlen("server"), std::string::npos), '{'))
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN, *line, i);
 		throw (this->_err_msg);
 	}
+
 	if (temp.find("{") != std::string::npos)
 	{
 		temp = temp.substr(temp.find("server") + strlen("server"), std::string::npos);
@@ -318,6 +355,8 @@ void	ServerBlockParse::ServerBraketOpenCheck(std::string *line, std::string temp
 	this->_server_braket_open++;
 	if (temp.find("{") != 0 && !StringCheck(temp.substr(0, temp.find("{"))))
 		temp = temp.substr(temp.find("{"), std::string::npos);
+	
+	/* opening curved braket exists only once in the each server block */
 	if (temp.substr(temp.find("{") + strlen("{"), std::string::npos).find("{") != std::string::npos)
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN, *line, i);
@@ -327,7 +366,8 @@ void	ServerBlockParse::ServerBraketOpenCheck(std::string *line, std::string temp
 		|| temp.find("host") != std::string::npos
 		|| temp.find("client_max_body_size") != std::string::npos
 		|| temp.find("index") != std::string::npos
-		|| temp.find("allow_methods") != std::string::npos)
+		|| temp.find("allow_methods") != std::string::npos
+		|| temp.find("save_path") != std::string::npos)
 	{
 		temp = temp.substr(temp.find("{") + 1, std::string::npos);
 		if (temp.find("listen") != std::string::npos)
@@ -340,14 +380,14 @@ void	ServerBlockParse::ServerBraketOpenCheck(std::string *line, std::string temp
 			ServerKeywordCheck(line, temp, i, "index");
 		if (temp.find("allow_methods") != std::string::npos)
 			ServerKeywordCheck(line, temp, i, "allow_methods");
+		if (temp.find("save_path") != std::string::npos)
+			ServerKeywordCheck(line, temp, i, "save_path");
 		ServerKeywordTokenCheck(line, temp, i);
 	}	
+
+	/* after finding opening braket, there should be keyword "server" too */
 	if (this->_server_keyword_check == 1 && this->_server_braket_open == 1)
-	{
 		this->_server_block_count++;
-		this->_server_keyword_check--;
-		this->_server_braket_open++;
-	}
 	else
 	{
 		this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN, *line, i);
@@ -363,7 +403,7 @@ void	ServerBlockParse::ServerKeywordTokenCheck(std::string *line, std::string te
 	{
 		if (!this->_server_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_listen_flag == 1)
@@ -373,15 +413,18 @@ void	ServerBlockParse::ServerKeywordTokenCheck(std::string *line, std::string te
 		}
 		if (TokenCount(2, temp, token) && !this->_server_parse_done)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_LISTEN, *line, i);
-			throw (this->_err_msg);
+			if (!(TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_LISTEN, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 	}
 	else if (temp.find("host") != std::string::npos)
 	{
 		if (!this->_server_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_host_flag == 1)
@@ -391,15 +434,18 @@ void	ServerBlockParse::ServerKeywordTokenCheck(std::string *line, std::string te
 		}
 		if (TokenCount(2, temp, token) && !this->_server_parse_done)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_HOST, *line, i);
-			throw (this->_err_msg);
+			if (!(TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_HOST, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 	}
 	else if (temp.find("client_max_body_size") != std::string::npos)
 	{
 		if (!this->_server_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_client_max_body_size_flag == 1)
@@ -409,15 +455,18 @@ void	ServerBlockParse::ServerKeywordTokenCheck(std::string *line, std::string te
 		}
 		if (TokenCount(2, temp, token) && !this->_server_parse_done)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_CLIENT_MAX_BODY_SIZE, *line, i);
-			throw (this->_err_msg);
+			if (!(TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_CLIENT_MAX_BODY_SIZE, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 	}
 	else if (temp.find("index") != std::string::npos)
 	{
 		if (!this->_server_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_index_flag == 1)
@@ -427,15 +476,18 @@ void	ServerBlockParse::ServerKeywordTokenCheck(std::string *line, std::string te
 		}
 		if (TokenCount(2, temp, token) && !this->_server_parse_done)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_INDEX, *line, i);
-			throw (this->_err_msg);
+			if (!(TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_INDEX, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 	}
 	else if (temp.find("allow_methods") != std::string::npos)
 	{
 		if (!this->_server_braket_open)
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN);
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN, *line, i);
 			throw (this->_err_msg);
 		}
 		if (this->_allow_methods_flag == 1)
@@ -443,17 +495,40 @@ void	ServerBlockParse::ServerKeywordTokenCheck(std::string *line, std::string te
 			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_ALLOW_METHODS_EXISTS, *line, i);
 			throw (this->_err_msg);
 		}
-		if (!(TokenCount(temp, token) == 2 || TokenCount(temp, token) == 3 || TokenCount(temp, token) == 4)
-			&& !this->_server_parse_done)
+		if (!(TokenCount(temp, token) == 2 || TokenCount(temp, token) == 3 || TokenCount(temp, token) == 4))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_ALLOW_METHODS, *line, i);
-			throw (this->_err_msg);
+			if (!(TokenCount(temp, token) == 5 && token[3].find(";") == std::string::npos))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_ALLOW_METHODS, *line, i);
+				throw (this->_err_msg);
+			}
 		}
 		this->_allow_methods_flag = TokenCount(temp, token) - 1;
 	}
+	else if (temp.find("save_path") != std::string::npos)
+	{
+		if (!this->_server_braket_open)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_OPEN, *line, i);
+			throw (this->_err_msg);
+		}
+		if (this->_save_path_flag == 1)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_SAVE_PATH_EXISTS, *line, i);
+			throw (this->_err_msg);
+		}
+		if (TokenCount(2, temp, token) && !this->_server_parse_done)
+		{
+			if (!(TokenCount(temp, token) == 3 && token[1].find(";") == std::string::npos))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_SAVE_PATH, *line, i);
+				throw (this->_err_msg);
+			}
+		}
+	}
 	ServerBlockGetInfo(token, line, i);
 	if (this->_listen != 0 && this->_host != "" && this->_client_max_body_size != 0 && this->_index != ""
-		&& this->_allow_methods_flag == 1 && this->_allow_methods_get == 1)
+		&& this->_allow_methods_flag != 0 && this->_save_path != "")
 		this->_server_parse_done = 1;
 }
 
@@ -464,50 +539,79 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 		//number check, number range check
 		if (SemicolonCheck(token[1]))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
-			throw (this->_err_msg);
+			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
+		}
+		if (token[2] == "")
+		{
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
 		}
 		this->_listen_flag++;
-		this->_listen = atoi(token[1].substr(0, token[1].length() - 1).c_str());
+		this->_listen = atoi(token[1].c_str());
 	}
 	if (token[0] == "host" && !this->_server_parse_done)
 	{
 		//ip address check
 		if (SemicolonCheck(token[1]))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
-			throw (this->_err_msg);
+			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
+		}
+		if (token[2] == "")
+		{
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
 		}
 		this->_host_flag++;
-		this->_host = token[1].substr(0, token[1].length() - 1);
+		this->_host = token[1];
 	}
 	if (token[0] == "client_max_body_size" && !this->_server_parse_done)
 	{
 		//number check, number range check
 		if (SemicolonCheck(token[1]))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
-			throw (this->_err_msg);
+			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
+		}
+		if (token[2] == "")
+		{
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
 		}
 		this->_client_max_body_size_flag++;
-		this->_client_max_body_size = atoi(token[1].substr(0, token[1].length() - 1).c_str());
+		this->_client_max_body_size = atoi(token[1].c_str());
 	}
 	if (token[0] == "index" && !this->_server_parse_done)
 	{
-		//if (CheckValidPath(token[1]))
-		//	return (1);
 		//check if the path is valid
 		if (SemicolonCheck(token[1]))
 		{
-			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
-			throw (this->_err_msg);
+			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
+		}
+		if (token[2] == "")
+		{
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
 		}
 		this->_index_flag++;
-		this->_index = HttpBlockParse::GetRoot().append("/") + token[1].substr(0, token[1].length() - 1);
+		this->_index = HttpBlockParse::GetRoot().append("/") + token[1];
 	}
 	if (token[0] == "allow_methods" && !this->_server_parse_done)
 	{
-		//edit here later: space, tab, semicolon handle
 		if (this->_allow_methods_flag == 1)
 		{
 			if (SemicolonCheck(token[1]))
@@ -515,56 +619,191 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
 				throw (this->_err_msg);
 			}
-			if (!(token[1] == "GET;"))
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
+
+			if (token[1] == "GET")
+			{
+				this->_allow_methods_get = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if (token[1] == "POST")
+			{
+				this->_allow_methods_post = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if (token[1] == "DELETE")
+			{
+				this->_allow_methods_delete = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if (token[1] == "NONE")
+				this->_allow_methods_flag = -1;
+			else
 			{
 				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_ALLOW_METHODS, *line, i);
 				throw (this->_err_msg);
 			}
-			this->_allow_methods_get = 1;
 		}
 		else if (this->_allow_methods_flag == 2)
 		{
 			if (SemicolonCheck(token[2]))
 			{
-				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
-				throw (this->_err_msg);
+				if (!(token[2].find(";") == std::string::npos))
+				{
+					this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
+					throw (this->_err_msg);
+				}
 			}
-			if (!((token[1] == "GET" && token[2] == "POST;")
-				|| (token[1] == "GET" && token[2] == "DELETE;")
-				|| (token[1] == "POST" && token[2] == "GET;")
-				|| (token[1] == "DELETE" && token[2] == "GET;")))
+			if (!(token[2] == ";"))
+			{
+				token[2] = token[2].substr(0, token[2].find(";"));
+				token[2] = RemoveSpaceTab(token[2]);
+			}
+
+			if (token[1] == "GET" && token[2] == ";")
+			{
+				this->_allow_methods_get = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if (token[1] == "POST" && token[2] == ";")
+			{
+				this->_allow_methods_post = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if (token[1] == "DELETE" && token[2] == ";")
+			{
+				this->_allow_methods_delete = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if (token[1] == "NONE" && token[2] == ";")
+				this->_allow_methods_flag = -1;
+			else if ((token[1] == "GET" && token[2] == "POST")
+				|| (token[1] == "POST" && token[2] == "GET"))
+			{
+				this->_allow_methods_get = 1;
+				this->_allow_methods_post = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if ((token[1] == "GET" && token[2] == "DELETE")
+				|| (token[1] == "DELETE" && token[2] == "GET"))
+			{
+				this->_allow_methods_get = 1;
+				this->_allow_methods_delete = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if ((token[1] == "POST" && token[2] == "DELETE")
+				|| (token[1] == "DELETE" && token[2] == "POST"))
+			{
+				this->_allow_methods_post = 1;
+				this->_allow_methods_delete = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else
 			{
 				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_ALLOW_METHODS, *line, i);
 				throw (this->_err_msg);
 			}
-			if (token[1] == "GET" || token[2] == "GET;")
-				this->_allow_methods_get = 1;
-			if (token[1] == "POST" || token[2] == "POST;")
-				this->_allow_methods_post = 1;
-			if (token[1] == "DELETE" || token[2] == "DELETE;")
-				this->_allow_methods_delete = 1;
 		}
-		else
+		else if (this->_allow_methods_flag == 3)
 		{
 			if (SemicolonCheck(token[3]))
 			{
-				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
-				throw (this->_err_msg);
+				if (!(token[3].find(";") == std::string::npos))
+				{
+					this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
+					throw (this->_err_msg);
+				}
 			}
-			if (!((token[1] == "GET" && token[2] == "POST" && token[3] == "DELETE;")
-				|| (token[1] == "GET" && token[2] == "DELETE" && token[3] == "POST;")
-				|| (token[1] == "POST" && token[2] == "GET" && token[3] == "DELETE;")
-				|| (token[1] == "POST" && token[2] == "DELETE" && token[3] == "GET;")
-				|| (token[1] == "DELETE" && token[2] == "GET" && token[3] == "POST;")
-				|| (token[1] == "DELETE" && token[2] == "POST" && token[3] == "GET;")))
+			if (!(token[3] == ";"))
+			{
+				token[3] = token[3].substr(0, token[3].find(";"));
+				token[3] = RemoveSpaceTab(token[3]);
+			}
+
+			if ((token[1] == "GET" && token[2] == "POST" && token[3] == ";")
+				|| (token[1] == "POST" && token[2] == "GET" && token[3] == ";"))
+			{
+				this->_allow_methods_get = 1;
+				this->_allow_methods_post = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if ((token[1] == "GET" && token[2] == "DELETE" && token[3] == ";")
+				|| (token[1] == "DELETE" && token[2] == "GET" && token[3] == ";"))
+			{
+				this->_allow_methods_get = 1;
+				this->_allow_methods_delete = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if ((token[1] == "POST" && token[2] == "DELETE" && token[3] == ";")
+				|| (token[1] == "DELETE" && token[2] == "POST" && token[3] == ";"))
+			{
+				this->_allow_methods_post = 1;
+				this->_allow_methods_delete = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else if ((token[1] == "GET" && token[2] == "POST" && token[3] == "DELETE")
+				|| (token[1] == "GET" && token[2] == "DELETE" && token[3] == "POST")
+				|| (token[1] == "POST" && token[2] == "GET" && token[3] == "DELETE")
+				|| (token[1] == "POST" && token[2] == "DELETE" && token[3] == "GET")
+				|| (token[1] == "DELETE" && token[2] == "GET" && token[3] == "POST")
+				|| (token[1] == "DELETE" && token[2] == "POST" && token[3] == "GET"))
+			{
+				this->_allow_methods_get = 1;
+				this->_allow_methods_post = 1;
+				this->_allow_methods_delete = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else
 			{
 				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_ALLOW_METHODS, *line, i);
 				throw (this->_err_msg);
 			}
-			this->_allow_methods_get = 1;
-			this->_allow_methods_post = 1;
-			this->_allow_methods_delete = 1;
 		}
-		this->_allow_methods_flag = 1;
+		else
+		{
+			if (SemicolonCheck(token[4]))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
+
+			if ((token[1] == "GET" && token[2] == "POST" && token[3] == "DELETE" && token[4] == ";")
+				|| (token[1] == "GET" && token[2] == "DELETE" && token[3] == "POST" && token[4] == ";")
+				|| (token[1] == "POST" && token[2] == "GET" && token[3] == "DELETE" && token[4] == ";")
+				|| (token[1] == "POST" && token[2] == "DELETE" && token[3] == "GET" && token[4] == ";")
+				|| (token[1] == "DELETE" && token[2] == "GET" && token[3] == "POST" && token[4] == ";")
+				|| (token[1] == "DELETE" && token[2] == "POST" && token[3] == "GET" && token[4] == ";"))
+			{
+				this->_allow_methods_get = 1;
+				this->_allow_methods_post = 1;
+				this->_allow_methods_delete = 1;
+				this->_allow_methods_flag = 1;
+			}
+			else
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_ALLOW_METHODS, *line, i);
+				throw (this->_err_msg);
+			}
+		}
+	}
+	else if (token[0] == "save_path" && !this->_server_parse_done)
+	{
+		//path check
+		if (SemicolonCheck(token[1]))
+		{
+			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_SEMICOLON, *line, i);
+				throw (this->_err_msg);
+			}
+		}
+		if (token[2] == "")
+		{
+			token[1] = token[1].substr(0, token[1].find(";"));
+			token[1] = RemoveSpaceTab(token[1]);
+		}
+		this->_save_path_flag++;
+		this->_save_path = HttpBlockParse::GetRoot() + token[1];
 	}
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerBlockParse.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 00:07:16 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/01 07:43:45 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/03 01:07:25 by acostin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,9 @@ public:
 	int		GetAllowMethodsGet(void) const;
 	int		GetAllowMethodsPost(void) const;
 	int		GetAllowMethodsDelete(void) const;
+	int		GetAllowMethodsFlag(void) const;
+	std::string	GetSavePath(void) const;
+
 	int		GetServerParseDone(void) const;
 	int		GetServerBlockCount(void) const;
 	int		GetTotalLocationBlock(void) const;
@@ -61,11 +64,14 @@ private:
 	int		_server_keyword_check;
 	int		_server_braket_open;
 	int		_server_block_count;
+
 	int		_listen_flag;
 	int		_host_flag;
 	int		_client_max_body_size_flag;
 	int		_index_flag;
 	int		_allow_methods_flag;
+	int		_save_path_flag;
+
 	int		_listen;
 	std::string	_host;
 	int		_client_max_body_size;
@@ -73,6 +79,8 @@ private:
 	int		_allow_methods_get;
 	int		_allow_methods_post;
 	int		_allow_methods_delete;
+	std::string	_save_path;
+
 	int		_server_parse_done;
 	std::string	_config_file_name;
 	std::string	_err_msg;
