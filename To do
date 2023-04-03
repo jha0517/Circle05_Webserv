@@ -12,8 +12,12 @@ select -> to epoll?
 timeout for the connection?
 
 
-April 4
+April 2
 
 if existing path -> show ok
 if existing path and index path->show ok
 ready for auto index
+
+April 3
+
+non-existing png error
