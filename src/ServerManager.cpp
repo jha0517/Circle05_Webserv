@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 10:53:27 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 22:49:25 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,16 @@ ServerManager & ServerManager::operator=(ServerManager const & rhs){
 }
 
 unsigned int	ServerManager::getServerBlockCount(void) const{return (this->servBlockCount);}
+
 void	ServerManager::setServerBlockCount(int i){this->servBlockCount = i;}
+
 void	ServerManager::setRoot(std::string root){
 	this->commonRoot = root;
 	}
-void	ServerManager::setAutoIndex(bool autoindex){this->commonAutoIndex = autoindex;}
-void	ServerManager::setDefaultErrorPage(std::string dir){this->commonDefaultErrorPage = dir;}
 
+void	ServerManager::setAutoIndex(bool autoindex){this->commonAutoIndex = autoindex;}
+
+void	ServerManager::setDefaultErrorPage(std::string dir){this->commonDefaultErrorPage = dir;}
 
 void	signalHandler(int signum)
 {
@@ -53,7 +56,9 @@ bool ServerManager::initiate(){
 	error = false;
 
 	this->log.printInit();
-	FD_ZERO(&currentSockets);
+	FD_ZERO(&this->readSockets);
+	FD_ZERO(&this->writeSockets);
+	
 	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
 	{
 		if ((*it)->startListen() < 0)
@@ -65,33 +70,34 @@ bool ServerManager::initiate(){
 		}
 		this->log.printServerCreation(true, (*it));
 		serverFds.push_back((*it)->sockfd);
-		FD_SET((*it)->sockfd, &currentSockets);
+		std::cout << "Server adding " << (*it)->sockfd << " readSockets" << std::endl;
+		addToSet((*it)->sockfd, this->readSockets);
 		this->max_socket_so_far = (*it)->sockfd;
 	}
 	return (true);
 }
 
-Server	*findServer(int i, std::vector<Server *> servers, int & isForServer)
+Server	*findServer(int i, std::vector<Server *> servers)
 {
 	std::vector<Server *>::iterator itS = servers.begin();
 	std::vector<Server *>::iterator itE = servers.end();
 	while (itS != itE)
 	{
 		if ((*itS)->sockfd == i)
-		{
-			isForServer = 1;
 			return ((*itS));
-		}
 		itS++;
 	}
-	itS = servers.begin();
+	return (NULL);
+}
+
+Server	*findClient(int i, std::vector<Server *> servers)
+{
+	std::vector<Server *>::iterator itS = servers.begin();
+	std::vector<Server *>::iterator itE = servers.end();
 	while (itS != itE)
 	{
 		if ((*itS)->clientfd == i)
-		{
-			isForServer = 0;
 			return ((*itS));
-		}
 		itS++;
 	}
 	return (NULL);
@@ -116,56 +122,85 @@ int	ServerManager::closeAndFreeMem()
 	return (0);
 }
 
+void	ServerManager::addToSet(const int i, fd_set &set)
+{
+	FD_SET(i, &set);
+	if (i > this->max_socket_so_far)
+		this->max_socket_so_far = i;
+}
+
+void    ServerManager::closeConnection(const int i)
+{
+    if (FD_ISSET(i, &this->writeSockets))
+	{
+		std::cout << "closing from writing " << i << std::endl;
+        removeFromSet(i, this->writeSockets);
+	}
+    if (FD_ISSET(i, &this->readSockets))
+	{
+		std::cout << "closing from reading " << i << std::endl;
+        removeFromSet(i, this->readSockets);
+	}
+    close(i);	
+}
+
+void	ServerManager::removeFromSet(const int i, fd_set &set)
+{
+    FD_CLR(i, &set);
+    if (i == this->max_socket_so_far)
+        this->max_socket_so_far--;
+}
+
 bool	ServerManager::run(){
-	int				isForServer;
 	Server			*server;
 	struct timeval  timeout;
+    fd_set  readSocketsCopy;
+    fd_set  writeSocketsCopy;
+
 	signal(SIGINT, signalHandler);
 
 	if (error == true)
 		return (false);
-	timeout.tv_sec  = 3;
+	timeout.tv_sec  = 3 * 60;
 	timeout.tv_usec = 0;
+
 	while (g_run)
 	{
-		readySockets = currentSockets;
-		int selectRet = select(this->max_socket_so_far + 1, &readySockets, NULL, NULL, &timeout);
-		if ( selectRet < 0)
+		readSocketsCopy = this->readSockets;
+		writeSocketsCopy = this->writeSockets;
+		int selectRet = select(this->max_socket_so_far + 1, &readSocketsCopy, &writeSocketsCopy, NULL, &timeout);
+		if (!g_run)
+			break;
+		if (selectRet < 0)
 		{
-			if (!g_run)
-				return (closeAndFreeMem());
-			log.printError("Error in Select");
-			return (EXIT_FAILURE);
+			printf("selectRet : %i\n", selectRet);
+			return (log.printError("Error in Select"), EXIT_FAILURE);
 		}
-		if ( selectRet == 0)
-		{
-			if (!g_run)
-				return (closeAndFreeMem());
-			log.printError("Timeout");
-			return (EXIT_FAILURE);
-		}
+		else if (selectRet == 0)
+			return (log.printError("Timeout"), EXIT_FAILURE);
 		for (int i = 0; i < this->max_socket_so_far + 1 && selectRet > 0; i++)
 		{
-			if (FD_ISSET(i, &readySockets)){
-				server = findServer(i, servers, isForServer);
-				if (server && isForServer)
-				{
-					server->clientfd = server->acceptConnection();
-					if (server->clientfd < 0)
-						return (EXIT_FAILURE);
-					FD_SET(server->clientfd, &currentSockets);
-					if (server->clientfd > this->max_socket_so_far)
-						this->max_socket_so_far = server->clientfd;
-				}
-				else if (server && (isForServer == 0))
-				{
-					server->newConnection();
-					FD_CLR(i, &currentSockets);
-				}
+			if (FD_ISSET(i, &readSocketsCopy) && (server = findServer(i, servers)))
+			{
+				server->clientfd = server->acceptConnection();
+				if (server->clientfd < 0)
+					return (EXIT_FAILURE);
+				addToSet(server->clientfd, this->readSockets);
+			}
+			else if (FD_ISSET(i, &readSocketsCopy) && (server = findClient(i, servers)))
+			{
+				server->readRequest(i);
+				removeFromSet(i, this->readSockets);
+				addToSet(i, this->writeSockets);
+			}
+			else if (FD_ISSET(i, &writeSocketsCopy) && (server = findClient(i, servers)))
+			{
+				server->writeResponse(i);
+				closeConnection(i);
 			}
 		}
 	}
-	return (0);
+	return (closeAndFreeMem());
 }
 
 void	ServerManager::setCommonParameter(std::string root, bool autoindex, std::string defaultErrorPage){

@@ -41,12 +41,13 @@ public:
 	Connection &operator=(Connection const &rhs);
 
 	std::vector<char>	constructResponse(Server & server, int & statusCode);
-
+	void				setRequest(Request *request);
 	std::vector<char>	dataReceived;
 
 private:
 	Connection();
-	int	socketfd;
+	int		socketfd;
+	Request	*request;
 };
 
 #endif

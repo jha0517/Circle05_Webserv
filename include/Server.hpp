@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 18:22:23 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 17:25:27 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,11 @@
 # include <sys/types.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
+# include <sys/stat.h>
 # include <map>
 # include <cstddef>
+# define BUFFSIZE 3000
+
 class Server
 {
 public:
@@ -51,6 +54,8 @@ public:
 	int					startListen();
 	int					acceptConnection();
 	void				newConnection();
+	void				readRequest(const int &i);
+	void				writeResponse(const int &i);
 	std::string			findMatchingUri(std::string path);
 
 	void				setLocBlockCount(unsigned int i);
@@ -89,6 +94,7 @@ public:
 	std::set<RedirectBlock *>	redirectionBloc;
 	CgiBlock				cgiBloc;
 private:
+    std::vector<char>		data;
 	Request					request;
 	struct sockaddr_in		serverAddr;
 	struct sockaddr_in		clientAddr;

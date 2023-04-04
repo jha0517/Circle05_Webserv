@@ -20,7 +20,7 @@ public:
 	std::vector<char>	body;
 	Uri					target;
 	MessageHeaders		headers;
-	bool				parseResquest(const std::vector<char> rawRequest, size_t & messageEnd);
+	bool				parseResquest(std::vector<char> rawRequest, size_t & messageEnd);
 	bool				parseResquest(const std::vector<char> rawRequest);
 };
 

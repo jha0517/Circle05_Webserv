@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 16:35:23 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 16:44:19 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 18:18:46 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ bool	parseSize(const	std::string & numberString, size_t	& number)
 }
 #include <cstdio>
 
-bool	Request::parseResquest(const std::vector<char> rawRequest, size_t & messageEnd){
+bool	Request::parseResquest(std::vector<char> rawRequest, size_t & messageEnd){
 	std::string	CRLF = "\r\n";
 
 	// parse the request line.
@@ -103,6 +103,7 @@ bool	Request::parseResquest(const std::vector<char> rawRequest, size_t & message
 		messageEnd = bodyOffset;
 	std::string	doubleCRLF = "\r\n\r\n";
 	messageEnd = vecFind(rawRequest, doubleCRLF) + 4;
+	std::cout << "PARSABLE\n";
 	return (true);
 }
 	

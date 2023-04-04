@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 10:31:22 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 22:47:16 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,81 @@ int	Server::startListen(){
 	return (this->sockfd);
 }
 
+void	Server::readRequest(const int &i){
+	char				buffer[BUFFSIZE];
+	std::size_t			messageEnd;
+	int					statusCode;
+	Response			response;
+	int					byte;
+	// int					parsed;
+	Connection			connect(clientfd);
+	std::vector<char>	receivedData;
+	ServerManager 		*servManag;
+
+	servManag = (ServerManager *)manager;
+	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
+
+	byte = recv(this->clientfd, buffer, BUFFSIZE, 0);
+	if (byte < 0)
+	{
+		servManag->log.printError("Recv Failed.");
+		servManag->closeConnection(i);
+		return ;
+	}
+	if (byte != 0)
+	{
+		printf("Receiving...data : %i\n", byte);
+		receivedData.insert(receivedData.end(), buffer, buffer + byte);
+		bzero(buffer, sizeof(buffer));
+		for (std::vector<char>::iterator it = receivedData.begin(); it != receivedData.end(); ++it)
+		{
+			std::cout << *it;
+		}
+		printf("End : %i\n", byte);
+	}
+	if (request.parseResquest(receivedData, messageEnd))
+	{
+		servManag->log.printRequest(this->clientfd, request.method, request.target.generateString());
+		connect.setRequest(&request);
+		for (std::vector<char>::iterator it = request.body.begin(); it != request.body.end(); ++it)
+		{
+			std::cout << *it;
+		}
+		printf("Request body : %i\n", byte);
+		data = connect.constructResponse(*this, statusCode);
+	}
+	else
+	{
+		servManag->log.printError("request parse Failed.");
+		statusCode = 404;
+		data = connect.constructResponse(*this, statusCode);
+		servManag->closeConnection(i);
+		return ;
+	}
+}
+
+void	Server::writeResponse(const int &i)
+{
+	size_t	size = this->data.size();
+	int		numSent = 0;
+	char	*p = static_cast<char *>(this->data.data());
+	ServerManager 		*servManag;
+
+	(void) i;
+	servManag = (ServerManager *)manager;
+
+	while (size > 0)
+	{
+		numSent = send(clientfd, p, size, 0);
+		if (numSent < 0)
+			return (servManag->log.printError("Sending message Failed"));
+		size -= numSent;
+	}
+	servManag->log.printResponse(clientfd, 202);
+	// close(clientfd);
+}
+
+/*
 void	Server::newConnection(){
     std::vector<char> data;
 	int			statusCode;
@@ -138,6 +213,7 @@ void	Server::newConnection(){
 	servManag->log.printResponse(clientfd, statusCode);
 	close(clientfd);
 }
+*/
 
 int	Server::acceptConnection(){
     int					addrlen = sizeof(clientAddr);
@@ -147,8 +223,6 @@ int	Server::acceptConnection(){
 		return (-1);
 	return (clientfd);
 }
-#include <sys/stat.h>
-
 std::string	Server::findMatchingUri(std::string path){
 	std::string indexfilename = "index.html";
 	std::ifstream	ifs;

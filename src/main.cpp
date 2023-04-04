@@ -1,3 +1,4 @@
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -6,7 +7,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 10:53:57 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 18:11:49 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +43,7 @@ int	main(int ac, char **av)
 	{
 		// add server and set param
 		sm.addServerBlock();
-		sm.servers[i]->setPort(8001);
+		sm.servers[i]->setPort(8003);
 		sm.servers[i]->setHost("127.0.0.1");
 		sm.servers[i]->setMaxClientBodySize(1024);
 		sm.servers[i]->setIndex("index_1.html");
