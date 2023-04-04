@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 18:06:33 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 09:59:42 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "../include/ServerManager.hpp"
 #include "../include/Connection.hpp"
 
-Server::Server() : sockfd(-1){
+Server::Server() : sockfd(-1), index("index.html"){
 	std::set<std::string> extension;
 
 	extension.insert(".php");
@@ -104,9 +104,15 @@ int	Server::startListen(){
 	serverAddr.sin_addr.s_addr = inet_addr(this->host.c_str());
 
 	if (bind(this->sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
+	{
+		close(this->sockfd);
 		return (servManag->log.printError("Error in binding"), -1);
+	}
 	if ((listen(this->sockfd, 10)) != 0)
+	{
+		close(this->sockfd);
 		return (servManag->log.printError("Error in Listening"), -1);
+	}
 
 	return (this->sockfd);
 }

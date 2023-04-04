@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 16:44:30 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/03 14:18:29 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/03 20:16:58 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,8 @@ int	main(int ac, char **av)
 
 //config End
 
-	sm.initiate();
+	if (!sm.initiate())
+		return (EXIT_FAILURE);
 	sm.run();
 	return (EXIT_SUCCESS);
 }

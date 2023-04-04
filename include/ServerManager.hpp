@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:05 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 20:23:44 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/03 19:35:24 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ private:
 	std::vector<int>		serverFds;
 	bool					error;
 	int						servBlockCount;
+	int						max_socket_so_far;
 	std::string				commonRoot;
 	std::string				commonDefaultErrorPage;
 	bool					commonAutoIndex;
