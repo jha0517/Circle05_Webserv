@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 10:11:52 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/30 09:02:22 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 10:49:22 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	Log::printServerCreation(bool success, Server *serv)
 	else
 	{
 		printTime(FAILED);
-		std::cout << "Server Creation Failed : Host["<< serv->host << "] Port[" << serv->host << "]" << RESET<< std::endl; 
+		std::cout << "Server Creation Failed : Host["<< serv->host << "] Port[" << serv->port << "]" << RESET<< std::endl; 
 	}
 
 }

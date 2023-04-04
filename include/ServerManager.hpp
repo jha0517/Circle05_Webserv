@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:05 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/03 19:35:24 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 10:20:22 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,13 @@ class ServerManager
 private:
 	fd_set					currentSockets;
 	fd_set					readySockets;
-	std::vector<int>		serverFds;
 	bool					error;
 	int						servBlockCount;
 	int						max_socket_so_far;
 	std::string				commonRoot;
 	std::string				commonDefaultErrorPage;
 	bool					commonAutoIndex;
+	std::vector<int>		serverFds;
 
 public:
 	ServerManager();
@@ -49,6 +49,7 @@ public:
 	void			setAutoIndex(bool autoindex);
 	void			setDefaultErrorPage(std::string dir);
 
+	int				closeAndFreeMem();
 	void			addServerBlock();
 };
 

@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 11:15:46 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 10:53:27 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,11 +60,13 @@ bool ServerManager::initiate(){
 		{
 			error = true;
 			this->log.printServerCreation(false, (*it));
+			this->closeAndFreeMem();
 			return (false);
 		}
 		this->log.printServerCreation(true, (*it));
 		serverFds.push_back((*it)->sockfd);
 		FD_SET((*it)->sockfd, &currentSockets);
+		this->max_socket_so_far = (*it)->sockfd;
 	}
 	return (true);
 }
@@ -95,34 +97,54 @@ Server	*findServer(int i, std::vector<Server *> servers, int & isForServer)
 	return (NULL);
 }
 
-int	closeAndFreeMem(std::vector<int> serverFds, std::vector<Server *>servers)
+int	ServerManager::closeAndFreeMem()
 {
 	for (std::vector<int>::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
 		close(*it);
 
 	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
+	{
+		for (std::set<Server::LocationBlock *>::iterator locit = (*it)->locationBloc.begin();\
+		locit != (*it)->locationBloc.end(); ++locit)
+			delete (*locit);
+		for (std::set<Server::RedirectBlock *>::iterator reit = (*it)->redirectionBloc.begin();\
+		reit != (*it)->redirectionBloc.end(); ++reit)
+			delete (*reit);
+
 		delete (*it);
+	}
 	return (0);
 }
 
 bool	ServerManager::run(){
 	int				isForServer;
 	Server			*server;
+	struct timeval  timeout;
 	signal(SIGINT, signalHandler);
 
 	if (error == true)
 		return (false);
+	timeout.tv_sec  = 3;
+	timeout.tv_usec = 0;
 	while (g_run)
 	{
 		readySockets = currentSockets;
-		if (select(FD_SETSIZE, &readySockets, NULL, NULL, NULL) <= 0)
+		int selectRet = select(this->max_socket_so_far + 1, &readySockets, NULL, NULL, &timeout);
+		if ( selectRet < 0)
 		{
 			if (!g_run)
-				return (closeAndFreeMem(serverFds, servers));
+				return (closeAndFreeMem());
 			log.printError("Error in Select");
 			return (EXIT_FAILURE);
 		}
-		for (int i = 0; i < FD_SETSIZE; i++)
+		if ( selectRet == 0)
+		{
+			if (!g_run)
+				return (closeAndFreeMem());
+			log.printError("Timeout");
+			return (EXIT_FAILURE);
+		}
+		for (int i = 0; i < this->max_socket_so_far + 1 && selectRet > 0; i++)
 		{
 			if (FD_ISSET(i, &readySockets)){
 				server = findServer(i, servers, isForServer);
@@ -132,6 +154,8 @@ bool	ServerManager::run(){
 					if (server->clientfd < 0)
 						return (EXIT_FAILURE);
 					FD_SET(server->clientfd, &currentSockets);
+					if (server->clientfd > this->max_socket_so_far)
+						this->max_socket_so_far = server->clientfd;
 				}
 				else if (server && (isForServer == 0))
 				{

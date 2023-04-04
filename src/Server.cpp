@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 09:59:42 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 10:31:22 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,12 +105,10 @@ int	Server::startListen(){
 
 	if (bind(this->sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
 	{
-		close(this->sockfd);
 		return (servManag->log.printError("Error in binding"), -1);
 	}
 	if ((listen(this->sockfd, 10)) != 0)
 	{
-		close(this->sockfd);
 		return (servManag->log.printError("Error in Listening"), -1);
 	}
 
