@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 18:08:08 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/04 23:06:38 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ private:
 public:
 	Response();
 	~Response();
+	int					cgiState;
 	unsigned int		statusCode;
 	std::string			reasonPhrase;
 	Uri					target;

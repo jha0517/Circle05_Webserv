@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 22:49:25 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 01:16:25 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,7 @@ int	ServerManager::closeAndFreeMem()
 void	ServerManager::addToSet(const int i, fd_set &set)
 {
 	FD_SET(i, &set);
+	std::cout << "adding " << i << std::endl;
 	if (i > this->max_socket_so_far)
 		this->max_socket_so_far = i;
 }
@@ -133,12 +134,12 @@ void    ServerManager::closeConnection(const int i)
 {
     if (FD_ISSET(i, &this->writeSockets))
 	{
-		std::cout << "closing from writing " << i << std::endl;
+		// std::cout << "closing from writing " << i << std::endl;
         removeFromSet(i, this->writeSockets);
 	}
     if (FD_ISSET(i, &this->readSockets))
 	{
-		std::cout << "closing from reading " << i << std::endl;
+		// std::cout << "closing from reading " << i << std::endl;
         removeFromSet(i, this->readSockets);
 	}
     close(i);	
@@ -147,6 +148,7 @@ void    ServerManager::closeConnection(const int i)
 void	ServerManager::removeFromSet(const int i, fd_set &set)
 {
     FD_CLR(i, &set);
+	std::cout << "removing " << i << std::endl;
     if (i == this->max_socket_so_far)
         this->max_socket_so_far--;
 }
@@ -180,6 +182,7 @@ bool	ServerManager::run(){
 			return (log.printError("Timeout"), EXIT_FAILURE);
 		for (int i = 0; i < this->max_socket_so_far + 1 && selectRet > 0; i++)
 		{
+			std::cout << i << std::endl;
 			if (FD_ISSET(i, &readSocketsCopy) && (server = findServer(i, servers)))
 			{
 				server->clientfd = server->acceptConnection();
@@ -195,9 +198,18 @@ bool	ServerManager::run(){
 			}
 			else if (FD_ISSET(i, &writeSocketsCopy) && (server = findClient(i, servers)))
 			{
-				server->writeResponse(i);
-				closeConnection(i);
+				// int state = server->cgiState;
+				// if (state == 1)
+					// server->cgiRequest();
+				// if (state == 2)
+					// server->cgiResponse();
+				// else if (state == 0)
+				// {
+					server->writeResponse(i);
+					closeConnection(i);
+				// }
 			}
+			std::cout << "finished"<< std::endl;
 		}
 	}
 	return (closeAndFreeMem());

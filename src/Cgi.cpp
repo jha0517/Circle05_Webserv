@@ -192,6 +192,7 @@ bool	Cgi::upload(){
 std::vector<char>	Cgi::execute(){
 	std::vector<char>	data;
 
+	std::cout << "CGI Execution\n";
 	int pipefd[2];
 	if (pipe(pipefd) == -1)
 		printf("Error in opening pipe\n");

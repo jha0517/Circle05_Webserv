@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 22:47:16 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 01:19:42 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,13 +157,13 @@ void	Server::readRequest(const int &i){
 		}
 		printf("Request body : %i\n", byte);
 		data = connect.constructResponse(*this, statusCode);
+		std::cout << "cgiState" << cgiState << std::endl;
 	}
 	else
 	{
 		servManag->log.printError("request parse Failed.");
-		statusCode = 404;
+		statusCode = 500;
 		data = connect.constructResponse(*this, statusCode);
-		servManag->closeConnection(i);
 		return ;
 	}
 }
@@ -187,6 +187,27 @@ void	Server::writeResponse(const int &i)
 	}
 	servManag->log.printResponse(clientfd, 202);
 	// close(clientfd);
+}
+
+void	Server::cgiRequest(){
+	Cgi cgi;
+	cgi.analyse(this, &request);
+	cgi.addEnvParam(request.target.getQuery());
+	this->data = cgi.execute();
+	std::cout << "start\n";
+	for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+	{
+		std::cout << *it;
+	}
+	std::cout << "end\n";
+
+}
+
+void	Server::cgiResponse(){
+	Response response;
+
+	this->data = response.buildResponseForCgi(this->data, 200);
+	this->cgiState = 0;
 }
 
 /*

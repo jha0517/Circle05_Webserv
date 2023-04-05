@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 17:25:27 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 00:20:15 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,8 @@ public:
 	void				setCgiPath(std::string path);
 	void				setCgiExt(std::set<std::string> extension);
 	void				setCgiScriptPath(std::string path);
-
+	void				cgiRequest();
+	void				cgiResponse();
 	unsigned int		getLocBlockCount();
 	unsigned int		getRedirectBlockCount();
 	void				addLocBlock(std::string dir, std::string index);
@@ -82,6 +83,7 @@ public:
 	bool					autoIndex;
 	bool					hasCgiBlock;
 	int						clientfd;
+	int						cgiState;
 	int						maxClientBodySize;
 	std::string				uploadPath;
 	std::string				error_page;
@@ -93,9 +95,9 @@ public:
 	std::set<LocationBlock *>	locationBloc;
 	std::set<RedirectBlock *>	redirectionBloc;
 	CgiBlock				cgiBloc;
+	Request					request;
 private:
     std::vector<char>		data;
-	Request					request;
 	struct sockaddr_in		serverAddr;
 	struct sockaddr_in		clientAddr;
 	unsigned int			nLoc;

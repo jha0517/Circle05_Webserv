@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 20:15:03 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 01:12:09 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <sys/stat.h>
 
-Response::Response()
+Response::Response() : cgiState(0)
 {
 	statusCodeDic.insert(std::pair<int, std::string>(200, "OK"));
 	statusCodeDic.insert(std::pair<int, std::string>(400, "Bad Request"));
@@ -361,6 +361,7 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 
 	if (!request->target.getQuery().empty())
 	{
+		server.cgiState = 1;
 		Cgi cgi;
 		cgi.analyse(&server, request);
 		cgi.addEnvParam(request->target.getQuery());
