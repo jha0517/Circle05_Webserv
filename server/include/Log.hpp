@@ -6,19 +6,18 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 10:36:10 by hyunah            #+#    #+#             */
-/*   Updated: 2023/03/29 17:19:53 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 22:57:43 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOG_H
 # define LOG_H
-# include <ctime>
-# include <iostream>
-# include <ostream>
 # include "Colors.hpp"
+// # include <string>
 # include "Server.hpp"
 # define FAILED RED
 
+// class Server;
 class Log
 {
 private:
@@ -33,6 +32,7 @@ public:
 	void	printRequest(unsigned int clientFd, std::string method, std::string uri);
 	void	printResponse(unsigned int clientFd, int statusCode);
 	void	printError(std::string errorMessage);
+	void	printMsg(std::string errorMessage);
 };
 
 #endif

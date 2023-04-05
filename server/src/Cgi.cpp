@@ -38,15 +38,21 @@ std::string	Cgi::getCmd() const {return (this->cmd);}
 void	Cgi::addEnvParam(std::string key, std::string value){this->env.push_back(key + "=" + value);}
 void	Cgi::addEnvParam(std::string str){this->env.push_back(str);}
 
-bool	Cgi::analyse(Server *server, Request *request){
+int	Cgi::analyse(Server *server, Request *request){
 
 	//scriptPath - TODO : gotta check if exist
 	this->scriptPath = server->root + server->cgiBloc.cgiScriptPath + "/" + request->target.getPath().back();
 	if (check_filename_get_str(this->scriptPath.c_str()).empty())
+	{
 		std::cout << "cgi script php file error \n";
+		return (404);
+	}
 	this->file.tmpLoc = server->uploadPath;
 	if (!isDirectory(this->file.tmpLoc.c_str()))
+	{
 		std::cout << "cgi file tmpLoc error \n";
+		return (404);
+	}
 	std::cout << "this->file.tmpLoc:" << this->file.tmpLoc<< std::endl;
 
 	//cmd
@@ -72,7 +78,7 @@ bool	Cgi::analyse(Server *server, Request *request){
 	addEnvParam("REQUEST_METHOD", request->method);
 	addEnvParam("REQUEST_URI", request->target.generateString());
 	addEnvParam("SERVER_PROTOCOL", "HTTP/1.1");
-	return (true);
+	return (0);
 }
 
 char	**Cgi::getPathArray(){
@@ -80,7 +86,7 @@ char	**Cgi::getPathArray(){
 	char	**path = (char **)calloc(sizeof(char *), 2 + 1);
 	path[0] = strdup(this->cmd.c_str());
 	path[1] = strdup(this->scriptPath.c_str());
-	std::cout << "scriptPath" << this << std::endl;
+	// std::cout << "scriptPath" << this << std::endl;
 	path[2] = NULL;
 
 	return (path);	
@@ -94,7 +100,7 @@ char	**Cgi::getEnvArray(){
 	for (std::vector<std::string>::iterator it = env.begin(); it != env.end(); ++it)
 	{
 		newEnv[i] = strdup(it->c_str());
-		std::cout << i << ". " << it->c_str() << std::endl;
+		// std::cout << i << ". " << it->c_str() << std::endl;
 		i++;
 	}
 	return (newEnv);

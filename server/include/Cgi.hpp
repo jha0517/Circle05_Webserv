@@ -10,13 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CGI_HPP
-# define CGI_HPP
-# include "../include/Request.hpp"
-# include "../include/Server.hpp"
+#ifndef CGI_H
+# define CGI_H
+# include "Request.hpp"
+# include "Server.hpp"
 # include <map>
 # include <vector>
 # include <fstream>
+
+// class Server;
 
 class Cgi
 {
@@ -41,7 +43,7 @@ public:
 	Cgi &operator=(Cgi & rhs);
 	~Cgi();
 
-	bool			analyse(Server *server, Request *request);
+	int				analyse(Server *server, Request *request);
 	std::string 	getScriptPath() const;
 	std::string		getCmd() const;
 	void			addEnvParam(std::string key, std::string value);

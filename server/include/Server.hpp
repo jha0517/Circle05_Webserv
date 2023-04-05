@@ -6,13 +6,14 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 17:01:44 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 22:47:41 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_H
 # define SERVER_H
 # include "Request.hpp"
+# include "Connection.hpp"
 # include <string>
 # include <set>
 # include <csignal>
@@ -20,15 +21,17 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <map>
+# include <cstddef>
 # include <sys/socket.h>
 # include <sys/types.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/stat.h>
-# include <map>
-# include <cstddef>
+# include <fstream>
 # define BUFFSIZE 300
 
+class ServerManager;
 class Server
 {
 public:
@@ -52,9 +55,8 @@ public:
 		};
 
 	int					startListen();
-	int					acceptConnection();
+	int					acceptConnection(ServerManager *servManag);
 	void				newConnection();
-	void				readRequest(const int &i);
 	void				writeResponse(const int &i);
 	std::string			findMatchingUri(std::string path);
 
@@ -82,7 +84,7 @@ public:
 	int						sockfd;
 	bool					autoIndex;
 	bool					hasCgiBlock;
-	int						clientfd;
+	// int						clientfd;
 	int						cgiState;
 	int						maxClientBodySize;
 	std::string				uploadPath;
@@ -95,11 +97,11 @@ public:
 	std::set<LocationBlock *>	locationBloc;
 	std::set<RedirectBlock *>	redirectionBloc;
 	CgiBlock				cgiBloc;
-	Request					request;
+	// Request					request;
 private:
-    std::vector<char>		data;
+    // std::vector<char>		data;
 	struct sockaddr_in		serverAddr;
-	struct sockaddr_in		clientAddr;
+	// struct sockaddr_in		clientAddr;
 	unsigned int			nLoc;
 	unsigned int			nRedirect;
 };

@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 18:42:14 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 23:48:37 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -341,7 +341,7 @@ std::vector<char>	Response::buildResponseForCgi(std::vector<char> data, int code
 	return (data);
 }
 
-std::vector<char>	Response::getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
+std::vector<char>	Response::getMethod(Server &server, Request *request, std::size_t messageEnd){
 	(void) messageEnd;
 
 	// GET must have empty body, if not, Bad Request.
@@ -364,7 +364,6 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		return (data);
 	}
 
-	clientfd = server.clientfd;
 	std::string path = server.findMatchingUri(request->target.generateString());
 	if (path.empty())
 	{
@@ -391,7 +390,7 @@ void	addEnv(std::vector<std::string> &env, std::string key, std::string value)
 	env.push_back(key + "=" + value);
 }
 
-std::vector<char>	Response::postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
+std::vector<char>	Response::postMethod(Server &server, Request *request, std::size_t messageEnd){
 	(void) messageEnd;
 	(void) statusCode;
 	std::vector<char>	data;

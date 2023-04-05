@@ -12,10 +12,12 @@
 
 #ifndef CONNECTION_H
 # define CONNECTION_H
+
 # include <string>
 # include <vector>
 # include "Client.hpp"
-# include "Server.hpp"
+// # include "Server.hpp"
+// # include "ServerManager.hpp"
 # include <set>
 # include <csignal>
 # include "Request.hpp"
@@ -31,23 +33,34 @@
 typedef void(*DataReceivedDelegate)(std::vector<unsigned char>);
 typedef void(*BrokenDelegate)();
 
+class ServerManager;
+class Server;
+class Response;
+
 class Connection
 {
 public:
 
-	Connection(int socketfd);
+	Connection();
 	~Connection();
+	Connection(int socketfd);
 	Connection(Connection const &src);
 	Connection &operator=(Connection const &rhs);
 
-	std::vector<char>	constructResponse(Server & server, int & statusCode);
-	void				setRequest(Request *request);
+	std::vector<char>	constructResponse();
+	void				readRequest(const int &i, ServerManager *servManag);
+	void				writeResponse(const int &i, ServerManager *servManag);
+	void				cgiRequest(const int &i, ServerManager *servManag);
+	void				cgiResponse(const int &i, ServerManager *servManag);
 	std::vector<char>	dataReceived;
+	std::vector<char>	dataResponse;
+	struct sockaddr_in	clientAddr;
+	Server				*serv;
+	int					cgiState;
 
 private:
-	Connection();
 	int		socketfd;
-	Request	*request;
+	Request	request;
 };
 
 #endif

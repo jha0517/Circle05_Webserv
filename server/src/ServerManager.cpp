@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 18:16:06 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 23:44:38 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void	ServerManager::setServerBlockCount(int i){this->servBlockCount = i;}
 
 void	ServerManager::setRoot(std::string root){
 	this->commonRoot = root;
-	}
+}
 
 void	ServerManager::setAutoIndex(bool autoindex){this->commonAutoIndex = autoindex;}
 
@@ -69,38 +69,13 @@ bool ServerManager::initiate(){
 			return (false);
 		}
 		this->log.printServerCreation(true, (*it));
-		serverFds.push_back((*it)->sockfd);
-		std::cout << "Server adding " << (*it)->sockfd << " readSockets" << std::endl;
+		serversMap.insert(std::make_pair((*it)->sockfd, (*it)));
+		// serverFds.push_back((*it)->sockfd);
+		// std::cout << "Server adding " << (*it)->sockfd << " readSockets" << std::endl;
 		addToSet((*it)->sockfd, this->readSockets);
 		this->max_socket_so_far = (*it)->sockfd;
 	}
 	return (true);
-}
-
-Server	*findServer(int i, std::vector<Server *> servers)
-{
-	std::vector<Server *>::iterator itS = servers.begin();
-	std::vector<Server *>::iterator itE = servers.end();
-	while (itS != itE)
-	{
-		if ((*itS)->sockfd == i)
-			return ((*itS));
-		itS++;
-	}
-	return (NULL);
-}
-
-Server	*findClient(int i, std::vector<Server *> servers)
-{
-	std::vector<Server *>::iterator itS = servers.begin();
-	std::vector<Server *>::iterator itE = servers.end();
-	while (itS != itE)
-	{
-		if ((*itS)->clientfd == i)
-			return ((*itS));
-		itS++;
-	}
-	return (NULL);
 }
 
 int	ServerManager::closeAndFreeMem()
@@ -134,6 +109,7 @@ void    ServerManager::closeConnection(const int i)
 {
     if (FD_ISSET(i, &this->writeSockets))
 	{
+		this->log.printMsg("closing from writing ");
 		std::cout << "closing from writing " << i << std::endl;
         removeFromSet(i, this->writeSockets);
 	}
@@ -154,7 +130,7 @@ void	ServerManager::removeFromSet(const int i, fd_set &set)
 }
 
 bool	ServerManager::run(){
-	Server			*server;
+	// Server			*server;
 	struct timeval  timeout;
     fd_set  readSocketsCopy;
     fd_set  writeSocketsCopy;
@@ -183,20 +159,27 @@ bool	ServerManager::run(){
 		for (int i = 0; i < this->max_socket_so_far + 1 && selectRet > 0; i++)
 		{
 			// std::cout << i << std::endl;
-			if (FD_ISSET(i, &readSocketsCopy) && (server = findServer(i, servers)))
+			if (FD_ISSET(i, &readSocketsCopy) && serversMap.count(i))
 			{
-				server->clientfd = server->acceptConnection();
-				if (server->clientfd < 0)
+				int connectFd;
+				connectFd = serversMap[i]->acceptConnection(this);
+				if (connectFd < 0)
 					return (EXIT_FAILURE);
-				addToSet(server->clientfd, this->readSockets);
+				addToSet(connectFd, this->readSockets);
 			}
-			else if (FD_ISSET(i, &readSocketsCopy) && (server = findClient(i, servers)))
+			else if (FD_ISSET(i, &readSocketsCopy) && connections.count(i))
 			{
-				server->readRequest(i);
+				connections[i]->readRequest(i, this);
 			}
-			else if (FD_ISSET(i, &writeSocketsCopy) && (server = findClient(i, servers)))
+			else if (FD_ISSET(i, &writeSocketsCopy) && connections.count(i))
 			{
-				server->writeResponse(i);
+				printf("YOOOOO, connections[i]->cgiState: %i\n", connections[i]->cgiState);
+				if (connections[i]->cgiState == 1)
+					connections[i]->cgiRequest(i, this);	
+				if (connections[i]->cgiState == 2)
+					connections[i]->cgiRequest(i, this);
+				else
+					connections[i]->writeResponse(i, this);
 				sleep(1);
 				closeConnection(i);
 			}

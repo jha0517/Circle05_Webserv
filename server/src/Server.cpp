@@ -6,13 +6,13 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 18:42:17 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 23:47:51 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 #include "../include/ServerManager.hpp"
-#include "../include/Connection.hpp"
+
 
 Server::Server() : sockfd(-1), index("index.html"){
 	std::set<std::string> extension;
@@ -21,6 +21,7 @@ Server::Server() : sockfd(-1), index("index.html"){
 	this->cgiBloc.cgiPath = "./data/cgi-bin";
 	this->cgiBloc.cgiScriptPath = "/usr/bin/cgi-bin";
 	this->cgiBloc.cgiExt = extension;
+	this->cgiState = 0;
 }
 
 Server::~Server(){}
@@ -33,7 +34,7 @@ Server &Server::operator=(Server const &rhs){
 		this->port = rhs.port;
 		this->sockfd = rhs.sockfd;
 		this->autoIndex = rhs.autoIndex;
-		this->clientfd = rhs.clientfd;
+		// this->clientfd = rhs.clientfd;
 		this->maxClientBodySize = rhs.maxClientBodySize;
 		this->error_page = rhs.error_page;
 		this->host = rhs.host;
@@ -110,108 +111,10 @@ int	Server::startListen(){
 	{
 		return (servManag->log.printError("Error in Listening"), -1);
 	}
-	std::cout << "STARt listening:" <<this->sockfd << "port"<< this->port <<std::endl;
+	std::cout << "START listening:" <<this->sockfd << "port"<< this->port <<std::endl;
 
 	return (this->sockfd);
 }
-
-void	Server::readRequest(const int &i){
-	char				buffer[BUFFSIZE];
-	std::size_t			messageEnd;
-	int					statusCode;
-	Response			response;
-	int					byte;
-	// int					parsed;
-	Connection			connect(clientfd);
-	ServerManager 		*servManag;
-
-	servManag = (ServerManager *)manager;
-	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
-	// std::cout << "new connection data size has to be 0: " << data.size() << std::endl;
-	byte = recv(this->clientfd, buffer, BUFFSIZE, 0);
-	if (byte < 0)
-	{
-		servManag->log.printError("Recv Failed.");
-		servManag->closeConnection(i);
-		return ;
-	}
-	if (byte == 0)
-	{
-		servManag->closeConnection(i);
-		return ;
-	}
-	if (byte != 0)
-	{
-		data.insert(data.end(), buffer, buffer + byte);
-		bzero(buffer, sizeof(buffer));
-	}
-	// printData(data);
-	if (request.parseResquest(data, messageEnd))
-	{
-		servManag->log.printRequest(this->clientfd, request.method, request.target.generateString());
-		printf("Parsing SUCCESS: %li\n", this->data.size());
-		std::cout << request;
-		// if (request.target.generateString().find(".php"))
-		// {
-		// 	std::cout << "THIS IS PHP!" << std::endl;
-		// 	servManag->removeFromSet(i, servManag->readSockets);
-		// 	servManag->addToSet(i, servManag->writeSockets);
-		// 	return ;
-		// }
-		connect.setRequest(&request);
-		data = connect.constructResponse(*this, statusCode);
-		servManag->removeFromSet(i, servManag->readSockets);
-		servManag->addToSet(i, servManag->writeSockets);
-	}
-	return ;
-}
-
-void	Server::writeResponse(const int &i)
-{
-	size_t	size = this->data.size();
-	int		numSent = 0;
-	char	*p = static_cast<char *>(this->data.data());
-	ServerManager 		*servManag;
-
-	(void) i;
-	servManag = (ServerManager *)manager;
-	std::cout << "received data size for writing side: " << this->data.size() << std::endl;
-
-	while (size > 0)
-	{
-		numSent = send(this->clientfd, p, size, 0);
-		if (numSent < 0)
-			return (servManag->log.printError("Sending message Failed"));
-		size -= numSent;
-	}
-	std::cout << "SENT!\n ";
-	servManag->log.printResponse(clientfd, 202);
-	if (data.size() != 0)
-		data.clear();
-	// close(clientfd);
-}
-
-void	Server::cgiRequest(){
-	Cgi cgi;
-	cgi.analyse(this, &request);
-	cgi.addEnvParam(request.target.getQuery());
-	this->data = cgi.execute();
-	std::cout << "start\n";
-	for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
-	{
-		std::cout << *it;
-	}
-	std::cout << "end\n";
-
-}
-
-void	Server::cgiResponse(){
-	Response response;
-
-	this->data = response.buildResponseForCgi(this->data, 200);
-	this->cgiState = 0;
-}
-
 /*
 void	Server::newConnection(){
     std::vector<char> data;
@@ -238,12 +141,16 @@ void	Server::newConnection(){
 }
 */
 
-int	Server::acceptConnection(){
-    int					addrlen = sizeof(clientAddr);
-	
-	clientfd = accept(sockfd, (struct sockaddr*)&clientAddr, (socklen_t *)&addrlen);
+int	Server::acceptConnection(ServerManager *servManag){
+	Connection	*c = new Connection();
+    int			addrlen = sizeof(c->clientAddr);
+	int			clientfd;
+
+	clientfd = accept(sockfd, (struct sockaddr*)&c->clientAddr, (socklen_t *)&addrlen);
 	if (clientfd < 0)
 		return (-1);
+	c->serv = this;
+	servManag->connections.insert(std::make_pair(clientfd, c));
 	return (clientfd);
 }
 

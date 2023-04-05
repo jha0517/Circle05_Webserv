@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 23:06:38 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 22:17:52 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,9 @@ public:
 	std::vector<char>	data;
 	std::string			generateDateHeader();
 	std::string			generateRawResponse(int code, MessageHeaders msg, std::string body);
-	std::vector<char>	getMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
-	std::vector<char>	postMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
-	// std::string		deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode);
+	std::vector<char>	getMethod(Server &server, Request *request, std::size_t messageEnd);
+	std::vector<char>	postMethod(Server &server, Request *request, std::size_t messageEnd);
+	// std::string		deleteMethod(Server &server, Request *request, std::size_t messageEnd);
 	std::vector<char>	buildResponse(Server & server, Request * request, std::string dir, int errorCode);
 	std::vector<char>	buildErrorResponse(std::string dir, int errorCode);
 	std::vector<char>	buildResponseForCgi(std::vector<char> data, int code);

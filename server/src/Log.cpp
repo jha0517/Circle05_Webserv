@@ -6,11 +6,14 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 10:11:52 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 10:49:22 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 22:58:20 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Log.hpp"
+# include <ctime>
+# include <iostream>
+# include <ostream>
 
 Log::Log(){}
 
@@ -71,3 +74,6 @@ void	Log::printError(std::string errorMessage){
 	std::cerr << FAILED << "Error : " << errorMessage << RESET << std::endl;		
 }
 
+void	Log::printMsg(std::string msg){
+	std::cout << PURPLE << msg << RESET << std::endl;		
+}

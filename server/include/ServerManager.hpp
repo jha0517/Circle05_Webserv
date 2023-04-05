@@ -6,16 +6,19 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:05 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 11:30:49 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 22:30:26 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVERMANAGER_H
 # define SERVERMANAGER_H
 # include <vector>
+# include <map>
 # include <sys/select.h>
 # include "Server.hpp"
 # include "Log.hpp"
+
+class Connection;
 
 class ServerManager
 {
@@ -45,6 +48,8 @@ public:
 	bool	run();
 
 	std::vector<Server *>	servers;
+	std::map<int, Server *>	serversMap;
+	std::map<int, Connection *>	connections;
 	void			setServerBlockCount(int servBlockCount);
 	unsigned int	getServerBlockCount(void) const;
 	void			setCommonParameter(std::string root, bool autoindex, std::string defaultErrorPage);
