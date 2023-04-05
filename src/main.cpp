@@ -47,6 +47,7 @@ int	main(int ac, char **av)
 		sm.servers[i]->setHost("127.0.0.1");
 		sm.servers[i]->setMaxClientBodySize(1024);
 		sm.servers[i]->setIndex("index_1.html");
+		// sm.servers[i]->setUploadPath("./data/upload");
 		sm.servers[i]->setUploadPath("./data/upload");
 
 		std::set<std::string> method;

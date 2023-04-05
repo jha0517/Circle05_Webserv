@@ -42,7 +42,7 @@ bool	Cgi::analyse(Server *server, Request *request){
 	//scriptPath
 	this->scriptPath = server->cgiBloc.cgiScriptPath + "/" + request->target.getPath().back();
 	this->file.tmpLoc = server->uploadPath;
-	
+	std::cout << "this->file.tmpLoc" << this->file.tmpLoc<< std::endl;
 	//cmd
 	for (std::map<std::string, std::string>::iterator it = this->cmdMap.begin();\
 		it != this->cmdMap.end(); ++it)
