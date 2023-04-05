@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/06 00:04:22 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/06 00:24:58 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,7 @@ void	Connection::readRequest(const int &i, ServerManager *servManag){
 		std::cout << request;
 		dataReceived.clear();
 		dataResponse = constructResponse();
+		printData(dataResponse);
 		servManag->removeFromSet(i, servManag->readSockets);
 		servManag->addToSet(i, servManag->writeSockets);
 	}
@@ -149,7 +150,6 @@ void	Connection::writeResponse(const int &i, ServerManager *servManag)
 	char	*p = static_cast<char *>(this->dataResponse.data());
 
 	std::cout << "received data size for writing side: " << this->dataResponse.size() << std::endl;
-
 	while (size > 0)
 	{
 		numSent = send(i, p, size, 0);
@@ -157,7 +157,7 @@ void	Connection::writeResponse(const int &i, ServerManager *servManag)
 			return (servManag->log.printError("Sending message Failed"));
 		size -= numSent;
 	}
-	std::cout << "SENT!\n ";
+	printData(dataResponse);
 	servManag->log.printResponse(i, 202);
 	if (dataResponse.size() != 0)
 		dataResponse.clear();

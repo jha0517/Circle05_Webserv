@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 23:47:51 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/06 00:28:27 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,24 +160,24 @@ std::string	Server::findMatchingUri(std::string path){
 
 	if (path.find(".") != std::string::npos)
 	{
-		// std::cout <<"1final path is " << this->root + path << std::endl;
+		std::cout <<"1final path is " << this->root + path << std::endl;
 		return (this->root + path);
 	}
 	if (path == "/")
 	{
 		indexfilename = this->index;
-		// std::cout <<"2final path is " << this->root + "/" + indexfilename << std::endl;
+		std::cout <<"2final path is " << this->root + "/" + indexfilename << std::endl;
 		return (this->root + "/" + indexfilename);
 	}
 	//check in LocationBlock
 	std::set<LocationBlock *>::iterator it;
 	for (std::set<LocationBlock *>::iterator it = this->locationBloc.begin(); it != this->locationBloc.end(); ++it)
 	{
-		// std::cout << "Looping throuh...: " << (*it)->dir << " == ? "<< path << std::endl;
+		std::cout << "Looping throuh...: " << (*it)->dir << " == ? "<< path << std::endl;
 		if ((*it)->dir == path)
 		{
 			indexfilename = (*it)->index;
-			// std::cout <<"3final path is " << this->root + path  + "/" + indexfilename << std::endl;
+			std::cout <<"3final path is " << this->root + path  + "/" + indexfilename << std::endl;
 			return (this->root + path  + "/" + indexfilename);
 		}
 	}

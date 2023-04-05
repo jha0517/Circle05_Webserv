@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 23:48:37 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/06 00:32:31 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,18 +227,8 @@ std::vector<char>	Response::buildResponse(Server &server, Request * request, std
 	(void) code;
 	(void) server;
 	
-	//autoindex
-	if (isDirectory(dir.c_str()))
-	{
-	// std::cout << "Is Directory" << std::endl;
-		// do auto index
-		if (server.autoIndex)
-			return (buildResponseforAutoIndex(request, dir, 200));
-		else
-			return (buildErrorResponse(server.error_page, 403));
-	}
 	// std::cout << "Is NOT Directory" << std::endl;
-	
+	(void) request;
 	msg.addHeader("Date", generateDateHeader());
 	msg.addHeader("Content-Type", getMimeType(dir));
 	if (getMimeType(dir) == "text/plain" || getMimeType(dir) == "text/html")
@@ -375,6 +365,18 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		data = buildResponseForRedirection(server, request, path, 200);
 		return (data);
 	}
+	//autoindex
+	if (isDirectory(path.c_str()))
+	{
+	// std::cout << "Is Directory" << std::endl;
+		// do auto index
+		if (server.autoIndex)
+			return (buildResponseforAutoIndex(request, path, 200));
+		else
+			return (buildErrorResponse(server.error_page, 403));
+	}
+	if (check_filename_get_str(path.c_str()).empty())
+		return (buildErrorResponse(server.error_page, 404));	
 	data = buildResponse(server, request, path, 200);
 	statusCode = 200;
 	if (data.empty())
