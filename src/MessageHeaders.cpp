@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../include/MessageHeaders.hpp"
-
+#include <cstdio>
 MessageHeaders::MessageHeaders(){}
 
 MessageHeaders::~MessageHeaders(){}
@@ -73,7 +73,9 @@ bool	MessageHeaders::parseFromString(const std::string &rawMsg, size_t & bodyOff
 		lineTerminator = rest.find(endl);
 	}
 	bodyOffset = offset;
-	body = rest.substr(endl.length());
+	// printf("6, endl.length() %li\n", endl.length());
+	// body = rest.substr(endl.length());
+	// printf("7\n");
 	return (true);
 }
 

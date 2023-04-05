@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 01:19:42 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 09:54:07 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,46 @@ void	Server::readRequest(const int &i){
 
 	servManag = (ServerManager *)manager;
 	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
+	printf("Before Reception\n");
+	// recv enought to know the content-length and for the body-> store in the vector<char>
+	// if request msg is not finished, do a loop and get the full msg.	
+	while ((byte = recv(this->clientfd, buffer, BUFFSIZE, 0)) > 0)
+	{
+		printf("Recepting\n");
+		if (byte < 0)
+		{
+			servManag->log.printError("Recv Failed.");
+			servManag->closeConnection(i);
+			return ;
+		}
+		printf("received byte : %i\n", byte);
+		receivedData.insert(receivedData.end(), buffer, buffer + byte);
+		printf("total : %li\n", receivedData.size());
+		if (request.parseResquest(receivedData, messageEnd) == 1)
+			break;
+		else
+			printf("data not all received\n");
+
+		bzero(buffer, sizeof(buffer));
+	}
+
+	bzero(buffer, sizeof(buffer));
+	if (request.parseResquest(receivedData, messageEnd))
+	{
+		servManag->log.printRequest(this->clientfd, request.method, request.target.generateString());
+		printf("Parsing SUCCESS: %i\n", byte);
+		connect.setRequest(&request);
+		// for (std::vector<char>::iterator it = request.body.begin(); it != request.body.end(); ++it)
+		// {
+		// 	std::cout << *it;
+		// }
+		// printf("Request body : %i\n", byte);
+		data = connect.constructResponse(*this, statusCode);
+		std::cout << "received data size for reading side: " << data.size() << std::endl;
+	}
+/*
+	servManag = (ServerManager *)manager;
+	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
 
 	byte = recv(this->clientfd, buffer, BUFFSIZE, 0);
 	if (byte < 0)
@@ -150,22 +190,25 @@ void	Server::readRequest(const int &i){
 	if (request.parseResquest(receivedData, messageEnd))
 	{
 		servManag->log.printRequest(this->clientfd, request.method, request.target.generateString());
+		printf("Parsing SUCCESS: %i\n", byte);
 		connect.setRequest(&request);
-		for (std::vector<char>::iterator it = request.body.begin(); it != request.body.end(); ++it)
-		{
-			std::cout << *it;
-		}
-		printf("Request body : %i\n", byte);
+		// for (std::vector<char>::iterator it = request.body.begin(); it != request.body.end(); ++it)
+		// {
+		// 	std::cout << *it;
+		// }
+		// printf("Request body : %i\n", byte);
 		data = connect.constructResponse(*this, statusCode);
-		std::cout << "cgiState" << cgiState << std::endl;
 	}
-	else
-	{
-		servManag->log.printError("request parse Failed.");
-		statusCode = 500;
-		data = connect.constructResponse(*this, statusCode);
-		return ;
-	}
+	*/
+		// printf("Parsing NOT SUCCESS: %i\n", byte);
+	// else
+	// {
+	// 	servManag->log.printError("request parse Failed.");
+	// 	statusCode = 500;
+	// 	data = connect.constructResponse(*this, statusCode);
+	// 	return ;
+	// }
+	return ;
 }
 
 void	Server::writeResponse(const int &i)
@@ -177,14 +220,16 @@ void	Server::writeResponse(const int &i)
 
 	(void) i;
 	servManag = (ServerManager *)manager;
+	std::cout << "received data size for writing side: " << this->data.size() << std::endl;
 
 	while (size > 0)
 	{
-		numSent = send(clientfd, p, size, 0);
+		numSent = send(this->clientfd, p, size, 0);
 		if (numSent < 0)
 			return (servManag->log.printError("Sending message Failed"));
 		size -= numSent;
 	}
+	std::cout << "SENT!\n ";
 	servManag->log.printResponse(clientfd, 202);
 	// close(clientfd);
 }

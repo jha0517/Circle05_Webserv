@@ -43,7 +43,7 @@ int	main(int ac, char **av)
 	{
 		// add server and set param
 		sm.addServerBlock();
-		sm.servers[i]->setPort(8001);
+		sm.servers[i]->setPort(8002);
 		sm.servers[i]->setHost("127.0.0.1");
 		sm.servers[i]->setMaxClientBodySize(1024);
 		sm.servers[i]->setIndex("index_1.html");

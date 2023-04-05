@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 16:35:23 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 18:18:46 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 09:33:37 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,12 +78,15 @@ bool	Request::parseResquest(std::vector<char> rawRequest, size_t & messageEnd){
 	std::string	requestLine = vecSubstr(rawRequest, 0, requestLineEnd);
 	if (!parseRequestLine(this, requestLine))
 		return (printf("request Line Not Parsable\n"), false);
+	// printf("request Line PARSING OK\n");
 
 	// parse the headers line.
 	size_t	bodyOffset = 0;
 	size_t	headerOffset = requestLineEnd + CRLF.length();
-	if (!this->headers.parseFromString(vecSubstr(rawRequest, headerOffset, rawRequest.size()), bodyOffset))
+	std::string	header = vecSubstr(rawRequest, headerOffset, rawRequest.size());
+	if (!this->headers.parseFromString(header, bodyOffset))
 		return (printf("Header Line End\n"), false);
+	// printf("Header Line PARSING OK\n");
 
 	// check for content-length header. if present, use this to determine how many character should be in the body.
 	bodyOffset += headerOffset;
@@ -103,7 +106,7 @@ bool	Request::parseResquest(std::vector<char> rawRequest, size_t & messageEnd){
 		messageEnd = bodyOffset;
 	std::string	doubleCRLF = "\r\n\r\n";
 	messageEnd = vecFind(rawRequest, doubleCRLF) + 4;
-	std::cout << "PARSABLE\n";
+	// std::cout << "PARSABLE\n";
 	return (true);
 }
 	

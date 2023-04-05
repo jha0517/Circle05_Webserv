@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 01:12:09 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 09:01:41 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,10 +270,10 @@ std::vector<char>	Response::buildResponse(Server &server, Request * request, std
 		data = fileToBinary(dir);
 	}
 	std::cout << "data.size():"<<data.size()<< std::endl;
-	for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
-	{
-		std::cout << *it;
-	}
+	// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+	// {
+	// 	std::cout << *it;
+	// }
 	msg.addHeader("Content-Length", intToString(data.size()));
 	ret = ("HTTP/1.1 200 OK\r\n");
 	ret += msg.generateRawMsg();

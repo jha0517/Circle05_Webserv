@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 00:20:15 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 09:35:00 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 # include <sys/stat.h>
 # include <map>
 # include <cstddef>
-# define BUFFSIZE 3000
+# define BUFFSIZE 30
 
 class Server
 {
