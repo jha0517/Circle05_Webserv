@@ -27,3 +27,4 @@ prob - non existing page error.
 post file not working->ok
 gotta do something with cgi->ok
 
+valgrind
