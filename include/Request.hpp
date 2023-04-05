@@ -24,4 +24,6 @@ public:
 	bool				parseResquest(const std::vector<char> rawRequest);
 };
 
+std::ostream & operator<<(std::ostream &output, Request & rhs);
+
 #endif

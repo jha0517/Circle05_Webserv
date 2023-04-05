@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 09:55:14 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 11:29:10 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,8 +193,6 @@ bool	ServerManager::run(){
 			else if (FD_ISSET(i, &readSocketsCopy) && (server = findClient(i, servers)))
 			{
 				server->readRequest(i);
-				removeFromSet(i, this->readSockets);
-				addToSet(i, this->writeSockets);
 			}
 			else if (FD_ISSET(i, &writeSocketsCopy) && (server = findClient(i, servers)))
 			{

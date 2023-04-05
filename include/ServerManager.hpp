@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:05 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/04 15:17:29 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 11:30:49 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@
 class ServerManager
 {
 private:
-	fd_set					readSockets;
-	fd_set					writeSockets;
 
 	fd_set					currentSockets;
 	fd_set					readySockets;
@@ -40,6 +38,8 @@ public:
 	ServerManager &operator=(ServerManager const & rhs);
 	
 	Log		log;
+	fd_set					readSockets;
+	fd_set					writeSockets;
 	
 	bool	initiate();
 	bool	run();

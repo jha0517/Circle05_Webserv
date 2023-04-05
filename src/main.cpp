@@ -65,6 +65,7 @@ int	main(int ac, char **av)
 			sm.servers.at(i)->setCgiExt(ex);
 		}
 
+
 		sm.servers.at(i)->setLocBlockCount(1);
 		// if there is add cgiBlock and set param
 		for (unsigned int j = 0; j < sm.servers.at(i)->getLocBlockCount(); j++)

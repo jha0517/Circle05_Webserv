@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/09 08:03:47 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/02 16:39:42 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 11:16:45 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,5 +48,6 @@ private:
 	Headers		headers;
 	std::string	body;
 };
+std::ostream & operator<<(std::ostream &output, MessageHeaders & rhs);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 16:35:23 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 09:33:37 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 12:11:58 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,6 @@ bool	Request::parseResquest(std::vector<char> rawRequest, size_t & messageEnd){
 	if (!this->headers.parseFromString(header, bodyOffset))
 		return (printf("Header Line End\n"), false);
 	// printf("Header Line PARSING OK\n");
-
 	// check for content-length header. if present, use this to determine how many character should be in the body.
 	bodyOffset += headerOffset;
 	size_t	maxContentLength = rawRequest.size() - bodyOffset;
@@ -106,6 +105,9 @@ bool	Request::parseResquest(std::vector<char> rawRequest, size_t & messageEnd){
 		messageEnd = bodyOffset;
 	std::string	doubleCRLF = "\r\n\r\n";
 	messageEnd = vecFind(rawRequest, doubleCRLF) + 4;
+	printf("messageEnd: %li\n", messageEnd);
+	if (messageEnd == std::string::npos)
+		return (false);
 	// std::cout << "PARSABLE\n";
 	return (true);
 }
@@ -117,3 +119,14 @@ bool	Request::parseResquest(const std::vector<char> rawRequest){
 		return (false);
 	return (true);
 }
+
+std::ostream & operator<<(std::ostream & o, Request & rhs){
+    o << "-------PRINT Request--------" << std::endl;
+	o << "method : " << rhs.method << std::endl;
+	o << "protocol : " << rhs.protocol << std::endl;
+	o << "target : " << rhs.target.generateString() << std::endl;
+	o << "headers : " << rhs.headers << std::endl;
+    o << "-------------------------------" << std::endl;
+    return (o);
+}
+

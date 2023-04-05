@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 09:54:07 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 12:34:06 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,49 +123,47 @@ void	Server::readRequest(const int &i){
 	int					byte;
 	// int					parsed;
 	Connection			connect(clientfd);
-	std::vector<char>	receivedData;
 	ServerManager 		*servManag;
 
-	servManag = (ServerManager *)manager;
-	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
-	printf("Before Reception\n");
-	// recv enought to know the content-length and for the body-> store in the vector<char>
-	// if request msg is not finished, do a loop and get the full msg.	
-	while ((byte = recv(this->clientfd, buffer, BUFFSIZE, 0)) > 0)
-	{
-		printf("Recepting\n");
-		if (byte < 0)
-		{
-			servManag->log.printError("Recv Failed.");
-			servManag->closeConnection(i);
-			return ;
-		}
-		printf("received byte : %i\n", byte);
-		receivedData.insert(receivedData.end(), buffer, buffer + byte);
-		printf("total : %li\n", receivedData.size());
-		if (request.parseResquest(receivedData, messageEnd) == 1)
-			break;
-		else
-			printf("data not all received\n");
+	// servManag = (ServerManager *)manager;
+	// servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
+	// // printf("Before Reception\n");
+	// // recv enought to know the content-length and for the body-> store in the vector<char>
+	// // if request msg is not finished, do a loop and get the full msg.	
+	// while ((byte = recv(this->clientfd, buffer, BUFFSIZE, 0)) > 0)
+	// {
+	// 	// printf("Recepting\n");
+	// 	if (byte < 0)
+	// 	{
+	// 		servManag->log.printError("Recv Failed.");
+	// 		servManag->closeConnection(i);
+	// 		return ;
+	// 	}
+	// 	// printf("received byte : %i\n", byte);
+	// 	receivedData.insert(receivedData.end(), buffer, buffer + byte);
+	// 	// printf("total : %li\n", receivedData.size());
+	// 	if (request.parseResquest(receivedData, messageEnd) == 1)
+	// 		break;
+	// 	else
+	// 		printf("data not all received\n");
+	// 	bzero(buffer, sizeof(buffer));
+	// }
 
-		bzero(buffer, sizeof(buffer));
-	}
-
-	bzero(buffer, sizeof(buffer));
-	if (request.parseResquest(receivedData, messageEnd))
-	{
-		servManag->log.printRequest(this->clientfd, request.method, request.target.generateString());
-		printf("Parsing SUCCESS: %i\n", byte);
-		connect.setRequest(&request);
-		// for (std::vector<char>::iterator it = request.body.begin(); it != request.body.end(); ++it)
-		// {
-		// 	std::cout << *it;
-		// }
-		// printf("Request body : %i\n", byte);
-		data = connect.constructResponse(*this, statusCode);
-		std::cout << "received data size for reading side: " << data.size() << std::endl;
-	}
-/*
+	// bzero(buffer, sizeof(buffer));
+	// if (request.parseResquest(receivedData, messageEnd))
+	// {
+	// 	servManag->log.printRequest(this->clientfd, request.method, request.target.generateString());
+	// 	// printf("Parsing SUCCESS: %i\n", byte);
+	// 	std::cout << request;
+	// 	connect.setRequest(&request);
+	// 	for (std::vector<char>::iterator it = receivedData.begin(); it != receivedData.end(); ++it)
+	// 	{
+	// 		std::cout << *it;
+	// 	}
+	// 	// printf("Request body : %i\n", byte);
+	// 	data = connect.constructResponse(*this, statusCode);
+	// 	std::cout << "received data size for reading side: " << data.size() << std::endl;
+	// }
 	servManag = (ServerManager *)manager;
 	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
 
@@ -178,19 +176,21 @@ void	Server::readRequest(const int &i){
 	}
 	if (byte != 0)
 	{
-		printf("Receiving...data : %i\n", byte);
-		receivedData.insert(receivedData.end(), buffer, buffer + byte);
+		// printf("Receiving...data : %i\n", byte);
+		data.insert(data.end(), buffer, buffer + byte);
 		bzero(buffer, sizeof(buffer));
-		for (std::vector<char>::iterator it = receivedData.begin(); it != receivedData.end(); ++it)
-		{
-			std::cout << *it;
-		}
-		printf("End : %i\n", byte);
 	}
-	if (request.parseResquest(receivedData, messageEnd))
+	// printf("Start : %i\n", byte);
+	// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+	// {
+	// 	std::cout << *it;
+	// }
+	// printf("End : %i\n", byte);
+	if (request.parseResquest(data, messageEnd))
 	{
 		servManag->log.printRequest(this->clientfd, request.method, request.target.generateString());
-		printf("Parsing SUCCESS: %i\n", byte);
+		printf("Parsing SUCCESS: %li\n", this->data.size());
+		std::cout << request;
 		connect.setRequest(&request);
 		// for (std::vector<char>::iterator it = request.body.begin(); it != request.body.end(); ++it)
 		// {
@@ -198,9 +198,12 @@ void	Server::readRequest(const int &i){
 		// }
 		// printf("Request body : %i\n", byte);
 		data = connect.constructResponse(*this, statusCode);
+		servManag->removeFromSet(i, servManag->readSockets);
+		servManag->addToSet(i, servManag->writeSockets);
+
 	}
-	*/
-		// printf("Parsing NOT SUCCESS: %i\n", byte);
+	// printf("Parsing NOT SUCCESS: %i\n", byte);
+	// response.flushInfo();
 	// else
 	// {
 	// 	servManag->log.printError("request parse Failed.");
@@ -295,24 +298,24 @@ std::string	Server::findMatchingUri(std::string path){
 
 	if (path.find(".") != std::string::npos)
 	{
-		std::cout <<"1final path is " << this->root + path << std::endl;
+		// std::cout <<"1final path is " << this->root + path << std::endl;
 		return (this->root + path);
 	}
 	if (path == "/")
 	{
 		indexfilename = this->index;
-		std::cout <<"2final path is " << this->root + "/" + indexfilename << std::endl;
+		// std::cout <<"2final path is " << this->root + "/" + indexfilename << std::endl;
 		return (this->root + "/" + indexfilename);
 	}
 	//check in LocationBlock
 	std::set<LocationBlock *>::iterator it;
 	for (std::set<LocationBlock *>::iterator it = this->locationBloc.begin(); it != this->locationBloc.end(); ++it)
 	{
-		std::cout << "Looping throuh...: " << (*it)->dir << " == ? "<< path << std::endl;
+		// std::cout << "Looping throuh...: " << (*it)->dir << " == ? "<< path << std::endl;
 		if ((*it)->dir == path)
 		{
 			indexfilename = (*it)->index;
-			std::cout <<"3final path is " << this->root + path  + "/" + indexfilename << std::endl;
+			// std::cout <<"3final path is " << this->root + path  + "/" + indexfilename << std::endl;
 			return (this->root + path  + "/" + indexfilename);
 		}
 	}
@@ -338,20 +341,20 @@ std::string	Server::findMatchingUri(std::string path){
 	//check autoIndex for Directory .
 	std::string tmp;
 	tmp = this->root + path;
-	std::cout << "checking if -"<< tmp <<"- exist" << std::endl;
+	// std::cout << "checking if -"<< tmp <<"- exist" << std::endl;
 	struct stat sb;
 	if (stat(tmp.c_str(), &sb) == 0)
 	{
 		std::string tmp2 = tmp + "/" + indexfilename;
-		std::cout << "The path is valid, index yes? " + tmp2+"\n";
+		// std::cout << "The path is valid, index yes? " + tmp2+"\n";
 		if (!check_filename_get_str(tmp2.c_str()).empty())
 		{
-			std::cout << "Index file Yes! Returning "<< tmp2 <<"\n";
+			// std::cout << "Index file Yes! Returning "<< tmp2 <<"\n";
 			return (tmp2);
 		}
 		else
 		{
-			std::cout << "Index file No! Returning " << tmp <<"\n";
+			// std::cout << "Index file No! Returning " << tmp <<"\n";
 			return (tmp);
 		}
 	}
@@ -359,6 +362,6 @@ std::string	Server::findMatchingUri(std::string path){
 		std::cout << "The path is NOT valid\n";
 
 	std::string nul;
-	std::cout << "Returning Null\n";
+	// std::cout << "Returning Null\n";
 	return (nul);
 }

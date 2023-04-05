@@ -50,6 +50,8 @@ bool	MessageHeaders::parseFromString(const std::string &rawMsg, size_t & bodyOff
 	std::string	header;
 	std::string	endl = "\r\n";
 
+	while(this->headers.size() != 0)
+		headers.pop_back();
 	lineTerminator = rawMsg.find(endl);
 	if (lineTerminator != std::string::npos)
 		rest = rawMsg;
@@ -61,18 +63,24 @@ bool	MessageHeaders::parseFromString(const std::string &rawMsg, size_t & bodyOff
 			break;
 		}
 		header = rest.substr(0, lineTerminator);
+		// std::cout << "\t parsing : "<<header << std::endl;
 		offset+= lineTerminator + endl.length();
 		nameTerminator = header.find(":");
 		if (nameTerminator == std::string::npos)
 			return false;
 		Header tmp;
 		tmp.name = stripMarginWhitespace(header.substr(0, nameTerminator));
+		// std::cout << "\t parsing name: "<<tmp.name << std::endl;
 		tmp.value = stripMarginWhitespace(header.substr(nameTerminator + 1));
+		// std::cout << "\t parsing value: "<<tmp.value << std::endl;
 		headers.push_back(tmp);
 		rest = rest.substr(lineTerminator + endl.length());
 		lineTerminator = rest.find(endl);
 	}
 	bodyOffset = offset;
+	// std::cout << "rest :" << rest << std::endl;
+	if (rest.find(endl) == std::string::npos)
+		return (printf("No body delim\n"), false);
 	// printf("6, endl.length() %li\n", endl.length());
 	// body = rest.substr(endl.length());
 	// printf("7\n");
@@ -145,4 +153,15 @@ void	MessageHeaders::setHeaderValue(std::string name, std::string value)
 		}
 	}
 	return ;
+}
+
+
+std::ostream & operator<<(std::ostream & o, MessageHeaders & rhs){
+    o << " < PRINT MessageHeaders > " << std::endl;
+	for (long unsigned int i = 0; i < rhs.getHeaders().size(); i++)
+	{
+		o << "\t"<< i << ". " << rhs.getHeaders().at(i).name << " : " << rhs.getHeaders().at(i).value << std::endl;
+	}
+    o << "\n________________" << std::endl;
+	return (o);
 }

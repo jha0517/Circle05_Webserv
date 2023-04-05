@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 09:01:41 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 10:38:14 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ std::string	Response::getFormat(std::string & filepath)
 	std::string	format;
 	formatDelimitor = filepath.find_last_of(".");
 	format = filepath.substr(formatDelimitor + 1);
-	std::cout << "format is : " << format << std::endl;
+	// std::cout << "format is : " << format << std::endl;
 	return (format);
 }
 
@@ -84,7 +84,7 @@ std::string	Response::getMimeType(std::string & filepath)
 	{
 		if (it->first == format)
 		{
-			std::cout << "returning :" << it->second<< std::endl;
+			// std::cout << "returning :" << it->second<< std::endl;
 			return (it->second);
 		}
 	}
@@ -238,24 +238,24 @@ std::vector<char>	Response::buildResponse(Server &server, Request * request, std
 	//autoindex
 	if (isDirectory(dir.c_str()))
 	{
-	std::cout << "Is Directory" << std::endl;
+	// std::cout << "Is Directory" << std::endl;
 		// do auto index
 		if (server.autoIndex)
 			return (buildResponseforAutoIndex(request, dir, 200));
 		else
 			return (buildErrorResponse(server.error_page, 403));
 	}
-	std::cout << "Is NOT Directory" << std::endl;
+	// std::cout << "Is NOT Directory" << std::endl;
 	
 	msg.addHeader("Date", generateDateHeader());
 	msg.addHeader("Content-Type", getMimeType(dir));
 	if (getMimeType(dir) == "text/plain" || getMimeType(dir) == "text/html")
 	{
-		std::cout << "it is text or html" << std::endl;
+		// std::cout << "it is text or html" << std::endl;
 		txtBody = check_filename_get_str(dir.c_str());
 		if (txtBody.empty())
 		{
-			std::cout << "Returning Null here" << std::endl;
+			// std::cout << "Returning Null here" << std::endl;
 			return (null);
 		}
 		data.insert(data.begin(), txtBody.c_str(), txtBody.c_str() + txtBody.size());
