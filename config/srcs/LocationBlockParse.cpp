@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationBlockParse.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/25 01:19:53 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/03 01:57:51 by acostin          ###   ########.fr       */
+/*   Updated: 2023/04/04 22:14:49 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ LocationBlockParse::LocationBlockParse()
 			_cgi_location_flag(0), _cgi_path_flag(0), _cgi_extention_flag(0),
 			_redirection_location_path(""), _return(""),
 			_index_location_path(""), _index(""),
-			_cgi_location_path(""), _cgi_path_php(0), _cgi_extention_php(0),
-			_location_parse_done(0), _config_file_name(""), _err_msg("")
+			_cgi_location_path(""), _cgi_path_php(""), _cgi_extention_php(0),
+			_location_parse_done(0), _config_file_name(""), _err_msg("")/////
 {
 }
 
@@ -58,6 +58,9 @@ LocationBlockParse& LocationBlockParse::operator=(const LocationBlockParse& loca
 	this->_location_parse_done = locationblockparse._location_parse_done;
 	this->_config_file_name = locationblockparse._config_file_name;
 	this->_err_msg = locationblockparse._err_msg;
+	this->_redirection_location_block = locationblockparse._redirection_location_block;
+	this->_index_location_block = locationblockparse._index_location_block;
+	this->_cgi_location_block = locationblockparse._cgi_location_block;
 	return (*this);
 }
 
@@ -90,7 +93,7 @@ std::string	LocationBlockParse::GetCgiLocationPath(void) const
 	return (this->_cgi_location_path);
 }
 
-int	LocationBlockParse::GetCgiPathPhp(void) const
+std::string	LocationBlockParse::GetCgiPathPhp(void) const
 {
 	return (this->_cgi_path_php);
 }
@@ -155,7 +158,6 @@ void	LocationBlockParse::LocationBlockCheck(std::string *line, int i)
 			throw (this->_err_msg);
 		}
 	}
-	
 }
 
 void	LocationBlockParse::ServerMissedKeywordCheck(std::string *line, std::string temp, int i)
@@ -334,7 +336,7 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 			}
 			//check if path is valid
 			this->_cgi_location_flag++;
-			this->_redirection_location_path = token[0];
+			this->_cgi_location_path = token[0];
 		}
 		else if (token[0].length() > 1 && token[0][0] == '/')
 		{
@@ -349,7 +351,7 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 			}
 			//check if path is valid
 			this->_index_location_flag++;
-			this->_redirection_location_path = token[0];
+			this->_index_location_path = token[0];
 		}
 		else
 		{
@@ -598,7 +600,7 @@ void	LocationBlockParse::LocationBlockGetInfo(std::string *token, std::string *l
 			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_CGI_PATH, *line, i);
 			throw (this->_err_msg);
 		}
-		this->_cgi_location_path = token[1];
+		this->_cgi_path_php = token[1];
 		this->_cgi_extention_php = 1;
 		this->_cgi_path_flag++;
 	}
@@ -692,6 +694,7 @@ void	LocationBlockParse::LocationBraketCloseCheck(std::string *line, std::string
 			|| (this->_index_location_flag && this->_index_flag)
 			|| (this->_cgi_location_flag && this->_cgi_path_flag && this->_cgi_extention_flag))
 		{
+			SaveLocationBlock();
 			this->_location_keyword_check = 0;
 			this->_redirection_location_flag = 0;
 			this->_return_flag = 0;
@@ -746,7 +749,7 @@ void	LocationBlockParse::LocationBraketCloseCheck(std::string *line, std::string
 			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_INVALID_KWD, *line, i);
 			throw (this->_err_msg);
 		}
-		ServerBlockParse::SetHttpBraketClose(1);
+		ServerBlockParse::SetHttpBraketCloseSaveHttp();
 		temp = temp.substr(temp.find("}") + strlen("}"), std::string::npos);
 		if (StringCheck(temp))
 		{
@@ -758,9 +761,42 @@ void	LocationBlockParse::LocationBraketCloseCheck(std::string *line, std::string
 	/* server block init, location block init */
 	if (_location_braket_close && _server_braket_close)
 	{
+		ServerBlockParse::SaveServerBlock(this->_redirection_location_block, this->_index_location_block, this->_cgi_location_block);
 		ServerBlockParse::InitServerBlockParseData();
 		InitLocationBlockParseData();
 		ServerBlockParse::SetLocationBlockEnded(1);
+	}
+}
+
+void	LocationBlockParse::SaveLocationBlock(void)
+{
+	if ((this->_redirection_location_flag && this->_return_flag))
+	{
+		t_redirection	save;
+
+		save.path = this->_redirection_location_path;
+		save.return_value = this->_return;
+
+		this->_redirection_location_block.push_back(save);
+	}
+	if ((this->_index_location_flag && this->_index_flag))
+	{
+		t_index		save;
+
+		save.path = this->_index_location_path;
+		save.index = this->_index;
+
+		this->_index_location_block.push_back(save);
+	}
+	if ((this->_cgi_location_flag && this->_cgi_path_flag && this->_cgi_extention_flag))
+	{
+		t_cgi		save;
+
+		save.path = this->_cgi_location_path;
+		save.cgi_path = this->_cgi_path_php;
+		save.cgi_extention = this->_cgi_extention_php;
+
+		this->_cgi_location_block.push_back(save);
 	}
 }
 
@@ -783,8 +819,14 @@ void	LocationBlockParse::InitLocationBlockParseData(void)
 	this->_index_location_path = "";
 	this->_index = "";
 	this->_cgi_location_path = "";
-	this->_cgi_path_php = 0;
+	this->_cgi_path_php = "";
 	this->_cgi_extention_php = 0;
 	this->_location_parse_done = 0;
 	this->_err_msg = "";
+	while (this->_redirection_location_block.size())
+		_redirection_location_block.pop_back();
+	while (this->_index_location_block.size())
+		_index_location_block.pop_back();
+	while (this->_cgi_location_block.size())
+		_cgi_location_block.pop_back();
 }

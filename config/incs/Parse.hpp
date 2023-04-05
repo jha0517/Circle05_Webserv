@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/18 13:54:20 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/03 02:12:06 by acostin          ###   ########.fr       */
+/*   Updated: 2023/04/05 13:16:51 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "./HttpBlockParse.hpp"
 #include "./ServerBlockParse.hpp"
 #include "./LocationBlockParse.hpp"
+#include "./Structure.h"
 #include "./ParseUtils.h"
 #include "./DefineErrMsg.h"
 
@@ -32,9 +33,13 @@ public:
 	Parse& operator=(const Parse& parse);
 	~Parse();
 
+	t_http_block			GetHttpBlock(void) const;
+
 private:
-	int		FileOpen(std::string config_file_name);
-	int		_total_server_block;
+	int				FileOpen(std::string config_file_name);
+	void				PrintHttpBlockInfo(void);
+
+	t_http_block			_http_block;
 };
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerBlockParse.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 00:07:25 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/03 01:56:01 by acostin          ###   ########.fr       */
+/*   Updated: 2023/04/05 14:45:13 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ ServerBlockParse& ServerBlockParse::operator=(const ServerBlockParse& serverbloc
 	this->_total_location_block = serverblockparse._total_location_block;
 	this->_location_block_ended = serverblockparse._location_block_ended;
 	this->_http_braket_close = serverblockparse._http_braket_close;
+	this->_server_block = serverblockparse._server_block;
 	return (*this);
 }
 
@@ -138,14 +139,35 @@ void	ServerBlockParse::SetLocationBlockEnded(int i)
 	this->_location_block_ended = i;
 }
 
-void	ServerBlockParse::SetHttpBraketClose(int i)
+void	ServerBlockParse::SetHttpBraketCloseSaveHttp(void)
 {
-	this->_http_braket_close = i;
+	this->_http_braket_close = 1;
+	HttpBlockParse::SaveHttpBlock(this->_server_block);
 }
 
 void	ServerBlockParse::IncreaseTotalLocationBlock(void)
 {
 	this->_total_location_block++;
+}
+
+void	ServerBlockParse::SaveServerBlock(std::vector<t_redirection> redirection_location,
+			std::vector<t_index> index_location, std::vector<t_cgi> cgi_location)
+{
+	t_server_block	save;
+
+	save.listen = this->_listen;
+	save.host = this->_host;
+	save.client_max_body_size = this->_client_max_body_size;
+	save.index = this->_index;
+	save.allow_methods_get = this->_allow_methods_get;
+	save.allow_methods_post = this->_allow_methods_post;
+	save.allow_methods_delete = this->_allow_methods_delete;
+	save.save_path = this->_save_path;
+	save.redirection_location_block = redirection_location;
+	save.index_location_block = index_location;
+	save.cgi_location_block = cgi_location;
+	
+	this->_server_block.push_back(save);
 }
 
 void	ServerBlockParse::InitServerBlockParseData(void)
@@ -201,7 +223,7 @@ void	ServerBlockParse::ServerBlockCheck(std::string *line, int i)
 			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_INVALID_KWD, *line, i);
 			throw (this->_err_msg);
 		}
-		this->_http_braket_close++;
+		SetHttpBraketCloseSaveHttp();
 		this->_location_block_ended--;
 		temp = temp.substr(temp.find("}") + strlen("}"), std::string::npos);
 		if (temp == "" || !StringCheck(temp))
@@ -215,7 +237,10 @@ void	ServerBlockParse::ServerBlockCheck(std::string *line, int i)
 
 	if (temp.find("}") != std::string::npos)
 	{
-		this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_CLOSE, *line, i);
+		if (!this->_server_keyword_check)
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_SERVER_MISSED, *line, i);
+		else
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_BRAKET_CLOSE, *line, i);
 		throw (this->_err_msg);
 	}
 	if (this->_server_braket_open && temp.find("{") != std::string::npos)
@@ -608,7 +633,8 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 			token[1] = RemoveSpaceTab(token[1]);
 		}
 		this->_index_flag++;
-		this->_index = HttpBlockParse::GetRoot().append("/") + token[1];
+		//this->_index = HttpBlockParse::GetRoot().append("/") + token[1];
+		this->_index = token[1];
 	}
 	if (token[0] == "allow_methods" && !this->_server_parse_done)
 	{
@@ -637,7 +663,7 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 				this->_allow_methods_delete = 1;
 				this->_allow_methods_flag = 1;
 			}
-			else if (token[1] == "NONE")
+			else if (token[1] == "UNKNOWN")
 				this->_allow_methods_flag = -1;
 			else
 			{
@@ -676,7 +702,7 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 				this->_allow_methods_delete = 1;
 				this->_allow_methods_flag = 1;
 			}
-			else if (token[1] == "NONE" && token[2] == ";")
+			else if (token[1] == "UNKNOWN" && token[2] == ";")
 				this->_allow_methods_flag = -1;
 			else if ((token[1] == "GET" && token[2] == "POST")
 				|| (token[1] == "POST" && token[2] == "GET"))

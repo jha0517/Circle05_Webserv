@@ -1,46 +1,68 @@
-NAME			= webserv
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2023/04/05 12:47:08 by yhwang            #+#    #+#              #
+#    Updated: 2023/04/05 13:28:57 by yhwang           ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-SRCS		=	$(addprefix src/,									\
-												main.cpp			\
-												Client.cpp			\
-												Connection.cpp		\
-												MessageHeaders.cpp	\
-												Server.cpp			\
-												ServerManager.cpp	\
-												Uri.cpp				\
-												Response.cpp		\
-												Request.cpp			\
-												Cgi.cpp			\
-												utils.cpp			\
-												Log.cpp			\
-				)
+NAME = webserv
+CC = c++
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
+RM = rm -f
 
-OBJS			= $(SRCS:.cpp=.o)
-DEPS			= $(SRCS:.cpp=.d)
+CONFIG = main \
+		Parse \
+		HttpBlockParse \
+		ServerBlockParse \
+		LocationBlockParse \
+		ParseUtils
 
-CXX				= c++
-RM				= rm -f
-CXXFLAGS		= -MMD -Wall -Wextra -Werror -std=c++98
+SERVER = main \
+		Client \
+		Connection \
+		MessageHeaders \
+		Server \
+		ServerManager \
+		Uri \
+		Response \
+		Request \
+		Cgi \
+		utils \
+		Log
 
-all:			$(NAME)
+INCS = ./Webserv.hpp
 
-$(NAME):		$(OBJS)
-				$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
+SRCS = main.cpp \
+	$(addprefix ./config/srcs/, $(addsuffix .cpp, $(CONFIG))) \
+	$(addprefix ./server/src/, $(addsuffix .cpp, $(SERVER)))
+
+OBJS = main.o \
+	$(addprefix ./config/srcs/, $(addsuffix .o, $(CONFIG))) \
+	$(addprefix ./server/src/, $(addsuffix .o, $(SERVER)))
+
+DEPS = $(addprefix ./server/src/, $(addsuffix .d, $(SERVER)))
+
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@ -I$(INCS)
+
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $^ -o $@ -I$(INCS)
 
 clean:
-				$(RM) $(OBJS) $(DEPS)
+	$(RM) $(OBJS) $(DEPS)
 
-fclean:			clean
-				$(RM) $(NAME)
+fclean: clean
+	$(RM) $(NAME)
 
-eval:			$(NAME)
-				make clean
-				reset
-				valgrind ./$(NAME)
+re: fclean all
 
-
-re:				fclean $(NAME)
-
-.PHONY:			all clean fclean re test eval
+.PHONY: all clean fclean re
 
 -include ${DEPS}

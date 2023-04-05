@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpBlockParse.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 23:52:58 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/03 01:55:39 by acostin          ###   ########.fr       */
+/*   Updated: 2023/04/04 22:22:18 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ HttpBlockParse& HttpBlockParse::operator=(const HttpBlockParse& httpblockparse)
 	this->_http_parse_done = httpblockparse._http_parse_done;
 	this->_config_file_name = httpblockparse._config_file_name;
 	this->_err_msg = httpblockparse._err_msg;
+	this->_http_block = httpblockparse._http_block;
 	return (*this);
 }
 
@@ -74,9 +75,23 @@ int	HttpBlockParse::GetHttpParseDone(void) const
 	return (this->_http_parse_done);
 }
 
+t_http_block	HttpBlockParse::GetHttpBlock(void) const
+{
+	return (this->_http_block);
+}
+
 void	HttpBlockParse::SetConfigFileName(std::string config_file_name)
 {
 	this->_config_file_name = config_file_name;
+}
+
+void	HttpBlockParse::SaveHttpBlock(std::vector<t_server_block> server_block)
+{
+	this->_http_block.root = this->_root;
+	this->_http_block.autoindex = this->_autoindex;
+	this->_http_block.default_error_page = this->_default_err_page;
+	this->_http_block.err_page_directory = this->_err_page_directory;
+	this->_http_block.server_block = server_block;
 }
 
 void	HttpBlockParse::HttpBlockCheck(std::string *line, int i)

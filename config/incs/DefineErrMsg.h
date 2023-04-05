@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   DefineErrMsg.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/21 01:27:09 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/03 02:06:02 by acostin          ###   ########.fr       */
+/*   Updated: 2023/04/04 16:19:45 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,10 @@
 # define HTTP_KWD_AUTOINDEX_EXISTS			10
 # define HTTP_KWD_DEFAULT_ERROR_PAGE_EXISTS		11
 
-# define HTTP_KWD_ROOT_MISSED				12
-# define HTTP_KWD_AUTOINDEX_MISSED			13
-# define HTTP_KWD_DEFAULT_ERROR_PAGE_MISSED		14
+# define HTTP_KWD_HTTP_MISSED				12
+# define HTTP_KWD_ROOT_MISSED				13
+# define HTTP_KWD_AUTOINDEX_MISSED			14
+# define HTTP_KWD_DEFAULT_ERROR_PAGE_MISSED		15
 
 /* server block error: 20 ~ 49 */
 
@@ -60,12 +61,13 @@
 # define SERVER_KWD_ALLOW_METHODS_EXISTS		35
 # define SERVER_KWD_SAVE_PATH_EXISTS			36
 
-# define SERVER_KWD_LISTEN_MISSED			37
-# define SERVER_KWD_HOST_MISSED				38
-# define SERVER_KWD_CLIENT_MAX_BODY_SIZE_MISSED		39
-# define SERVER_KWD_INDEX_MISSED			40
-# define SERVER_KWD_ALLOW_METHODS_MISSED		41
-# define SERVER_KWD_SAVE_PATH_MISSED			42
+# define SERVER_KWD_SERVER_MISSED			37
+# define SERVER_KWD_LISTEN_MISSED			38
+# define SERVER_KWD_HOST_MISSED				39
+# define SERVER_KWD_CLIENT_MAX_BODY_SIZE_MISSED		40
+# define SERVER_KWD_INDEX_MISSED			41
+# define SERVER_KWD_ALLOW_METHODS_MISSED		42
+# define SERVER_KWD_SAVE_PATH_MISSED			43
 
 /* location block error: 50 ~ 79 */
 

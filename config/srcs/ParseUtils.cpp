@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseUtils.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acostin <acostin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 04:20:47 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/03 02:18:00 by acostin          ###   ########.fr       */
+/*   Updated: 2023/04/05 13:22:48 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,16 +130,16 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 	msg.append(ss.str());
 
 	msg.append(": ");
-	msg.append(RED);
+	msg.append(_RED);
 	msg.append("error: ");
-	msg.append(BLACK);
+	msg.append(_BLACK);
 
 	if (err_number == 99)
 	{
 		msg = "";
-		msg.append(RED);
+		msg.append(_RED);
 		msg.append("error: ");
-		msg.append(BLACK);
+		msg.append(_BLACK);
 		msg.append("file open error");
 		return (msg);
 	}
@@ -168,6 +168,17 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 			msg.append("keyword autoindex already exists\n");
 		else if (err_number == HTTP_KWD_DEFAULT_ERROR_PAGE_EXISTS)
 			msg.append("keyword default_error_page already exists\n");
+		else if (err_number == HTTP_KWD_HTTP_MISSED)
+		{
+			msg = "";
+			msg = file_name;
+			msg.append(": ");
+			msg.append(_RED);
+			msg.append("error: ");
+			msg.append(_BLACK);
+			msg.append("http block is missed");
+			return (msg);
+		}
 		else if (err_number == HTTP_KWD_ROOT_MISSED)
 			msg.append("keyword root is missed\n");
 		else if (err_number == HTTP_KWD_AUTOINDEX_MISSED)
@@ -212,6 +223,8 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 			msg.append("keyword allow_methods already exists\n");
 		else if (err_number == SERVER_KWD_SAVE_PATH_EXISTS)
 			msg.append("keyword save_path already exists\n");
+		else if (err_number == SERVER_KWD_SERVER_MISSED)
+			msg.append("server block is missed\n");
 		else if (err_number == SERVER_KWD_LISTEN_MISSED)
 			msg.append("keyword listen is missed\n");
 		else if (err_number == SERVER_KWD_HOST_MISSED)
@@ -239,7 +252,7 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 		else if (err_number == LOCATION_KWD_LOCATION)
 			msg.append("keyword location is not used properly\n");
 		else if (err_number == LOCATION_KWD_REDIRECTION_LOCATION)
-			msg.append("redirection location is not used properly\n");
+			msg.append("_REDirection location is not used properly\n");
 		else if (err_number == LOCATION_KWD_RETURN)
 			msg.append("keyword return is not used properly\n");
 		else if (err_number == LOCATION_KWD_RETURN_VALUE)
@@ -278,9 +291,9 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 	else
 	{
 		msg = "";
-		msg.append(RED);
+		msg.append(_RED);
 		msg.append("error");
-		msg.append(BLACK);
+		msg.append(_BLACK);
 		return (msg);
 	}
 	
