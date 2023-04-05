@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 00:53:32 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 17:35:13 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,11 +91,11 @@ std::vector<char>	Connection::constructResponse(Server & server, int & statusCod
 	// build response
 	messageEnd = 0;
 	if (request->method == "GET")
-		dataReceived = response.getMethod(server, request, messageEnd, statusCode);
+		dataReceived = response.getMethod(server, this->request, messageEnd, statusCode);
 	else if (request->method == "POST")
 	{
 		// request.body = receivedData;
-		dataReceived = response.postMethod(server, request, messageEnd, statusCode);
+		dataReceived = response.postMethod(server, this->request, messageEnd, statusCode);
 	}
 	// else if (request.method == "DELETE")
 		// responseStr= response.deleteMethod(server, &request, messageEnd, statusCode);

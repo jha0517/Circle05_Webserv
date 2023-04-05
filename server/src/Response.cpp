@@ -6,14 +6,13 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 13:48:38 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 18:42:14 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Response.hpp"
 #include <sys/wait.h>
 #include <algorithm>
-#include <sys/stat.h>
 
 Response::Response() : cgiState(0)
 {
@@ -203,13 +202,6 @@ std::vector<char>	Response::buildResponseforAutoIndex(Request* request, std::str
 	return (data);
 }
 
-int isDirectory(const char *path) {
-   struct stat statbuf;
-   if (stat(path, &statbuf) != 0)
-       return 0;
-   return S_ISDIR(statbuf.st_mode);
-}
-
 std::vector<char>	Response::buildResponseForRedirection(Server &server, Request * request, std::string dir, int code)
 {
 	std::string ret;
@@ -368,6 +360,7 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		data = cgi.execute();
 
 		data = buildResponseForCgi(data, 200);
+		// printData(data);
 		return (data);
 	}
 
@@ -404,6 +397,7 @@ std::vector<char>	Response::postMethod(Server &server, Request *request, std::si
 	std::vector<char>	data;
 
 	Cgi cgi;
+	// printData(request->body);
 	cgi.analyse(&server, request);
 	cgi.parsingFileBody(request->body, request->headers);
 	cgi.upload();

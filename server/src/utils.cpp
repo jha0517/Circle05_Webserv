@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 14:11:11 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 09:32:55 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 17:18:39 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <vector>
 # include <fstream>
 # include <iostream>
+#include <sys/stat.h>
 
 std::string intToString(int a)
 {
@@ -97,3 +98,19 @@ std::string	check_filename_get_str(const char *filename)
 	}
 	return (src);
 }
+void	printData(std::vector<char> data){
+	printf("Start\n");
+	for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+	{
+		std::cout << *it;
+	}
+	printf("End\n");	
+}
+
+int isDirectory(const char *path) {
+   struct stat statbuf;
+   if (stat(path, &statbuf) != 0)
+       return 0;
+   return S_ISDIR(statbuf.st_mode);
+}
+

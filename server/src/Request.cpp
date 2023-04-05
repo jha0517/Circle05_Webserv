@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 16:35:23 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 12:11:58 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 18:42:11 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,14 @@ bool	Request::parseResquest(std::vector<char> rawRequest, size_t & messageEnd){
 	printf("messageEnd: %li\n", messageEnd);
 	if (messageEnd == std::string::npos)
 		return (false);
+	printf("Body?:\n");
+	std::vector<char> filebody;
+
+	filebody.insert(filebody.begin(), rawRequest.begin() + messageEnd, rawRequest.end());
+	// printData(filebody);
+	this->body = filebody;
 	// std::cout << "PARSABLE\n";
+	
 	return (true);
 }
 	
@@ -126,7 +133,13 @@ std::ostream & operator<<(std::ostream & o, Request & rhs){
 	o << "protocol : " << rhs.protocol << std::endl;
 	o << "target : " << rhs.target.generateString() << std::endl;
 	o << "headers : " << rhs.headers << std::endl;
-    o << "-------------------------------" << std::endl;
+	o << "bodysize : " << rhs.body.size() << std::endl;
+	o << "body : ";
+	for (std::vector<char>::iterator it = rhs.body.begin(); it != rhs.body.end(); ++it)
+	{
+		o << *it;
+	}
+    o << std::endl<<"-------------------------------" << std::endl;
     return (o);
 }
 

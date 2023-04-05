@@ -68,8 +68,8 @@ int	server_main(t_http_block *info)
 		// if there is add cgiBlock and set param
 		if (sm.servers.at(i)->hasCgiBlock)
 		{
-			sm.servers.at(i)->setCgiPath((*iter_cgi).path);
-			sm.servers.at(i)->setCgiScriptPath((*iter_cgi).cgi_path);
+			sm.servers.at(i)->setCgiPath((*iter_cgi).cgi_path);
+			sm.servers.at(i)->setCgiScriptPath((*iter_cgi).path);
 			std::set<std::string> ex;
 			if ((*iter_cgi).cgi_extention)
 			{

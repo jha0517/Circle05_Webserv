@@ -39,10 +39,16 @@ void	Cgi::addEnvParam(std::string key, std::string value){this->env.push_back(ke
 void	Cgi::addEnvParam(std::string str){this->env.push_back(str);}
 
 bool	Cgi::analyse(Server *server, Request *request){
-	//scriptPath
-	this->scriptPath = server->cgiBloc.cgiScriptPath + "/" + request->target.getPath().back();
+
+	//scriptPath - TODO : gotta check if exist
+	this->scriptPath = server->root + server->cgiBloc.cgiScriptPath + "/" + request->target.getPath().back();
+	if (check_filename_get_str(this->scriptPath.c_str()).empty())
+		std::cout << "cgi script php file error \n";
 	this->file.tmpLoc = server->uploadPath;
-	std::cout << "this->file.tmpLoc" << this->file.tmpLoc<< std::endl;
+	if (!isDirectory(this->file.tmpLoc.c_str()))
+		std::cout << "cgi file tmpLoc error \n";
+	std::cout << "this->file.tmpLoc:" << this->file.tmpLoc<< std::endl;
+
 	//cmd
 	for (std::map<std::string, std::string>::iterator it = this->cmdMap.begin();\
 		it != this->cmdMap.end(); ++it)
@@ -74,7 +80,7 @@ char	**Cgi::getPathArray(){
 	char	**path = (char **)calloc(sizeof(char *), 2 + 1);
 	path[0] = strdup(this->cmd.c_str());
 	path[1] = strdup(this->scriptPath.c_str());
-	std::cout << "scriptPath" << this->scriptPath << std::endl;
+	std::cout << "scriptPath" << this << std::endl;
 	path[2] = NULL;
 
 	return (path);	
@@ -88,7 +94,7 @@ char	**Cgi::getEnvArray(){
 	for (std::vector<std::string>::iterator it = env.begin(); it != env.end(); ++it)
 	{
 		newEnv[i] = strdup(it->c_str());
-		// std::cout << i << ". " << it->c_str() << std::endl;
+		std::cout << i << ". " << it->c_str() << std::endl;
 		i++;
 	}
 	return (newEnv);
@@ -108,8 +114,6 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers)
 
 	// erase start boundary
 	filebody.erase(filebody.begin(), filebody.begin() + a + bodyDeliminator.length() + nextline.length());
-	a = vecFind(filebody, bodyDeliminator);
-	filebody.erase(filebody.begin(), filebody.begin() + a + bodyDeliminator.length() + nextline.length());
 
 	// erase end boundary		
 	a = vecFind(filebody, bodyDeliminator);
@@ -122,7 +126,7 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers)
 	filebody.erase(filebody.begin(), filebody.begin() + a + 4);
 
 	this->file.data = filebody;
-
+	
 	// Put variable, filename in env.
 	std::string infoFileHeader;
 
@@ -133,7 +137,6 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers)
 	size_t j;
 	size_t k;
 	std::string value;
-	
 	while ((j = rest.find(" ")) != std::string::npos)
 	{
 		value = rest.substr(0, j);

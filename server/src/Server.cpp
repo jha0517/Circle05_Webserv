@@ -6,7 +6,7 @@
 /*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 14:04:01 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/05 18:42:17 by hyunah           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ int	Server::startListen(){
 	this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->sockfd < 0)
 		return (servManag->log.printError("Error in Connection"), -1);
-
 	memset(&serverAddr, '\0', sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(this->port);
@@ -111,6 +110,7 @@ int	Server::startListen(){
 	{
 		return (servManag->log.printError("Error in Listening"), -1);
 	}
+	std::cout << "STARt listening:" <<this->sockfd << "port"<< this->port <<std::endl;
 
 	return (this->sockfd);
 }
@@ -127,7 +127,7 @@ void	Server::readRequest(const int &i){
 
 	servManag = (ServerManager *)manager;
 	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
-	std::cout << "new connection data size has to be 0: " << data.size() << std::endl;
+	// std::cout << "new connection data size has to be 0: " << data.size() << std::endl;
 	byte = recv(this->clientfd, buffer, BUFFSIZE, 0);
 	if (byte < 0)
 	{
@@ -135,43 +135,34 @@ void	Server::readRequest(const int &i){
 		servManag->closeConnection(i);
 		return ;
 	}
+	if (byte == 0)
+	{
+		servManag->closeConnection(i);
+		return ;
+	}
 	if (byte != 0)
 	{
-		// printf("Receiving...data : %i\n", byte);
 		data.insert(data.end(), buffer, buffer + byte);
 		bzero(buffer, sizeof(buffer));
 	}
-	// printf("Start : %i\n", byte);
-	// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
-	// {
-	// 	std::cout << *it;
-	// }
-	// printf("End : %i\n", byte);
+	// printData(data);
 	if (request.parseResquest(data, messageEnd))
 	{
 		servManag->log.printRequest(this->clientfd, request.method, request.target.generateString());
 		printf("Parsing SUCCESS: %li\n", this->data.size());
 		std::cout << request;
-		connect.setRequest(&request);
-		// for (std::vector<char>::iterator it = request.body.begin(); it != request.body.end(); ++it)
+		// if (request.target.generateString().find(".php"))
 		// {
-		// 	std::cout << *it;
+		// 	std::cout << "THIS IS PHP!" << std::endl;
+		// 	servManag->removeFromSet(i, servManag->readSockets);
+		// 	servManag->addToSet(i, servManag->writeSockets);
+		// 	return ;
 		// }
-		// printf("Request body : %i\n", byte);
+		connect.setRequest(&request);
 		data = connect.constructResponse(*this, statusCode);
 		servManag->removeFromSet(i, servManag->readSockets);
 		servManag->addToSet(i, servManag->writeSockets);
-
 	}
-	// printf("Parsing NOT SUCCESS: %i\n", byte);
-	// response.flushInfo();
-	// else
-	// {
-	// 	servManag->log.printError("request parse Failed.");
-	// 	statusCode = 500;
-	// 	data = connect.constructResponse(*this, statusCode);
-	// 	return ;
-	// }
 	return ;
 }
 
@@ -255,6 +246,7 @@ int	Server::acceptConnection(){
 		return (-1);
 	return (clientfd);
 }
+
 std::string	Server::findMatchingUri(std::string path){
 	std::string indexfilename = "index.html";
 	std::ifstream	ifs;
