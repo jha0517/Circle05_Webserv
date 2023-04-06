@@ -5,26 +5,52 @@
         <title>Hello!</title>
     </head>
     <body>
-            This is Ratatouille Server!<br><br>
-            <a href="/fruits">Test GET images</a>,<br>
-            <br> Test Post File <br>
-            <form action="/query.php">
-              <label for="fname">Enter Your Name:</label>
-              <input type="text" id="fname" name="fname"><br><br>
+                <h1>This is Ratatouille Server!<br></h1>
 
-              <!-- <label for="lname">Last name:</label>
-              <input type="text" id="lname" name="lname"><br><br> -->
-              <input type="submit" value="Submit">
+            </form>
+            <form action="/test/" method="get">
+            <input type="submit" value="autoindex">
+            </form>
+
+            <h3>[TEST GET METHOD]</h3>
+            <a href="/fruits">Test GET images</a><br>
+            <a href="/a">Test GET non existing directory</a><br>
+            <a href="service.html">Test GET service.html</a><br><br>
+
+            <form action="query.php">
+            <label for="fname">Enter Your Name:</label>
+            <input type="text" id="fname" name="fname"><br>
+            <!-- <label for="lname">Last name:</label>
+            <input type="text" id="lname" name="lname"><br><br> -->
+            <input type="submit" value="submit">
+
 			<?php
 				echo "Welcome, ";
 				echo $_GET["fname"];
 				echo "!";
 				?>
-			</form><br><br>
-            <form action="upload.php" method="post" enctype="multipart/form-data">
-            <input type="file" name="file"/>
-            <input type="submit" value="Upload" />
+			</form>
+
+            <h3><br>[TEST POST METHOD]</h3>
             </form>
+            Test Post File <br>
+            <form method="post" enctype="multipart/form-data" action="upload.php">
+            <input type="file" id="myid" name="Yofile"/>
+            <button>submit</button>
+            </form><br>
+            <div>Look upload Directory</div>
+            <form action="upload/" method="get">
+              <input type="submit" value="uploaded files">
+            </form><br><br>
+            <div>Redirection to intra</div>
+            <form action="/redirection_intra/" method="get">
+              <input type="submit" value="redirection to intra">
+            </form><br>
+            </form>
+            <div>Redirection to google</div>
+            <form action="/redirection_google/" method="get">
+            <input type="submit" value="redirection to google">
+            </form><br>
 
     </body>
 </html>
