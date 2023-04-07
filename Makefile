@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+         #
+#    By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/05 12:47:08 by yhwang            #+#    #+#              #
-#    Updated: 2023/04/05 13:28:57 by yhwang           ###   ########.fr        #
+#    Updated: 2023/04/07 21:24:51 by hyujung          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = webserv
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
+CFLAGS = -Wall -Wextra -Werror -std=c++98
 RM = rm -f
 
 CONFIG = main \

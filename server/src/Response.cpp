@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 20:56:40 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 21:38:47 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,7 @@ std::vector<char> Response::fileToBinary(std::string file_name1)
 
         file_size = fread(&buffer[0], 1, file_length, file_stream);
     }
+	fclose(file_stream);
 	return (buffer);
 }
 

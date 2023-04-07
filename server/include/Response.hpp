@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 19:30:24 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 21:26:07 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "Server.hpp"
 # include "Cgi.hpp"
 # include "Request.hpp"
+# include "utils.hpp"
 # include <map>
 # include <ctime>
 # include <fstream>
