@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/06 00:28:27 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/07 06:10:47 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,12 +143,15 @@ void	Server::newConnection(){
 
 int	Server::acceptConnection(ServerManager *servManag){
 	Connection	*c = new Connection();
-    int			addrlen = sizeof(c->clientAddr);
+   	int			addrlen = sizeof(c->clientAddr);
 	int			clientfd;
 
 	clientfd = accept(sockfd, (struct sockaddr*)&c->clientAddr, (socklen_t *)&addrlen);
 	if (clientfd < 0)
+	{
+		delete c;
 		return (-1);
+	}
 	c->serv = this;
 	servManag->connections.insert(std::make_pair(clientfd, c));
 	return (clientfd);

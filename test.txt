@@ -1,0 +1,20 @@
+------WebKitFormBoundary4LTUmxf6UhQbunIu
+Content-Disposition: form-data; name="Yofile"; filename="to_edit.txt"
+Content-Type: text/plain
+
+
+//edited html file just to make it prettier
+
+1. we should handle client_max_size error(when it is smaller than contents) with error 413
+                // added 413 error page
+
+2. get strawberry.jpg, banana.jpeg, easyPeelers.jpeg, samplePDF.pdf
+        -> unknown charackers printing
+                // getting image is fine, just something printed in the terminal
+
+3. i made upload directory in data and made ".upload" inside it
+        when the file is empty it appears 404 error
+                // when i write something inside it it's fine
+
+
+------WebKitFormBoundary4LTUmxf6UhQbunIu--

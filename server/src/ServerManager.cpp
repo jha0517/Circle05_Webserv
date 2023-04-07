@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerManager.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 23:44:38 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/07 06:10:57 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,10 @@ bool ServerManager::initiate(){
 
 int	ServerManager::closeAndFreeMem()
 {
+	for (std::map<int, Connection *>::iterator it = connections.begin();
+		it != connections.end(); it++)
+		delete (*it).second;
+	//////free
 	for (std::vector<int>::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
 		close(*it);
 
@@ -94,6 +98,7 @@ int	ServerManager::closeAndFreeMem()
 
 		delete (*it);
 	}
+	
 	return (0);
 }
 
@@ -103,6 +108,8 @@ void	ServerManager::addToSet(const int i, fd_set &set)
 	std::cout << "adding " << i << std::endl;
 	if (i > this->max_socket_so_far)
 		this->max_socket_so_far = i;
+	else
+		return ;
 }
 
 void    ServerManager::closeConnection(const int i)

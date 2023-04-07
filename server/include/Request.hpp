@@ -5,6 +5,7 @@
 # include "Uri.hpp"
 # include "MessageHeaders.hpp"
 # include "utils.hpp"
+# include "Colors.hpp"
 
 class Request
 {

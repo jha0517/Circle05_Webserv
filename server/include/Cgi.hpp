@@ -51,7 +51,7 @@ public:
 	char			**getPathArray();
 	char			**getEnvArray();
 	m_File			file;
-	bool			parsingFileBody(std::vector<char> data, MessageHeaders headers);
+	bool			parsingFileBody(std::vector<char> data, MessageHeaders headers, int maxClientBodySize);
 	bool			upload();
 	std::vector<char>	execute();
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/06 00:32:31 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/07 04:40:17 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Response::Response() : cgiState(0)
 	statusCodeDic.insert(std::pair<int, std::string>(403, "Forbidden"));
 	statusCodeDic.insert(std::pair<int, std::string>(404, "Not Found"));
 	statusCodeDic.insert(std::pair<int, std::string>(405, "Method Not Allowed"));
+	statusCodeDic.insert(std::pair<int, std::string>(413, "Content Too Large"));
 	statusCodeDic.insert(std::pair<int, std::string>(500, "Internal Server Error"));
 	statusCodeDic.insert(std::pair<int, std::string>(505, "HTTP Version Not Supported"));
     this->mimeMap.insert(std::make_pair("aac", "audio/aac"));
@@ -400,7 +401,11 @@ std::vector<char>	Response::postMethod(Server &server, Request *request, std::si
 	Cgi cgi;
 	// printData(request->body);
 	cgi.analyse(&server, request);
-	cgi.parsingFileBody(request->body, request->headers);
+	if (cgi.parsingFileBody(request->body, request->headers, server.maxClientBodySize) != true)
+	{
+		statusCode = 413;
+		return (buildErrorResponse(server.error_page, 413));
+	}
 	cgi.upload();
 	data = cgi.execute();
 	data = buildResponseForCgi(data, 200);
