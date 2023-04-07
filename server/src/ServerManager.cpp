@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 22:30:45 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 22:32:07 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ void    ServerManager::closeConnection(const int i)
 				std::cout << "eraseing "<< (*it).first << std::endl;
 				this->connections.erase(it);
 				std::cout << "leaving closeConnection1"<< std::endl;
-				// return ;
+				return ;
 			}
 		}
 	}
