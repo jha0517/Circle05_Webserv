@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 14:11:11 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 20:55:47 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 22:02:51 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,24 +162,25 @@ int	CheckPermission(std::string str)
 	}
 	i--;
 
-	dir_ptr = opendir(token[0].c_str());
+	if (i == 0)
+		return (0);
+	dir_ptr = opendir(token[0].append("/").append(token[1]).c_str());
+	
 	if (dir_ptr == NULL)
 		return (0);
-
+	
 	while ((file = readdir(dir_ptr)) != NULL)
 	{
 		if (!strncmp(token[i].c_str(), file->d_name, strlen(token[i].c_str())))
 			flag++;
 	}
+	closedir(dir_ptr);
 	if (flag == 0)
 		return (0);
-	closedir(dir_ptr);
-
 	std::ifstream		file_open_check;
 	file_open_check.open(str.c_str());
 	if (file_open_check.fail())
 		return (1);
-	
+	file_open_check.close();
 	return (0);
-	
 }

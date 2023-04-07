@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 21:38:47 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 22:03:25 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -381,13 +381,10 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 	}
 	if (check_filename_get_str(path.c_str()).empty())
 	{
-		if (!CheckPermission(path))
-		{
-			std::cout << RED << "HERE path: " << path << BLACK << std::endl;
+		if (CheckPermission(path))
 			return (buildErrorResponse(server.error_page, 403));
-		}
 		return (buildErrorResponse(server.error_page, 404));
-	}	
+	}
 	data = buildResponse(server, request, path, 200);
 	statusCode = 200;
 	if (data.empty())
