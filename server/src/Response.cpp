@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 15:22:58 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 18:08:39 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ Response::~Response(){}
 
 std::string	Response::generateRawResponse(int code, MessageHeaders msg, std::string body){
 	if (statusCodeDic[code].empty())
-		std::cout << "There is no status available in Dictionnary for code " << intToString(code) << std::endl;
+		std::cout << "There is no status available in Dictionnary for " << code <<" code " << intToString(code) << std::endl;
 	std::string ret = ("HTTP/1.1 " + intToString(code) + " " + statusCodeDic[code] + "\r\n");
 	if (!msg.hasHeader("Content-Length"))
 		msg.addHeader("Content-Length", intToString(body.length()));
@@ -315,7 +315,7 @@ std::vector<char>	Response::buildResponseForCgi(std::vector<char> data, int code
 	std::vector<char> null;
 
 	(void) code;
-	std::cout << "In here : buildResponseForCgi\n";
+	// std::cout << "In here : buildResponseForCgi\n";
 	std::string str(data.begin(), data.end());
 	msg.addHeader("Date", generateDateHeader());
 	std::string bodyDeliminator = "\r\n\r\n";
@@ -401,7 +401,8 @@ std::vector<char>	Response::postMethod(Server &server, Request *request, std::si
 	Cgi cgi;
 	// printData(request->body);
 	cgi.analyse(&server, request);
-	if (cgi.parsingFileBody(request->body, request->headers, server.maxClientBodySize) != true)
+	// printData(request->body);
+	if (!cgi.parsingFileBody(request->body, request->headers, server.maxClientBodySize, &statusCode))
 	{
 		statusCode = 413;
 		return (buildErrorResponse(server.error_page, 413));

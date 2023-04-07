@@ -38,10 +38,6 @@
             <input type="file" id="myid" name="Yofile"/>
             <button>submit</button>
             </form><br>
-            <div>Look upload Directory</div>
-            <form action="upload/" method="get">
-              <input type="submit" value="uploaded files">
-            </form><br><br>
             <div>Redirection to intra</div>
             <form action="/redirection_intra/" method="get">
               <input type="submit" value="redirection to intra">

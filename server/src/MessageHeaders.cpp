@@ -79,6 +79,17 @@ bool	MessageHeaders::parseFromString(const std::string &rawMsg, size_t & bodyOff
 	}
 	bodyOffset = offset;
 	// std::cout << "rest :" << rest << std::endl;
+	nameTerminator = rest.find(":");
+	if (nameTerminator != std::string::npos)
+	{
+		Header tmp;
+		tmp.name = stripMarginWhitespace(rest.substr(0, nameTerminator));
+		std::cout << "\t parsing name: "<<tmp.name << std::endl;
+		tmp.value = stripMarginWhitespace(rest.substr(nameTerminator + 1));
+		std::cout << "\t parsing value: "<<tmp.value << std::endl;
+		headers.push_back(tmp);
+		return (true);
+	}
 	if (rest.find(endl) == std::string::npos)
 		return (printf("No body delim\n"), false);
 	// printf("6, endl.length() %li\n", endl.length());

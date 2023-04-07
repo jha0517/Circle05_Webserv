@@ -106,7 +106,7 @@ char	**Cgi::getEnvArray(){
 	return (newEnv);
 }
 
-bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int maxClientBodySize)
+bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int maxClientBodySize, unsigned int *errorCode)
 {
 	std::vector<char>			filebody;
 	
@@ -118,18 +118,36 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 	std::string bodyDeliminator = headers.getHeaderValue("Content-Type").substr(b + deliminator.length());
 	std::size_t a = vecFind(data, bodyDeliminator);
 
+	std::cout << "headers.getHeaderValue(Content-Type)" << headers.getHeaderValue("Content-Type")<< std::endl;
+	std::cout << "b"<< b << std::endl;
+
+	printData(filebody);
+	// if (b == std::string::npos)
+	// {
+	// 	std::size_t c = vecFind(filebody, nextline);
+	// 	bodyDeliminator = vecSubstr(filebody, 0, c);
+	// 	std::cout << "bodyDeliminator"<< bodyDeliminator << std::endl;
+	// 	a = vecFind(data, bodyDeliminator);
+	// }
 	// erase start boundary
 	filebody.erase(filebody.begin(), filebody.begin() + a + bodyDeliminator.length() + nextline.length());
 
+	printData(filebody);
 	// erase end boundary		
 	a = vecFind(filebody, bodyDeliminator);
 	filebody.erase(filebody.begin() + a - (nextline.length() * 2), filebody.end());
 	
+	printData(filebody);
 	// split fileinfo and body
 	std::vector<char>	infoFile;
 	a = vecFind(filebody, "\r\n\r\n");
 	infoFile.insert(infoFile.begin(), filebody.begin(), filebody.begin() + a);
+	std::cout <<"infoFile" <<std::endl;
+
+	// printData(infoFile);
 	filebody.erase(filebody.begin(), filebody.begin() + a + 4);
+
+	printData(filebody);
 
 	this->file.data = filebody;
 	
@@ -137,12 +155,20 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 	std::string infoFileHeader;
 
 	infoFileHeader.insert(infoFileHeader.begin(), infoFile.begin(), infoFile.end());
-	this->file.headers.parseFromString(infoFileHeader);
+	std::cout <<"infoFileHeader" <<infoFileHeader<<std::endl;
+	if (!this->file.headers.parseFromString(infoFileHeader))
+	{
+		std::cout << "No extension or body size 0" << std::endl;
+		// return (false);
+	}
 	std::string rest = this->file.headers.getHeaderValue("Content-Disposition");
 	this->file.type = this->file.headers.getHeaderValue("Content-Type");
+	std::cout << "Content-Disposition" << rest << std::endl;
+	std::cout << "Content-Type" << this->file.type << std::endl;
 	size_t j;
 	size_t k;
 	std::string value;
+	std::cout << "1\n";
 	while ((j = rest.find(" ")) != std::string::npos)
 	{
 		value = rest.substr(0, j);
@@ -155,40 +181,56 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 		}
 		rest.erase(rest.begin(), rest.begin() + j + 1);
 	}
+	std::cout << "2\n";
 	if ((k = rest.find("=")) != std::string::npos)
 	{
 		size_t l = rest.find("\"", k + 2);
 		this->file.name = rest.substr(k + 2, value.size() - (k + 2) - (value.size() - l));
 	}
+	std::cout << "3\n";
 	this->addEnvParam("FILE_TEMPLOC", file.tmpLoc);
 	// Add type and size and time.
 	
+	std::cout << "4\n";
 	//for error 413
-	if (filebody.size() > (long unsigned int)maxClientBodySize)
+	if (filebody.size() > (long unsigned int)maxClientBodySize * 1000000)
+	{
+		std::cout << filebody.size() << " > " << maxClientBodySize * 1000000 << std::endl;
+		*errorCode = 413;
 		return (false);
+	}
+	std::cout << "5\n";
 	return (true);
 }
 
 bool	Cgi::upload(){
 
-	if (this->file.name.empty() || this->file.data.empty())
+	// if (this->file.name.empty() || this->file.data.empty())
+	if (this->file.name.empty())
 		return (this->addEnvParam("UPLOAD_ERROR", intToString(1)), false);
 
+	std::cout << "\t1" << std::endl;
 	std::ifstream tmp;
 	std::string	nameTmp;
 	// CHECK IF THERE IS ALREADY THE SAME NAME FILE EXIST
 	std::string patch = this->file.tmpLoc + "/" + this->file.name;
 	tmp.open(patch.c_str());
 	int i = 0;
+	std::cout << "\t2" << std::endl;
+	std::cout << "\tpatch" << patch << std::endl;
 	while (tmp)
 	{
+	std::cout << "\t2-1" << std::endl;
 		tmp.close();
 		std::string	inc = "(" + intToString(++i) + ")";
 		std::size_t delim = this->file.name.find(".");
+	std::cout << "\t2-2" << std::endl;
 		nameTmp = this->file.name.substr(0, delim) + inc + this->file.name.substr(delim);
 		patch = this->file.tmpLoc + "/" + nameTmp;
+	std::cout << "\t2-3" << std::endl;
 		tmp.open(patch.c_str());
 	}
+	std::cout << "\t3" << std::endl;
 	this->file.name = nameTmp;
 	this->addEnvParam("filename", this->file.name);
 
@@ -196,7 +238,9 @@ bool	Cgi::upload(){
 	for (std::vector<char>::iterator it = this->file.data.begin(); it != this->file.data.end(); ++it)
 		myFile << *it;
 	myFile.close();
+	std::cout << "\t4" << std::endl;
 	this->addEnvParam("UPLOAD_ERROR", intToString(0));
+	std::cout << "\t5" << std::endl;
 	return (true);
 }
 
@@ -234,12 +278,13 @@ std::vector<char>	Cgi::execute(){
 			data.insert(data.end(), buffer, buffer + n);
 			bzero(buffer, sizeof(buffer));
 		}
-		printf("Got from child Process\n");
-		for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
-		{
-			std::cout << *it;
-		}
-		std::cout << std::endl;
+		// printData(data);
+		// printf("Got from child Process\n");
+		// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
+		// {
+		// 	std::cout << *it;
+		// }
+		// std::cout << std::endl;
 	}
 	wait(NULL);
 	return (data);
