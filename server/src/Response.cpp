@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/06 00:32:31 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/06 10:32:10 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ std::vector<char>	Response::buildResponseforAutoIndex(Request* request, std::str
 	uri_ = request->target.constructPath();
 	if (!(*(uri_.rbegin()) == '/'))
 		uri_.append("/");
-	if ((*(uri_.begin()) == '/'))
+	if (*(uri_.begin()) == '/')
 		uri_.erase(0, 1);
 
 	ret += "<!DOCTYPE html>\r\n";

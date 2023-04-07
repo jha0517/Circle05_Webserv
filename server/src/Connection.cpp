@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/06 00:24:58 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/07 15:20:51 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ Connection &Connection::operator=(Connection const &rhs){
 	}
 	return (*this);
 }
-// #define BUFFSIZE 3000
 
 bool	checkURIexist(std::string path)
 {
@@ -41,24 +40,6 @@ bool	checkURIexist(std::string path)
     if (stat(path.c_str(), &sb) == 0)
 		return (true);
 	return (false);
-}
-
-bool	checkURIaccess(std::string path, std::string method)
-{
-	(void) path;
-	if (method == "GET")
-	{
-		
-	}
-	else if (method == "POST")
-	{
-
-	}
-	else if (method == "DELETE")
-	{
-
-	}
-	return (true);
 }
 
 std::vector<char>	Connection::constructResponse(){
@@ -78,14 +59,6 @@ std::vector<char>	Connection::constructResponse(){
 		std::cout << "Protocol not supported.\n";
 		return (response.buildErrorResponse(this->serv->error_page, 505));
 	}
-	// if (!checkURIaccess(request.target.generateString(), request.method))
-	// {
-	// 	statusCode = 404;
-	// 	std::cout << "URI not accessible.\n";
-	// 	return (response.buildErrorResponse(server.error_page, 404));
-	// }
-	// std::cout << "request.method : " << request.method << std::endl;
-
 	// build response
 	messageEnd = 0;
 	if (this->request.method == "GET")
@@ -127,19 +100,28 @@ void	Connection::readRequest(const int &i, ServerManager *servManag){
 		dataReceived.insert(dataReceived.end(), buffer, buffer + byte);
 		bzero(buffer, sizeof(buffer));
 	}
-	// printData(data);
+	std::cout << "dataReceived.size()"<< dataReceived.size() << "this->serv->maxClientBodySize" << this->serv->maxClientBodySize << std::endl;
+	if (dataReceived.size() > (unsigned long)this->serv->maxClientBodySize)
+	{
+		dataResponse = response.buildErrorResponse(this->serv->error_page, 413);
+		servManag->removeFromSet(i, servManag->readSockets);
+		std::cout << "Adding "<< i << "to WriteSockets" << std::endl;
+		servManag->addToSet(i, servManag->writeSockets);
+		return ;
+	}
 	if (this->request.parseResquest(dataReceived, messageEnd))
 	{
 		servManag->log.printRequest(i, this->request.method, this->request.target.generateString());
-		printf("Parsing SUCCESS: %li\n", this->dataReceived.size());
-		std::cout << request;
+		// printf("Parsing SUCCESS: %li\n", this->dataReceived.size());
+		// std::cout << request;
 		dataReceived.clear();
 		dataResponse = constructResponse();
-		printData(dataResponse);
+		// printData(dataResponse);
 		servManag->removeFromSet(i, servManag->readSockets);
+		std::cout << "Adding "<< i << "to WriteSockets" << std::endl;
 		servManag->addToSet(i, servManag->writeSockets);
 	}
-	printf("Parsing FAILED: %li\n", this->dataReceived.size());
+	// printf("Parsing FAILED: %li\n", this->dataReceived.size());
 	return ;
 }
 
@@ -157,7 +139,7 @@ void	Connection::writeResponse(const int &i, ServerManager *servManag)
 			return (servManag->log.printError("Sending message Failed"));
 		size -= numSent;
 	}
-	printData(dataResponse);
+	// printData(dataResponse);
 	servManag->log.printResponse(i, 202);
 	if (dataResponse.size() != 0)
 		dataResponse.clear();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/06 00:28:27 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/07 14:59:15 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,35 +111,10 @@ int	Server::startListen(){
 	{
 		return (servManag->log.printError("Error in Listening"), -1);
 	}
-	std::cout << "START listening:" <<this->sockfd << "port"<< this->port <<std::endl;
+	// std::cout << "START listening:" <<this->sockfd << "port"<< this->port <<std::endl;
 
 	return (this->sockfd);
 }
-/*
-void	Server::newConnection(){
-    std::vector<char> data;
-	int			statusCode;
-	Connection	connect(clientfd);
-	ServerManager *servManag;
-
-	servManag = (ServerManager *)manager;
-	servManag->log.printConnection(inet_ntoa(clientAddr.sin_addr), clientfd);
-	data = connect.constructResponse(*this, statusCode);
-
-	size_t	size = data.size();
-	int	numSent = 0;
-	char	*p = static_cast<char *>(data.data());
-	while (size > 0)
-	{
-		numSent = send(clientfd, p, size, 0);
-		if (numSent < 0)
-			return (servManag->log.printError("Sending message Failed"));
-		size -= numSent;
-	}
-	servManag->log.printResponse(clientfd, statusCode);
-	close(clientfd);
-}
-*/
 
 int	Server::acceptConnection(ServerManager *servManag){
 	Connection	*c = new Connection();
@@ -150,7 +125,13 @@ int	Server::acceptConnection(ServerManager *servManag){
 	if (clientfd < 0)
 		return (-1);
 	c->serv = this;
-	servManag->connections.insert(std::make_pair(clientfd, c));
+	if (!servManag->connections.count(clientfd))
+	{
+		std::cout << "Connect " << clientfd << "Added to Dictionnary" << std::endl;
+		servManag->connections.insert(std::make_pair(clientfd, c));
+		std::cout << "Adding "<< clientfd << "to ReadSockets" << std::endl;
+		servManag->addToSet(clientfd, servManag->readSockets);
+	}
 	return (clientfd);
 }
 

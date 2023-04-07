@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerManager.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 23:44:38 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/07 15:09:35 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ bool ServerManager::initiate(){
 	this->log.printInit();
 	FD_ZERO(&this->readSockets);
 	FD_ZERO(&this->writeSockets);
+	this->max_socket_so_far = 0;
 	
 	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
 	{
@@ -72,6 +73,7 @@ bool ServerManager::initiate(){
 		serversMap.insert(std::make_pair((*it)->sockfd, (*it)));
 		// serverFds.push_back((*it)->sockfd);
 		// std::cout << "Server adding " << (*it)->sockfd << " readSockets" << std::endl;
+		std::cout << "Adding Server"<< (*it)->sockfd << "to ReadSockets" << std::endl;
 		addToSet((*it)->sockfd, this->readSockets);
 		this->max_socket_so_far = (*it)->sockfd;
 	}
@@ -80,9 +82,11 @@ bool ServerManager::initiate(){
 
 int	ServerManager::closeAndFreeMem()
 {
-	for (std::vector<int>::iterator it = serverFds.begin(); it != serverFds.end(); ++it)
-		close(*it);
-
+	for (std::map<int, Server *>::iterator it = serversMap.begin(); it != serversMap.end(); ++it)
+	{
+		close((*it).first);
+	}
+	serversMap.clear();
 	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
 	{
 		for (std::set<Server::LocationBlock *>::iterator locit = (*it)->locationBloc.begin();\
@@ -100,7 +104,6 @@ int	ServerManager::closeAndFreeMem()
 void	ServerManager::addToSet(const int i, fd_set &set)
 {
 	FD_SET(i, &set);
-	std::cout << "adding " << i << std::endl;
 	if (i > this->max_socket_so_far)
 		this->max_socket_so_far = i;
 }
@@ -112,19 +115,44 @@ void    ServerManager::closeConnection(const int i)
 		this->log.printMsg("closing from writing ");
 		std::cout << "closing from writing " << i << std::endl;
         removeFromSet(i, this->writeSockets);
+		close(i);
+		for(std::map<int, Connection *>::iterator it = this->connections.begin();\
+		it != this->connections.end(); ++it)
+		{
+			std::cout << "i is " << i << " connection int is" << (*it).first << ", total size:"<< this->connections.size()<< std::endl;
+			if ((*it).first == i)
+			{
+				delete (*it).second;
+				std::cout << "delete done, total size:"<< this->connections.size()<< std::endl;
+				std::cout << "eraseing "<< (*it).first << std::endl;
+				this->connections.erase(it);
+				std::cout << "leaving closeConnection1"<< std::endl;
+				return ;
+			}
+		}
 	}
     if (FD_ISSET(i, &this->readSockets))
 	{
-		std::cout << "closing from reading " << i << std::endl;
+		std::cout << "Never comes here " << i << std::endl;
         removeFromSet(i, this->readSockets);
 	}
-    close(i);	
+	std::cout << "leaving closeConnection2"<< std::endl;
+	// for(std::map<int, Connection *>::iterator it = this->connections.begin();\
+	// it != this->connections.end(); ++it)
+	// {
+	// 	if ((*it).first == i)
+	// 	{
+	// 		std::cout << "deleting " << std::endl;
+	// 		delete this->connections[i];
+	// 	}
+	// 		// this->connections.erase(it);
+	// }
 }
 
 void	ServerManager::removeFromSet(const int i, fd_set &set)
 {
     FD_CLR(i, &set);
-	std::cout << "removing " << i << std::endl;
+	// std::cout << "removing " << i << std::endl;
     if (i == this->max_socket_so_far)
         this->max_socket_so_far--;
 }
@@ -151,7 +179,7 @@ bool	ServerManager::run(){
 			break;
 		if (selectRet < 0)
 		{
-			printf("selectRet : %i\n", selectRet);
+			// printf("selectRet : %i\n", selectRet);
 			return (log.printError("Error in Select"), EXIT_FAILURE);
 		}
 		else if (selectRet == 0)
@@ -165,7 +193,6 @@ bool	ServerManager::run(){
 				connectFd = serversMap[i]->acceptConnection(this);
 				if (connectFd < 0)
 					return (EXIT_FAILURE);
-				addToSet(connectFd, this->readSockets);
 			}
 			else if (FD_ISSET(i, &readSocketsCopy) && connections.count(i))
 			{
@@ -173,7 +200,7 @@ bool	ServerManager::run(){
 			}
 			else if (FD_ISSET(i, &writeSocketsCopy) && connections.count(i))
 			{
-				printf("YOOOOO, connections[i]->cgiState: %i\n", connections[i]->cgiState);
+				// printf("connections[i]->cgiState: %i\n", connections[i]->cgiState);
 				if (connections[i]->cgiState == 1)
 					connections[i]->cgiRequest(i, this);	
 				if (connections[i]->cgiState == 2)

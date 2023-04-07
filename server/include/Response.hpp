@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 22:17:52 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/06 10:03:59 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ class Response
 private:
 	std::map<int, std::string>			statusCodeDic;
 	std::map<std::string, std::string>	mimeMap;
-	int									clientfd;
 	std::string							getMimeType(std::string & filepath);
 	std::string							getFormat(std::string & filepath);
 public:

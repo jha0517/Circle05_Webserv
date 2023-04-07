@@ -59,7 +59,7 @@ int	server_main(t_http_block *info)
 		if ((*iter).allow_methods_post)
 			method.insert("POST");
 		//if ((*iter).allow_methods_delete)
-			method.insert("DELETE");
+		method.insert("DELETE");
 		//UNKNOWN??
 		sm.servers[i]->setAllowedMethod(method);
 
