@@ -275,6 +275,7 @@ std::vector<char>	Cgi::execute(){
 			data.insert(data.end(), buffer, buffer + n);
 			bzero(buffer, sizeof(buffer));
 		}
+		close(pipefd[0]);
 		// printData(data);
 		// printf("Got from child Process\n");
 		// for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)
