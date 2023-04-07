@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 04:20:47 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/05 13:22:48 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 09:11:05 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,58 @@ int	SemicolonCheck(std::string str)
 	if (!(str[str.length() - 1] == ';'))
 		return (1);
 	return (0);
+}
+
+int	CheckDirectory(std::string str, int flag)
+{
+	DIR		*dir_ptr = NULL;
+	struct dirent	*file = NULL;
+	int		i = 0;
+
+	dir_ptr = opendir(str.c_str());
+	if (dir_ptr == NULL)
+		return (0);
+	if (flag == ROOT)
+	{
+		while ((file = readdir(dir_ptr)) != NULL)
+		{
+			if (!strncmp("cgi-bin", file->d_name, strlen("cgi-bin")))
+				i++;
+			if (!strncmp("error_pages", file->d_name, strlen("error_pages")))
+				i++;
+			if (!strncmp("fruits", file->d_name, strlen("fruits")))
+				i++;
+			if (!strncmp("test", file->d_name, strlen("test")))
+				i++;
+			if (!strncmp("upload", file->d_name, strlen("upload")))
+				i++;
+		}
+		if (i == 0)
+			return (0);
+	}
+	if (flag == SAVE_PATH)
+	{
+		while ((file = readdir(dir_ptr)) != NULL)
+		{
+			if (!strncmp(".upload", file->d_name, strlen("cgi-bin")))
+				i++;
+		}
+		if (i == 0)
+			return (0);
+	}
+	if (flag == CGI_BIN_LOCATION)
+	{
+		while ((file = readdir(dir_ptr)) != NULL)
+		{
+			if (!strncmp("query.php", file->d_name, strlen("query.php")))
+				i++;
+			if (!strncmp("upload.php", file->d_name, strlen("upload.php")))
+				i++;
+		}
+		if (i != 2)
+			return (0);
+	}
+	return (1);
 }
 
 std::string	RemoveSpaceTab(std::string str)
@@ -162,6 +214,10 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 			msg.append("keyword autoindex is not used properly\n");
 		else if (err_number == HTTP_KWD_DEFAULT_ERROR_PAGE)
 			msg.append("keyword default_error_page is not used properly\n");
+		else if (err_number == HTTP_KWD_ROOT_VALUE)
+			msg.append("value of keyword root is invalid\n");
+		else if (err_number == HTTP_KWD_DEFAULT_ERROR_PAGE_VALUE)
+			msg.append("value of keyword default_error_page is invalid\n");
 		else if (err_number == HTTP_KWD_ROOT_EXISTS)
 			msg.append("keyword root already exists\n");
 		else if (err_number == HTTP_KWD_AUTOINDEX_EXISTS)
@@ -211,6 +267,16 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 			msg.append("keyword allow_methods is not used properly\n");
 		else if (err_number == SERVER_KWD_SAVE_PATH)
 			msg.append("keyword save_path is not used properly\n");
+		else if (err_number == SERVER_KWD_LISTEN_VALUE)
+			msg.append("value of keyword listen is invalid\n");
+		else if (err_number == SERVER_KWD_HOST_VALUE)
+			msg.append("value of keyword host is invalid\n");
+		else if (err_number == SERVER_KWD_CLIENT_MAX_BODY_SIZE_VALUE)
+			msg.append("value of keyword client_max_body_size is invalid\n");
+		else if (err_number == SERVER_KWD_INDEX_VALUE)
+			msg.append("value of keyword index is invalid\n");
+		else if (err_number == SERVER_KWD_SAVE_PATH_VALUE)
+			msg.append("value of keyword save_path is invalid\n");
 		else if (err_number == SERVER_KWD_LISTEN_EXISTS)
 			msg.append("keyword listen already exists\n");
 		else if (err_number == SERVER_KWD_HOST_EXISTS)
@@ -267,6 +333,18 @@ std::string	ErrMsg(std::string file_name, int err_number, std::string line, int 
 			msg.append("keyword cgi_path is not used properly\n");
 		else if (err_number == LOCATION_KWD_CGI_EXTENTION)
 			msg.append("keyword cgi_extention is not used properly\n");
+		
+		else if (err_number == LOCATION_REDIRECTION_LOCATION_PATH)
+			msg.append("path of redirection location block is invalid\n");
+		else if (err_number == LOCATION_INDEX_LOCATION_PATH)
+			msg.append("path of index location block is invalid\n");
+		else if (err_number == LOCATION_CGI_LOCATION_PATH)
+			msg.append("path of cgi-bin location block is invalid\n");
+		else if (err_number == LOCATION_KWD_INDEX_VALUE)
+			msg.append("value of keyword index is invalid\n");
+
+
+		
 		else if (err_number == LOCATION_KWD_RETURN_EXISTS)
 			msg.append("keyword return already exists\n");
 		else if (err_number == LOCATION_KWD_INDEX_EXISTS)

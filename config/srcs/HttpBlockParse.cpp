@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 23:52:58 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/04 22:22:18 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 09:08:26 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,7 +299,6 @@ void	HttpBlockParse::HttpBlockGetInfo(std::string *token, std::string *line, int
 {
 	if (token[0] == "root" && !this->_http_parse_done)
 	{
-		//check if the path is valid
 		if (SemicolonCheck(token[1]))
 		{
 			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
@@ -312,6 +311,11 @@ void	HttpBlockParse::HttpBlockGetInfo(std::string *token, std::string *line, int
 		{
 			token[1] = token[1].substr(0, token[1].find(";"));
 			token[1] = RemoveSpaceTab(token[1]);
+		}
+		if (!CheckDirectory(token[1], ROOT))
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_ROOT_VALUE, *line, i);
+			throw (this->_err_msg);
 		}
 		this->_root_flag++;
 		this->_root = token[1];
@@ -341,7 +345,6 @@ void	HttpBlockParse::HttpBlockGetInfo(std::string *token, std::string *line, int
 	}
 	if (token[0] == "default_error_page" && !this->_http_parse_done)
 	{
-		//check if the path is valid
 		if (SemicolonCheck(token[1]))
 		{
 			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
@@ -374,5 +377,18 @@ void	HttpBlockParse::HttpBlockGetInfo(std::string *token, std::string *line, int
 				err_page_directory += '/';
 		}
 		this->_err_page_directory = err_page_directory;
+		if (!(CheckDirectory(this->_err_page_directory, 0)
+			&& this->_err_page_directory == "data/error_pages"
+			&& (this->_default_err_page == "data/error_pages/400.html"
+				|| this->_default_err_page == "data/error_pages/403.html"
+				|| this->_default_err_page == "data/error_pages/404.html"
+				|| this->_default_err_page == "data/error_pages/405.html"
+				|| this->_default_err_page == "data/error_pages/413.html"
+				|| this->_default_err_page == "data/error_pages/500.html"
+				|| this->_default_err_page == "data/error_pages/505.html")))
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_DEFAULT_ERROR_PAGE_VALUE, *line, i);
+			throw (this->_err_msg);
+		}
 	}
 }
