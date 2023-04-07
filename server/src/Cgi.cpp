@@ -53,7 +53,7 @@ int	Cgi::analyse(Server *server, Request *request){
 		std::cout << "cgi file tmpLoc error \n";
 		return (404);
 	}
-	std::cout << "this->file.tmpLoc:" << this->file.tmpLoc<< std::endl;
+	// std::cout << "this->file.tmpLoc:" << this->file.tmpLoc<< std::endl;
 
 	//cmd
 	for (std::map<std::string, std::string>::iterator it = this->cmdMap.begin();\
@@ -118,10 +118,9 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 	std::string bodyDeliminator = headers.getHeaderValue("Content-Type").substr(b + deliminator.length());
 	std::size_t a = vecFind(data, bodyDeliminator);
 
-	std::cout << "headers.getHeaderValue(Content-Type)" << headers.getHeaderValue("Content-Type")<< std::endl;
-	std::cout << "b"<< b << std::endl;
+	// std::cout << "headers.getHeaderValue(Content-Type)" << headers.getHeaderValue("Content-Type")<< std::endl;
+	// std::cout << "b"<< b << std::endl;
 
-	printData(filebody);
 	// if (b == std::string::npos)
 	// {
 	// 	std::size_t c = vecFind(filebody, nextline);
@@ -132,12 +131,10 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 	// erase start boundary
 	filebody.erase(filebody.begin(), filebody.begin() + a + bodyDeliminator.length() + nextline.length());
 
-	printData(filebody);
 	// erase end boundary		
 	a = vecFind(filebody, bodyDeliminator);
 	filebody.erase(filebody.begin() + a - (nextline.length() * 2), filebody.end());
 	
-	printData(filebody);
 	// split fileinfo and body
 	std::vector<char>	infoFile;
 	a = vecFind(filebody, "\r\n\r\n");
@@ -147,7 +144,6 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 	// printData(infoFile);
 	filebody.erase(filebody.begin(), filebody.begin() + a + 4);
 
-	printData(filebody);
 
 	this->file.data = filebody;
 	
@@ -209,28 +205,29 @@ bool	Cgi::upload(){
 	if (this->file.name.empty())
 		return (this->addEnvParam("UPLOAD_ERROR", intToString(1)), false);
 
-	std::cout << "\t1" << std::endl;
 	std::ifstream tmp;
 	std::string	nameTmp;
 	// CHECK IF THERE IS ALREADY THE SAME NAME FILE EXIST
 	std::string patch = this->file.tmpLoc + "/" + this->file.name;
 	tmp.open(patch.c_str());
 	int i = 0;
-	std::cout << "\t2" << std::endl;
-	std::cout << "\tpatch" << patch << std::endl;
 	while (tmp)
 	{
-	std::cout << "\t2-1" << std::endl;
 		tmp.close();
 		std::string	inc = "(" + intToString(++i) + ")";
 		std::size_t delim = this->file.name.find(".");
-	std::cout << "\t2-2" << std::endl;
-		nameTmp = this->file.name.substr(0, delim) + inc + this->file.name.substr(delim);
-		patch = this->file.tmpLoc + "/" + nameTmp;
-	std::cout << "\t2-3" << std::endl;
+		if(delim == std::string::npos)
+		{
+			nameTmp = this->file.name + inc;
+			patch = this->file.tmpLoc + "/" + nameTmp;
+		}
+		else
+		{
+			nameTmp = this->file.name.substr(0, delim) + inc + this->file.name.substr(delim);
+			patch = this->file.tmpLoc + "/" + nameTmp;
+		}
 		tmp.open(patch.c_str());
 	}
-	std::cout << "\t3" << std::endl;
 	this->file.name = nameTmp;
 	this->addEnvParam("filename", this->file.name);
 

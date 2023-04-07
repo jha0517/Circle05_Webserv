@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 16:35:23 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 16:43:01 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 19:07:57 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,9 +95,13 @@ bool	Request::parseResquest(std::vector<char> rawRequest, size_t & messageEnd){
 	if (this->headers.hasHeader("Content-Length"))
 	{
 		if (!parseSize(this->headers.getHeaderValue("Content-Length"), contentLength))
-			return (printf("Content-length Size parsing\n"), false);
+			return (false);
+			// return (printf("Content-length Size parsing\n"), false);
 		if (contentLength > maxContentLength)
-			return (printf("Content-length > MaxContentLength\n"), false);
+		{
+			return (false);
+			// return (printf("Content-length > MaxContentLength\n"), false);
+		}
 		else
 			messageEnd = bodyOffset + contentLength + CRLF.length();
 	}

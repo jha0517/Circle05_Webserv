@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:27 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/06 10:03:59 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 19:30:24 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ public:
 	std::string			generateRawResponse(int code, MessageHeaders msg, std::string body);
 	std::vector<char>	getMethod(Server &server, Request *request, std::size_t messageEnd);
 	std::vector<char>	postMethod(Server &server, Request *request, std::size_t messageEnd);
-	// std::string		deleteMethod(Server &server, Request *request, std::size_t messageEnd);
+	std::vector<char>	deleteMethod(Server &server, Request *request, std::size_t messageEnd);
 	std::vector<char>	buildResponse(Server & server, Request * request, std::string dir, int errorCode);
 	std::vector<char>	buildErrorResponse(std::string dir, int errorCode);
 	std::vector<char>	buildResponseForCgi(std::vector<char> data, int code);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyunah <hyunah@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 14:11:11 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/05 17:18:39 by hyunah           ###   ########.fr       */
+/*   Updated: 2023/04/07 20:34:41 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,35 @@ std::string	check_filename_get_str(const char *filename)
 	}
 	return (src);
 }
+
+std::string	check_filename_get_str2(const char *filename, int *code)
+{
+	std::string		src;
+	std::string		null;
+	std::string		buffer;
+	std::ifstream	ifs;
+	char	c;
+	
+	ifs.open(filename);
+	if (!ifs)
+	{
+		std::cout << filename <<"File non-existance or Right Denied!" << std::endl;
+		*code = 0;
+		return (null);
+	}
+	while (ifs.get(c))
+		src+= c;
+	ifs.close();
+	if (src.empty())
+	{
+		std::cout << "File is empty!" << std::endl;
+		*code = 1;
+		return (null);
+	}
+	return (src);
+}
+
+
 void	printData(std::vector<char> data){
 	printf("Start\n");
 	for (std::vector<char>::iterator it = data.begin(); it != data.end(); ++it)

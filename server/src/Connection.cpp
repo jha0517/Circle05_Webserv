@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 18:53:35 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 20:06:56 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,13 +64,12 @@ std::vector<char>	Connection::constructResponse(){
 	if (this->request.method == "GET")
 		dataResponse = response.getMethod(*(this->serv), &this->request, messageEnd);
 	else if (this->request.method == "POST")
-	{
 		dataResponse = response.postMethod(*(this->serv), &this->request, messageEnd);
-	}
-	// else if (request.method == "DELETE")
-		// responseStr= response.deleteMethod(server, &request, messageEnd, statusCode);
+	else if (request.method == "DELETE")
+		dataResponse = response.deleteMethod(*(this->serv), &this->request, messageEnd);
 	else
 		return (response.buildErrorResponse(this->serv->error_page, 500));
+	// printData(dataResponse);
 	return (dataResponse);
 }
 
@@ -100,17 +99,9 @@ void	Connection::readRequest(const int &i, ServerManager *servManag){
 		dataReceived.insert(dataReceived.end(), buffer, buffer + byte);
 		bzero(buffer, sizeof(buffer));
 	}
-	// std::cout << "dataReceived.size()"<< dataReceived.size() << "this->serv->maxClientBodySize" << this->serv->maxClientBodySize << std::endl;
-	// if (dataReceived.size() > (unsigned long)this->serv->maxClientBodySize)
-	// {
-	// 	dataResponse = response.buildErrorResponse(this->serv->error_page, 413);
-	// 	servManag->removeFromSet(i, servManag->readSockets);
-	// 	std::cout << "Adding "<< i << "to WriteSockets" << std::endl;
-	// 	servManag->addToSet(i, servManag->writeSockets);
-	// 	return ;
-	// }
 	if (this->request.parseResquest(dataReceived, messageEnd))
 	{
+		// printData(dataReceived);
 		servManag->log.printRequest(i, this->request.method, this->request.target.generateString());
 		// printf("Parsing SUCCESS: %li\n", this->dataReceived.size());
 		// std::cout << request;

@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 11:25:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 12:56:50 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 19:05:21 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 # include <arpa/inet.h>
 # include <sys/stat.h>
 # include <fstream>
-# define BUFFSIZE 1024
+# define BUFFSIZE 2048
 
 class ServerManager;
 class Server

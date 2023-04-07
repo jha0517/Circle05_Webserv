@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 18:08:39 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 20:41:07 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 Response::Response() : cgiState(0)
 {
 	statusCodeDic.insert(std::pair<int, std::string>(200, "OK"));
+	statusCodeDic.insert(std::pair<int, std::string>(204, "No Content"));
 	statusCodeDic.insert(std::pair<int, std::string>(400, "Bad Request"));
 	statusCodeDic.insert(std::pair<int, std::string>(403, "Forbidden"));
 	statusCodeDic.insert(std::pair<int, std::string>(404, "Not Found"));
@@ -302,8 +303,10 @@ std::vector<char>	Response::buildErrorResponse(std::string dir, int code)
 	msg.addHeader("Content-Length", intToString(body.length()));
 	ret += msg.generateRawMsg();
 	ret += body;
+
 	// make ret. return type to vector<char> and change the send function to see if the whole size of ficher+header has been transfered.
 	data.insert(data.end(), ret.c_str(), ret.c_str()+ ret.size());
+	
 	return (data);
 }
 
@@ -413,19 +416,37 @@ std::vector<char>	Response::postMethod(Server &server, Request *request, std::si
 	return (data);
 }
 
-// std::string	Response::deleteMethod(Server &server, Request *request, std::size_t messageEnd, int & statusCode){
-// 	(void) request;
-// 	(void) messageEnd;
-// 	(void) request;
-// 	(void) statusCode;
-// 	(void) server;
-// 	std::cout << "In DeleteMethod\n";
-// 	std::string	expectedResponse = (
-//      "HTTP/1.1 404 Not Found\r\n"
-//      "Content-Length: 35\r\n"
-//      "Content-Type: text/plain\r\n"
-// 	 "\r\n"
-//      "Hello This is Ratatouille server!\r\n"
-// 	);
-// 	return (expectedResponse);
-// }
+std::vector<char>	Response::deleteMethod(Server &server, Request *request, std::size_t messageEnd){
+	(void) messageEnd;
+	(void) statusCode;
+	(void) server;
+	MessageHeaders		msg;
+	std::string			ret;
+	std::string			body;
+	std::vector<char>	data;
+	int					code;
+
+	msg.addHeader("Date", generateDateHeader());
+	std::cout << *request << std::endl;
+	std::string dir = server.root + request->target.generateString();
+	std::cout << dir << std::endl;
+	if (check_filename_get_str2(dir.c_str(), &code).empty())
+	{
+		if (!code)
+		{
+			msg.addHeader("Content-Type", "text/plain");
+			body = "Status 404 : Not Found";
+			ret = this->generateRawResponse(404, msg, body);
+			data.insert(data.end(), ret.c_str(), ret.c_str()+ ret.size());
+			// printData(data);
+			return (data);
+		}
+	}
+	std::remove(dir.c_str());
+	msg.addHeader("Content-Type", "text/plain");
+	body = "Status 200 : OK";
+	ret = this->generateRawResponse(200, msg, body);
+	data.insert(data.end(), ret.c_str(), ret.c_str()+ ret.size());
+	// printData(data);
+	return (data);
+}
