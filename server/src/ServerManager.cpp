@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 15:23:08 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 22:30:45 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ int	ServerManager::closeAndFreeMem()
 	{
 		close((*it).first);
 	}
+	std::cout << "serversMap.size()"<< serversMap.size();
 	serversMap.clear();
 	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
 	{
@@ -130,7 +131,7 @@ void    ServerManager::closeConnection(const int i)
 				std::cout << "eraseing "<< (*it).first << std::endl;
 				this->connections.erase(it);
 				std::cout << "leaving closeConnection1"<< std::endl;
-				return ;
+				// return ;
 			}
 		}
 	}
@@ -210,7 +211,7 @@ bool	ServerManager::run(){
 					connections[i]->cgiRequest(i, this);
 				else
 					connections[i]->writeResponse(i, this);
-				sleep(1);
+				// sleep(1);
 				closeConnection(i);
 			}
 			// std::cout << "finished"<< std::endl;

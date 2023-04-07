@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 15:23:14 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 22:22:18 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,8 @@ int	Server::startListen(){
 	this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->sockfd < 0)
 		return (servManag->log.printError("Error in Connection"), -1);
+	int optionValue = 1;
+    setsockopt(this->sockfd, SOL_SOCKET, SO_REUSEADDR, &optionValue, sizeof(int));
 	memset(&serverAddr, '\0', sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(this->port);
