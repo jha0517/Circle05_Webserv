@@ -118,16 +118,6 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 	std::string bodyDeliminator = headers.getHeaderValue("Content-Type").substr(b + deliminator.length());
 	std::size_t a = vecFind(data, bodyDeliminator);
 
-	// std::cout << "headers.getHeaderValue(Content-Type)" << headers.getHeaderValue("Content-Type")<< std::endl;
-	// std::cout << "b"<< b << std::endl;
-
-	// if (b == std::string::npos)
-	// {
-	// 	std::size_t c = vecFind(filebody, nextline);
-	// 	bodyDeliminator = vecSubstr(filebody, 0, c);
-	// 	std::cout << "bodyDeliminator"<< bodyDeliminator << std::endl;
-	// 	a = vecFind(data, bodyDeliminator);
-	// }
 	// erase start boundary
 	filebody.erase(filebody.begin(), filebody.begin() + a + bodyDeliminator.length() + nextline.length());
 
@@ -139,7 +129,6 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 	std::vector<char>	infoFile;
 	a = vecFind(filebody, "\r\n\r\n");
 	infoFile.insert(infoFile.begin(), filebody.begin(), filebody.begin() + a);
-	std::cout <<"infoFile" <<std::endl;
 
 	// printData(infoFile);
 	filebody.erase(filebody.begin(), filebody.begin() + a + 4);
@@ -164,7 +153,6 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 	size_t j;
 	size_t k;
 	std::string value;
-	std::cout << "1\n";
 	while ((j = rest.find(" ")) != std::string::npos)
 	{
 		value = rest.substr(0, j);
@@ -177,21 +165,18 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 		}
 		rest.erase(rest.begin(), rest.begin() + j + 1);
 	}
-	std::cout << "2\n";
 	if ((k = rest.find("=")) != std::string::npos)
 	{
 		size_t l = rest.find("\"", k + 2);
 		this->file.name = rest.substr(k + 2, value.size() - (k + 2) - (value.size() - l));
 	}
-	std::cout << "3\n";
 	this->addEnvParam("FILE_TEMPLOC", file.tmpLoc);
 	// Add type and size and time.
 	
-	std::cout << "4\n";
 	//for error 413
 	if (filebody.size() > (long unsigned int)maxClientBodySize)
 	{
-		std::cout << filebody.size() << " > " << maxClientBodySize << std::endl;
+		// std::cout << filebody.size() << " > " << maxClientBodySize << std::endl;
 		*errorCode = 413;
 		return (false);
 	}

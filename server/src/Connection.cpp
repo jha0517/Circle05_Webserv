@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 20:57:21 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 21:57:51 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,27 @@ void	Connection::readRequest(const int &i, ServerManager *servManag){
 	return ;
 }
 
+bool parseStatusLine(Response *response, std::string responseLine){
+	//parse the protocal
+	std::size_t	protocalDelimiter = responseLine.find(' ');
+	if (protocalDelimiter == std::string::npos)
+		return (false);
+	if (responseLine.substr(0, protocalDelimiter) != "HTTP/1.1")
+		return (false);
+		
+	//parse the statusCode
+	std::size_t	statusCodeDelimiter = responseLine.find(' ', protocalDelimiter + 1);
+	unsigned int statusCode = atoi(responseLine.substr(protocalDelimiter + 1, statusCodeDelimiter - protocalDelimiter - 1).c_str());
+	if (statusCode > 999)
+		return (false);
+	else
+		response->statusCode = statusCode;
+
+	//parse the reasonPhrase
+	response->reasonPhrase = responseLine.substr(statusCodeDelimiter + 1);
+	return (true);
+}
+
 void	Connection::writeResponse(const int &i, ServerManager *servManag)
 {
 	size_t	size = this->dataResponse.size();
@@ -131,7 +152,12 @@ void	Connection::writeResponse(const int &i, ServerManager *servManag)
 		size -= numSent;
 	}
 	// printData(dataResponse);
-	servManag->log.printResponse(i, 202);
+	std::size_t nextlineDelim = vecFind(dataResponse, "\r\n");
+	std::string statusLine = vecSubstr(dataResponse, 0, nextlineDelim);
+	Response response;
+	parseStatusLine(&response, statusLine);
+	
+	servManag->log.printResponse(i, response.statusCode);
 	if (dataResponse.size() != 0)
 		dataResponse.clear();
 	// close(clientfd);
