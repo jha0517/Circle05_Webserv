@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/08 00:13:34 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 18:49:02 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 18:53:35 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,15 @@ void	Connection::readRequest(const int &i, ServerManager *servManag){
 		dataReceived.insert(dataReceived.end(), buffer, buffer + byte);
 		bzero(buffer, sizeof(buffer));
 	}
+	// std::cout << "dataReceived.size()"<< dataReceived.size() << "this->serv->maxClientBodySize" << this->serv->maxClientBodySize << std::endl;
+	// if (dataReceived.size() > (unsigned long)this->serv->maxClientBodySize)
+	// {
+	// 	dataResponse = response.buildErrorResponse(this->serv->error_page, 413);
+	// 	servManag->removeFromSet(i, servManag->readSockets);
+	// 	std::cout << "Adding "<< i << "to WriteSockets" << std::endl;
+	// 	servManag->addToSet(i, servManag->writeSockets);
+	// 	return ;
+	// }
 	if (this->request.parseResquest(dataReceived, messageEnd))
 	{
 		servManag->log.printRequest(i, this->request.method, this->request.target.generateString());

@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 04:20:47 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/07 09:11:05 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 18:34:02 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,14 +63,10 @@ int	CheckDirectory(std::string str, int flag)
 				i++;
 			if (!strncmp("error_pages", file->d_name, strlen("error_pages")))
 				i++;
-			if (!strncmp("fruits", file->d_name, strlen("fruits")))
-				i++;
-			if (!strncmp("test", file->d_name, strlen("test")))
-				i++;
 			if (!strncmp("upload", file->d_name, strlen("upload")))
 				i++;
 		}
-		if (i == 0)
+		if (i < 3)
 			return (0);
 	}
 	if (flag == SAVE_PATH)
@@ -95,6 +91,7 @@ int	CheckDirectory(std::string str, int flag)
 		if (i != 2)
 			return (0);
 	}
+	closedir(dir_ptr);
 	return (1);
 }
 

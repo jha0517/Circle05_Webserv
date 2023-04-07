@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 23:52:58 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/07 09:08:26 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 18:28:43 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -378,14 +378,14 @@ void	HttpBlockParse::HttpBlockGetInfo(std::string *token, std::string *line, int
 		}
 		this->_err_page_directory = err_page_directory;
 		if (!(CheckDirectory(this->_err_page_directory, 0)
-			&& this->_err_page_directory == "data/error_pages"
-			&& (this->_default_err_page == "data/error_pages/400.html"
-				|| this->_default_err_page == "data/error_pages/403.html"
-				|| this->_default_err_page == "data/error_pages/404.html"
-				|| this->_default_err_page == "data/error_pages/405.html"
-				|| this->_default_err_page == "data/error_pages/413.html"
-				|| this->_default_err_page == "data/error_pages/500.html"
-				|| this->_default_err_page == "data/error_pages/505.html")))
+			&& this->_err_page_directory.find("error_pages") != std::string::npos
+			&& (this->_default_err_page.find("error_pages/400.html") != std::string::npos
+				|| this->_default_err_page.find("error_pages/403.html") != std::string::npos
+				|| this->_default_err_page.find("error_pages/404.html") != std::string::npos
+				|| this->_default_err_page.find("error_pages/405.html") != std::string::npos
+				|| this->_default_err_page.find("error_pages/413.html") != std::string::npos
+				|| this->_default_err_page.find("error_pages/500.html") != std::string::npos
+				|| this->_default_err_page.find("error_pages/505.html") != std::string::npos)))
 		{
 			this->_err_msg = ErrMsg(this->_config_file_name, HTTP_KWD_DEFAULT_ERROR_PAGE_VALUE, *line, i);
 			throw (this->_err_msg);
