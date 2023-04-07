@@ -106,7 +106,7 @@ char	**Cgi::getEnvArray(){
 	return (newEnv);
 }
 
-bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers)
+bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int maxClientBodySize)
 {
 	std::vector<char>			filebody;
 	
@@ -162,6 +162,10 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers)
 	}
 	this->addEnvParam("FILE_TEMPLOC", file.tmpLoc);
 	// Add type and size and time.
+	
+	//for error 413
+	if (filebody.size() > (long unsigned int)maxClientBodySize)
+		return (false);
 	return (true);
 }
 

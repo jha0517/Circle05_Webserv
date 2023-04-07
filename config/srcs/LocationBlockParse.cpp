@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/25 01:19:53 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/04 22:14:49 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 09:15:56 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ LocationBlockParse::LocationBlockParse()
 			_redirection_location_path(""), _return(""),
 			_index_location_path(""), _index(""),
 			_cgi_location_path(""), _cgi_path_php(""), _cgi_extention_php(0),
-			_location_parse_done(0), _config_file_name(""), _err_msg("")/////
+			_location_parse_done(0), _config_file_name(""), _err_msg("")
 {
 }
 
@@ -313,7 +313,11 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 					throw (this->_err_msg);
 				}
 			}
-			//check if path is valid
+			if (!CheckDirectory(HttpBlockParse::GetRoot() + token[0], 0))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_REDIRECTION_LOCATION_PATH, *line, i);
+				throw (this->_err_msg);
+			}
 			this->_redirection_location_flag++;
 			this->_redirection_location_path = token[0];
 		}
@@ -334,7 +338,11 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 					throw (this->_err_msg);
 				}
 			}
-			//check if path is valid
+			if (!CheckDirectory(HttpBlockParse::GetRoot() + token[0], CGI_BIN_LOCATION))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_CGI_LOCATION_PATH, *line, i);
+				throw (this->_err_msg);
+			}
 			this->_cgi_location_flag++;
 			this->_cgi_location_path = token[0];
 		}
@@ -349,7 +357,11 @@ void	LocationBlockParse::LocationKeywordLocationCheck(std::string *line, std::st
 					throw (this->_err_msg);
 				}
 			}
-			//check if path is valid
+			if (!CheckDirectory(HttpBlockParse::GetRoot() + token[0], 0))
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_INDEX_LOCATION_PATH, *line, i);
+				throw (this->_err_msg);
+			}
 			this->_index_location_flag++;
 			this->_index_location_path = token[0];
 		}
@@ -545,7 +557,6 @@ void	LocationBlockParse::LocationBlockGetInfo(std::string *token, std::string *l
 {
 	if (token[0] == "return" && !this->_location_parse_done)
 	{
-		//return value check
 		if (SemicolonCheck(token[1]))
 		{
 			if (!((token[2] != "" && token[1].find(";") == std::string::npos && token[2].find(";") != std::string::npos && !SemicolonCheck(token[2]))
@@ -563,7 +574,6 @@ void	LocationBlockParse::LocationBlockGetInfo(std::string *token, std::string *l
 	}
 	if (token[0] == "index" && !this->_location_parse_done)
 	{
-		//check index
 		if (SemicolonCheck(token[1]))
 		{
 			if (!((token[2] != "" && token[1].find(";") == std::string::npos && token[2].find(";") != std::string::npos && !SemicolonCheck(token[2]))
@@ -576,12 +586,18 @@ void	LocationBlockParse::LocationBlockGetInfo(std::string *token, std::string *l
 		}
 		if (token[1].find(";") != std::string::npos)
 			token[1] = token[1].substr(0, token[1].find(";"));
+		if (!(token[1].find(".html") != std::string::npos
+			&& token[1].find(".html") == token[1].length() - 5)
+			|| token[1].substr(token[1].find(".") + strlen("."), std::string::npos).find(".") != std::string::npos)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, LOCATION_KWD_INDEX_VALUE, *line, i);
+			throw (this->_err_msg);
+		}
 		this->_index_flag++;
 		this->_index = token[1];
 	}
 	if (token[0] == "cgi_path" && !this->_location_parse_done)
 	{
-		//edit later
 		if (SemicolonCheck(token[1]))
 		{
 			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))

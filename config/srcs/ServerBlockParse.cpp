@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 00:07:25 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/05 14:45:13 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 09:15:37 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -561,7 +561,6 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 {
 	if (token[0] == "listen" && !this->_server_parse_done)
 	{
-		//number check, number range check
 		if (SemicolonCheck(token[1]))
 		{
 			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
@@ -574,13 +573,19 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 		{
 			token[1] = token[1].substr(0, token[1].find(";"));
 			token[1] = RemoveSpaceTab(token[1]);
+		}
+		if ((token[1] != "0" && atoi(token[1].c_str()) == 0)
+			|| atoi(token[1].c_str()) <= 0
+			|| atol(token[1].c_str()) > 2147483647)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_LISTEN_VALUE, *line, i);
+			throw (this->_err_msg);
 		}
 		this->_listen_flag++;
 		this->_listen = atoi(token[1].c_str());
 	}
 	if (token[0] == "host" && !this->_server_parse_done)
 	{
-		//ip address check
 		if (SemicolonCheck(token[1]))
 		{
 			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
@@ -593,13 +598,43 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 		{
 			token[1] = token[1].substr(0, token[1].find(";"));
 			token[1] = RemoveSpaceTab(token[1]);
+		}
+		std::stringstream	ss(token[1]);
+		std::string		temp[50];
+		int			i = 0;
+		while (!ss.eof())
+		{
+			getline(ss, temp[i], '.');
+			if (temp[i] == "")
+			{
+				this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_HOST_VALUE, *line, i);
+				throw (this->_err_msg);
+			}
+			i++;
+		}
+		if (i != 4 || ((temp[0] != "0" && atoi(temp[0].c_str()) <= 0)
+				|| (temp[1] != "0" && atoi(temp[0].c_str()) <= 0)
+				|| (temp[2] != "0" && atoi(temp[0].c_str()) <= 0)
+				|| (temp[3] != "0" && atoi(temp[0].c_str()) <= 0)))
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_HOST_VALUE, *line, i);
+			throw (this->_err_msg);
+		}
+		if (!(((atoi(temp[0].c_str()) == 127)
+			&& (0 <= atoi(temp[1].c_str()) && atoi(temp[1].c_str()) <= 255)
+			&& (0 <= atoi(temp[2].c_str()) && atoi(temp[2].c_str()) <= 255)
+			&& (0 <= atoi(temp[3].c_str()) && atoi(temp[3].c_str()) <= 255)
+			&& !(temp[0] == "127" && temp[1] == "255" && temp[2] == "255" && temp[3] == "255"))
+			|| (temp[0] == "0" && temp[1] == "0" && temp[2] == "0" && temp[3] == "0")))
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_HOST_VALUE, *line, i);
+			throw (this->_err_msg);
 		}
 		this->_host_flag++;
 		this->_host = token[1];
 	}
 	if (token[0] == "client_max_body_size" && !this->_server_parse_done)
 	{
-		//number check, number range check
 		if (SemicolonCheck(token[1]))
 		{
 			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
@@ -612,13 +647,19 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 		{
 			token[1] = token[1].substr(0, token[1].find(";"));
 			token[1] = RemoveSpaceTab(token[1]);
+		}
+		if ((token[1] != "0" && atoi(token[1].c_str()) == 0)
+			|| atoi(token[1].c_str()) <= 0
+			|| atol(token[1].c_str()) > 2147483647)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_CLIENT_MAX_BODY_SIZE_VALUE, *line, i);
+			throw (this->_err_msg);
 		}
 		this->_client_max_body_size_flag++;
 		this->_client_max_body_size = atoi(token[1].c_str());
 	}
 	if (token[0] == "index" && !this->_server_parse_done)
 	{
-		//check if the path is valid
 		if (SemicolonCheck(token[1]))
 		{
 			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
@@ -632,8 +673,14 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 			token[1] = token[1].substr(0, token[1].find(";"));
 			token[1] = RemoveSpaceTab(token[1]);
 		}
+		if (!(token[1].find(".html") != std::string::npos
+			&& token[1].find(".html") == token[1].length() - 5)
+			|| token[1].substr(token[1].find(".") + strlen("."), std::string::npos).find(".") != std::string::npos)
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_INDEX_VALUE, *line, i);
+			throw (this->_err_msg);
+		}
 		this->_index_flag++;
-		//this->_index = HttpBlockParse::GetRoot().append("/") + token[1];
 		this->_index = token[1];
 	}
 	if (token[0] == "allow_methods" && !this->_server_parse_done)
@@ -815,7 +862,6 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 	}
 	else if (token[0] == "save_path" && !this->_server_parse_done)
 	{
-		//path check
 		if (SemicolonCheck(token[1]))
 		{
 			if (!(token[2] != "" && token[1].find(";") == std::string::npos && !SemicolonCheck(token[2])))
@@ -828,6 +874,11 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 		{
 			token[1] = token[1].substr(0, token[1].find(";"));
 			token[1] = RemoveSpaceTab(token[1]);
+		}
+		if (!CheckDirectory(HttpBlockParse::GetRoot() + token[1], SAVE_PATH))
+		{
+			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_SAVE_PATH_VALUE, *line, i);
+			throw (this->_err_msg);
 		}
 		this->_save_path_flag++;
 		this->_save_path = HttpBlockParse::GetRoot() + token[1];

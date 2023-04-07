@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 08:52:00 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 15:09:35 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 15:23:08 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ int	ServerManager::closeAndFreeMem()
 
 		delete (*it);
 	}
+	
 	return (0);
 }
 
@@ -106,6 +107,8 @@ void	ServerManager::addToSet(const int i, fd_set &set)
 	FD_SET(i, &set);
 	if (i > this->max_socket_so_far)
 		this->max_socket_so_far = i;
+	else
+		return ;
 }
 
 void    ServerManager::closeConnection(const int i)

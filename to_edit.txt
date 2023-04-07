@@ -1,7 +1,7 @@
 
 //edited html file just to make it prettier
 
-1. we should handle client_max_size error(when it is smaller than contents) with error 413
+fixed_1. we should handle client_max_size error(when it is smaller than contents) with error 413
 		// added 413 error page
 
 2. get strawberry.jpg, banana.jpeg, easyPeelers.jpeg, samplePDF.pdf
@@ -12,3 +12,7 @@
 	when the file is empty it appears 404 error
 		// when i write something inside it it's fine
 
+4. leaks in ServerManager.cpp, line 86
+		// alloced in Server.cpp, line 145
+
+5. error in ServerManager.cpp, line 109

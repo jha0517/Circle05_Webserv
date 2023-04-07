@@ -6,7 +6,7 @@
 /*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/04 23:24:04 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 14:59:15 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 15:23:14 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,12 +118,15 @@ int	Server::startListen(){
 
 int	Server::acceptConnection(ServerManager *servManag){
 	Connection	*c = new Connection();
-    int			addrlen = sizeof(c->clientAddr);
+   	int			addrlen = sizeof(c->clientAddr);
 	int			clientfd;
 
 	clientfd = accept(sockfd, (struct sockaddr*)&c->clientAddr, (socklen_t *)&addrlen);
 	if (clientfd < 0)
+	{
+		delete c;
 		return (-1);
+	}
 	c->serv = this;
 	if (!servManag->connections.count(clientfd))
 	{
