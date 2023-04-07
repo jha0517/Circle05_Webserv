@@ -6,7 +6,7 @@
 /*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 00:07:25 by yhwang            #+#    #+#             */
-/*   Updated: 2023/04/07 18:32:35 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 19:04:05 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -576,7 +576,7 @@ void	ServerBlockParse::ServerBlockGetInfo(std::string *token, std::string *line,
 		}
 		if ((token[1] != "0" && atoi(token[1].c_str()) == 0)
 			|| atoi(token[1].c_str()) <= 0
-			|| atol(token[1].c_str()) > 2147483647)
+			|| atol(token[1].c_str()) > 65535)
 		{
 			this->_err_msg = ErrMsg(this->_config_file_name, SERVER_KWD_LISTEN_VALUE, *line, i);
 			throw (this->_err_msg);

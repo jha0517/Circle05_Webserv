@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 12:13:24 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 20:41:07 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 20:56:40 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -357,7 +357,6 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 		// printData(data);
 		return (data);
 	}
-
 	std::string path = server.findMatchingUri(request->target.generateString());
 	if (path.empty())
 	{
@@ -380,7 +379,14 @@ std::vector<char>	Response::getMethod(Server &server, Request *request, std::siz
 			return (buildErrorResponse(server.error_page, 403));
 	}
 	if (check_filename_get_str(path.c_str()).empty())
-		return (buildErrorResponse(server.error_page, 404));	
+	{
+		if (!CheckPermission(path))
+		{
+			std::cout << RED << "HERE path: " << path << BLACK << std::endl;
+			return (buildErrorResponse(server.error_page, 403));
+		}
+		return (buildErrorResponse(server.error_page, 404));
+	}	
 	data = buildResponse(server, request, path, 200);
 	statusCode = 200;
 	if (data.empty())

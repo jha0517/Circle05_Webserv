@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 14:11:11 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 20:34:41 by hyujung          ###   ########.fr       */
+/*   Updated: 2023/04/07 20:55:47 by yhwang           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 #include <vector>
 # include <fstream>
 # include <iostream>
+#include <cstring>
+#include <sys/types.h>
+#include <dirent.h>
 #include <sys/stat.h>
 
 std::string intToString(int a)
@@ -143,3 +146,40 @@ int isDirectory(const char *path) {
    return S_ISDIR(statbuf.st_mode);
 }
 
+int	CheckPermission(std::string str)
+{
+	DIR			*dir_ptr = NULL;
+	struct dirent		*file = NULL;
+	std::string		token[5] = {"", };
+	std::stringstream	ss(str);
+	int			i = 0;
+	int			flag = 0;
+
+	while (!ss.eof())
+	{
+		getline(ss, token[i], '/');
+		i++;
+	}
+	i--;
+
+	dir_ptr = opendir(token[0].c_str());
+	if (dir_ptr == NULL)
+		return (0);
+
+	while ((file = readdir(dir_ptr)) != NULL)
+	{
+		if (!strncmp(token[i].c_str(), file->d_name, strlen(token[i].c_str())))
+			flag++;
+	}
+	if (flag == 0)
+		return (0);
+	closedir(dir_ptr);
+
+	std::ifstream		file_open_check;
+	file_open_check.open(str.c_str());
+	if (file_open_check.fail())
+		return (1);
+	
+	return (0);
+	
+}

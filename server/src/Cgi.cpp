@@ -189,9 +189,9 @@ bool	Cgi::parsingFileBody(std::vector<char> data, MessageHeaders headers, int ma
 	
 	std::cout << "4\n";
 	//for error 413
-	if (filebody.size() > (long unsigned int)maxClientBodySize * 1000000)
+	if (filebody.size() > (long unsigned int)maxClientBodySize)
 	{
-		std::cout << filebody.size() << " > " << maxClientBodySize * 1000000 << std::endl;
+		std::cout << filebody.size() << " > " << maxClientBodySize << std::endl;
 		*errorCode = 413;
 		return (false);
 	}
