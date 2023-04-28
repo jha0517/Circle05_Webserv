@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yhwang <yhwang@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hyujung <hyujung@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 14:11:11 by hyunah            #+#    #+#             */
-/*   Updated: 2023/04/07 22:02:51 by yhwang           ###   ########.fr       */
+/*   Updated: 2023/04/07 22:47:29 by hyujung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ std::string	check_filename_get_str(const char *filename)
 	ifs.close();
 	if (src.empty())
 	{
-		std::cout << "File is empty!" << std::endl;
+		std::cout << "File is empty!1" << std::endl;
 		return (null);
 	}
 	return (src);
@@ -122,7 +122,7 @@ std::string	check_filename_get_str2(const char *filename, int *code)
 	ifs.close();
 	if (src.empty())
 	{
-		std::cout << "File is empty!" << std::endl;
+		std::cout << "File is empty!2" << std::endl;
 		*code = 1;
 		return (null);
 	}
