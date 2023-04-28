@@ -2,6 +2,8 @@
 
 This repository contains my solution to the Webserv project at 42. The project involves creating a web server that can handle HTTP requests and responses, including parsing and validating headers, handling GET and POST requests, and serving static and dynamic content.
 
+![](image.png)
+
 ### How to use
 
 1. Clone the repository
